@@ -2,14 +2,18 @@
 
 ## Team Members
 
-| Name        | CCID   | GitHub Username |
-| ----------- | ------ | --------------- |
-| [Full Name] | [CCID] | [@username]     |
-| [Full Name] | [CCID] | [@username]     |
-| [Full Name] | [CCID] | [@username]     |
-| [Full Name] | [CCID] | [@username]     |
-| [Full Name] | [CCID] | [@username]     |
-| [Full Name] | [CCID] | [@username]     |
+# CMPUT 301 W25 - Team [Team Name]
+
+## Team Members
+
+| Name                               | CCID    | GitHub Username   |
+| ---------------------------------- | ------- | ----------------- |
+| Saumya Patel                       | snp2    | @snp05016         |
+| Mehak Sahjwani                     | sahjwani| @mehaksahjwani    |
+| Sneha Latha Parasuraman            | snehalat| @snoopyygeek      |
+| Adit Sinha                         | adit4   | @adit-sinha       |
+| Shravan Nayak                      | ssnayak | @Shrav1028        |
+| Junaid Alam Khan                   | junaidal| @junaid574        |
 
 ## Project Description
 
