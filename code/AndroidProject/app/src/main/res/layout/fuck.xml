@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SecondFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#203434">
+
+        <TextView
+            android:id="@+id/welcome_to_"
+            android:layout_width="438dp"
+            android:layout_height="85dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="529dp"
+            android:text="@string/welcome_to_"
+            android:textAppearance="@style/welcome_to_"
+            android:lineSpacingExtra="-13sp"
+            android:gravity="center" />
+        <!-- Font: Comfortaa, Line height: 32sp -->
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="224dp"
+            android:layout_height="56dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="788dp"
+            android:background="@drawable/button"
+            android:text="Click Me"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/share_your_"
+            android:layout_width="343dp"
+            android:layout_height="54dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="632dp"
+            android:text="@string/share_your_"
+            android:textAppearance="@style/share_your_"
+            android:lineSpacingExtra="14sp"
+            android:gravity="center" />
+        <!-- Font: Comfortaa, Line height: 32sp -->
+
+        <RelativeLayout
+            android:id="@+id/social_media"
+            android:layout_width="333dp"
+            android:layout_height="333dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="146dp" />
+
+    </RelativeLayout>
+
+</androidx.core.widget.NestedScrollView>
