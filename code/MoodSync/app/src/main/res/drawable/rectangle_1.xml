@@ -15,8 +15,6 @@
     <path
         android:pathData="M40 1H144C165.539 1 183 18.4609 183 40V122C183 143.539 165.539 161 144 161H40C18.4609 161 1 143.539 1 122V40C1 18.4609 18.4609 1 40 1Z"
         android:strokeWidth="2"
-        android:strokeCap="round"
-        android:strokeJoin="round"
         android:strokeColor="#D0DBEA"
         />
 </vector>
