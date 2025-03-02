@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1C2C28"
+    tools:context=".AddMoodFragment">
+
+
+    <TextView
+        android:id="@+id/cancelButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="36dp"
+        android:text="Cancel"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintMargin="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Trigger Input -->
+
+    <TextView
+        android:id="@+id/stepIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:text="2/2"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.943"
+        app:layout_constraintMargin="16dp"
+        app:layout_constraintStart_toEndOf="@+id/cancelButton"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/triggerLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="52dp"
+        android:text="What was the trigger for this mood?"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintMarginStart="16dp"
+        app:layout_constraintMarginTop="32dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cancelButton" />
+
+
+    <EditText
+        android:id="@+id/triggerInput"
+        android:layout_width="0dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/trigger_text"
+        android:hint="Enter trigger"
+        android:padding="12dp"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintMargin="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/triggerLabel" />
+
+    <TextView
+        android:id="@+id/socialSituationLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Social Situation"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintMarginStart="16dp"
+        app:layout_constraintMarginTop="32dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/triggerInput" />
+
+    <Button
+        android:id="@+id/ss2"
+        android:layout_width="161dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="24dp"
+        android:text="With one other person"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteY="274dp" />
+
+    <Button
+        android:id="@+id/ss4"
+        android:layout_width="161dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="24dp"
+        android:text="With a crowd"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteY="332dp" />
+
+    <Button
+        android:id="@+id/ss1"
+        android:layout_width="161dp"
+        android:layout_height="60dp"
+        android:text="Alone"
+        app:layout_constraintEnd_toStartOf="@+id/ss2"
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="274dp" />
+
+    <Button
+        android:id="@+id/ss3"
+        android:layout_width="161dp"
+        android:layout_height="60dp"
+        android:text="With two to several people"
+        app:layout_constraintEnd_toStartOf="@+id/ss4"
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="332dp" />
+
+    <Button
+        android:id="@+id/createmood"
+        android:layout_width="123dp"
+        android:layout_height="38dp"
+        android:text="Create mood"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.46"
+        app:layout_constraintStart_toEndOf="@+id/backbutton"
+        tools:layout_editor_absoluteY="468dp" />
+
+    <Button
+        android:id="@+id/backbutton"
+        android:layout_width="123dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="48dp"
+        android:text="Back"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="468dp" />
+
+    <!-- Back and Create Mood Buttons -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>
