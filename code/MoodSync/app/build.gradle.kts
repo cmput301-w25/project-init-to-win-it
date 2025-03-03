@@ -36,15 +36,19 @@ android {
 }
 
 dependencies {
+
     implementation(libs.appcompat)
-    implementation(libs.material)  // This line adds the Material Design library
+    implementation(libs.material)  // material design - badass UI elements
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-    implementation(libs.firebase.database)
+    implementation("androidx.recyclerview:recyclerview:1.4.0")  // recycler view for list shit
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-firestore:25.1.1")
+
 }

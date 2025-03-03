@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -126,7 +125,6 @@
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:contentDescription="Like"
                             android:padding="8dp"/>
-
                         <ImageButton
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -156,7 +154,7 @@
         android:id="@+id/bottom_nav_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/windowBackground"
+        android:background="#00203434"
         android:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -177,7 +175,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintHorizontal_weight="1"
-            android:text="Home" />
+            android:text="Home"
+            android:textColor="#FFFFFF"
+            app:iconTint="#FFFFFF"/>
 
         <!-- Map Button -->
         <com.google.android.material.button.MaterialButton
@@ -194,25 +194,29 @@
             app:layout_constraintStart_toEndOf="@+id/home_button"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintHorizontal_weight="1"
-            android:text="Map" />
+            android:text="Map"
+            android:textColor="#FFFFFF"
+            app:iconTint="#FFFFFF"/>
 
         <!-- Add Circle Button (Center FAB) -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+
+        <!-- Saved Button -->
+        <ImageView
             android:id="@+id/add_circle_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            app:srcCompat="@drawable/ic_add_black_24dp"
+            android:layout_marginBottom="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/saved_button"
+            app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toEndOf="@+id/map_button"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintHorizontal_weight="1"
-            app:tint="@android:color/white" />
+            app:layout_constraintVertical_bias="0.0"
+            android:src="@android:drawable/ic_input_add"
+            android:tint="@android:color/white" />
 
-        <!-- Saved Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/saved_button"
             style="?attr/borderlessButtonStyle"
@@ -227,11 +231,13 @@
             app:layout_constraintStart_toEndOf="@+id/add_circle_button"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintHorizontal_weight="1"
-            android:text="Saved" />
+            android:text="Saved"
+            android:textColor="#FFFFFF"
+            app:iconTint="#FFFFFF"/>
 
         <!-- Updates Button -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/updates_button"
+            android:id="@+id/history_button"
             style="?attr/borderlessButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -244,7 +250,9 @@
             app:layout_constraintStart_toEndOf="@+id/saved_button"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintHorizontal_weight="1"
-            android:text="Updates" />
+            android:text="History"
+            android:textColor="#FFFFFF"
+            app:iconTint="#FFFFFF"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
