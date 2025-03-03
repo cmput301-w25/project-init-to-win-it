@@ -62,6 +62,19 @@
     <string name="cancel">
         Cancel
     </string>
+    <string name="some_id">
+        hey
+    </string>
+    <string-array name="spinner_items">
+        <item>Happy</item>
+        <item>Sad</item>
+        <item>Angry</item>
+        <item>Confused</item>
+        <item>Surprised</item>
+        <item>Ashamed</item>
+        <item>Disgusted</item>
+        <item>Scared</item>
+    </string-array>
 
 
 </resources>
