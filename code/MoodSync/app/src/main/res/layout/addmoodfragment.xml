@@ -39,7 +39,7 @@
             android:entries="@array/spinner_items"/>
 
 
-        <TextView
+        <Button
             android:id="@+id/cancel"
             android:layout_width="129dp"
             android:layout_height="18dp"
@@ -56,10 +56,10 @@
             android:layout_height="20dp"
             android:layout_marginStart="42dp"
             android:layout_marginTop="335dp"
-            android:text="@string/pick_your_m"
-            android:textAppearance="@style/pick_your_m"
+            android:gravity="top"
             android:lineSpacingExtra="-5sp"
-            android:gravity="top" />
+            android:text="@string/pick_your_m"
+            android:textAppearance="@style/pick_your_m" />
 
         <TextView
             android:id="@+id/pick_emoticon"
@@ -144,9 +144,9 @@
             android:layout_height="28dp"
             android:layout_marginStart="36dp"
             android:layout_marginTop="558dp"
+            android:gravity="top"
             android:text="@string/add_your_de"
-            android:textAppearance="@style/add_your_de"
-            android:gravity="top" />
+            android:textAppearance="@style/add_your_de" />
 
         <EditText
             android:id="@+id/edit_description"
@@ -154,7 +154,7 @@
             android:layout_height="150dp"
             android:layout_below="@id/add_desc"
             android:layout_marginStart="36dp"
-            android:layout_marginTop="-5dp"
+            android:layout_marginTop="-25dp"
             android:layout_marginEnd="36dp"
             android:layout_marginBottom="20dp"
             android:background="@drawable/button"
@@ -229,8 +229,8 @@
             android:textAppearance="@style/up_to_12_mb" />
 
 
-        <TextView
-            android:id="@+id/some_id"
+        <Button
+            android:id="@+id/next"
             android:layout_width="35dp"
             android:layout_height="27dp"
             android:layout_marginStart="210dp"
@@ -249,49 +249,49 @@
             android:layout_marginStart="252dp"
             android:layout_marginTop="778dp" />
 
-<!--        <RelativeLayout-->
-<!--            android:id="@+id/frame_2"-->
-<!--            android:layout_width="64dp"-->
-<!--            android:layout_height="64dp"-->
-<!--            android:layout_marginStart="12dp"-->
-<!--            android:layout_marginTop="461dp" />-->
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/frame_2"-->
+        <!--            android:layout_width="64dp"-->
+        <!--            android:layout_height="64dp"-->
+        <!--            android:layout_marginStart="12dp"-->
+        <!--            android:layout_marginTop="461dp" />-->
 
-<!--        <RelativeLayout-->
-<!--            android:id="@+id/frame_3"-->
-<!--            android:layout_width="64dp"-->
-<!--            android:layout_height="64dp"-->
-<!--            android:layout_marginStart="93dp"-->
-<!--            android:layout_marginTop="461dp" />-->
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/frame_3"-->
+        <!--            android:layout_width="64dp"-->
+        <!--            android:layout_height="64dp"-->
+        <!--            android:layout_marginStart="93dp"-->
+        <!--            android:layout_marginTop="461dp" />-->
 
-<!--        <RelativeLayout-->
-<!--            android:id="@+id/frame_4"-->
-<!--            android:layout_width="64dp"-->
-<!--            android:layout_height="64dp"-->
-<!--            android:layout_marginStart="174dp"-->
-<!--            android:layout_marginTop="459dp" >-->
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/frame_4"-->
+        <!--            android:layout_width="64dp"-->
+        <!--            android:layout_height="64dp"-->
+        <!--            android:layout_marginStart="174dp"-->
+        <!--            android:layout_marginTop="459dp" >-->
 
-<!--        </RelativeLayout>-->
+        <!--        </RelativeLayout>-->
 
-<!--        <RelativeLayout-->
-<!--            android:id="@+id/frame_5"-->
-<!--            android:layout_width="64dp"-->
-<!--            android:layout_height="64dp"-->
-<!--            android:layout_marginStart="255dp"-->
-<!--            android:layout_marginTop="456dp" />-->
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/frame_5"-->
+        <!--            android:layout_width="64dp"-->
+        <!--            android:layout_height="64dp"-->
+        <!--            android:layout_marginStart="255dp"-->
+        <!--            android:layout_marginTop="456dp" />-->
 
-<!--        <RelativeLayout-->
-<!--            android:id="@+id/material_sy"-->
-<!--            android:layout_width="25.86dp"-->
-<!--            android:layout_height="23.15dp"-->
-<!--            android:layout_marginStart="426.99dp"-->
-<!--            android:layout_marginTop="506.15dp"-->
-<!--            android:clipToOutline="true" />-->
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/material_sy"-->
+        <!--            android:layout_width="25.86dp"-->
+        <!--            android:layout_height="23.15dp"-->
+        <!--            android:layout_marginStart="426.99dp"-->
+        <!--            android:layout_marginTop="506.15dp"-->
+        <!--            android:clipToOutline="true" />-->
 
-<!--        <RelativeLayout-->
-<!--            android:id="@+id/frame_6"-->
-<!--            android:layout_width="64dp"-->
-<!--            android:layout_height="64dp"-->
-<!--            android:layout_marginStart="334dp"-->
-<!--            android:layout_marginTop="460dp" />-->
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/frame_6"-->
+        <!--            android:layout_width="64dp"-->
+        <!--            android:layout_height="64dp"-->
+        <!--            android:layout_marginStart="334dp"-->
+        <!--            android:layout_marginTop="460dp" />-->
     </RelativeLayout>
 </androidx.core.widget.NestedScrollView>

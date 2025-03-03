@@ -62,6 +62,9 @@
     <string name="cancel">
         Cancel
     </string>
+    <string name="some_id">
+        hey
+    </string>
     <string-array name="spinner_items">
         <item>Happy</item>
         <item>Sad</item>
