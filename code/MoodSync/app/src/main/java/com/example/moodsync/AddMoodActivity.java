@@ -1,19 +1,22 @@
 package com.example.moodsync;
 
-import android.app.AlertDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.moodsync.databinding.AddmoodfragmentBinding;
 import com.example.moodsync.databinding.Addmoodfragment2Binding;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class AddMoodActivity extends Fragment {
     private AddmoodfragmentBinding binding1;
@@ -71,7 +74,7 @@ public class AddMoodActivity extends Fragment {
     }
 
     private void showSuccessDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded);
 
         // Inflate the custom layout
         View customView = getLayoutInflater().inflate(R.layout.custom_success_dialog, null);
@@ -86,11 +89,14 @@ public class AddMoodActivity extends Fragment {
                     }, 2000);
                 });
 
+        // Create and show the dialog
         AlertDialog dialog = builder.create();
-        dialog.getWindow().getAttributes().windowAnimations = R.style.PopupDialogAnimation;
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveButton.setTextColor(Color.WHITE);
+        });
         dialog.show();
     }
-
 
     @Override
     public void onDestroyView() {
