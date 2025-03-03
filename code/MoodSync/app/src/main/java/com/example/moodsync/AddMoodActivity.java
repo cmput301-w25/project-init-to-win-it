@@ -4,12 +4,17 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
@@ -17,17 +22,25 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.moodsync.databinding.AddmoodfragmentBinding;
 import com.example.moodsync.databinding.Addmoodfragment2Binding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.UUID;
 
 public class AddMoodActivity extends Fragment {
     private AddmoodfragmentBinding binding1;
     private Addmoodfragment2Binding binding2;
     private boolean isSecondLayout = false;
 
+    // Firebase Database reference
+    private DatabaseReference database;
+
+    // Data to be passed between fragments
+    private String moodDescription;
+    private String moodIntensity;
+
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
-    ) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (getArguments() != null && getArguments().getBoolean("isSecondLayout", false)) {
             isSecondLayout = true;
             binding2 = Addmoodfragment2Binding.inflate(inflater, container, false);
@@ -39,10 +52,16 @@ public class AddMoodActivity extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        database = FirebaseDatabase.getInstance().getReference("mood_events");
+
         if (isSecondLayout) {
+            if (getArguments() != null) {
+                moodDescription = getArguments().getString("description", "");
+                moodIntensity = getArguments().getString("intensity", "");
+            }
             setupSecondLayout();
         } else {
             setupFirstLayout();
@@ -50,33 +69,56 @@ public class AddMoodActivity extends Fragment {
     }
 
     private void setupFirstLayout() {
-        // set click listener for the cancel button to go back to SecondFragment
+        // Get UI elements from binding
+        EditText moodDescriptionInput = binding1.editDescription;
+        Spinner moodIntensitySpinner = binding1.mainCard;
+
         binding1.cancel.setOnClickListener(v ->
-                NavHostFragment.findNavController(AddMoodActivity.this)
+                NavHostFragment.findNavController(this)
                         .navigate(R.id.action_addMoodActivityFragment_to_SecondFragment));
 
-        // set click listener for the next button to go to addmoodfragment2
         binding1.next.setOnClickListener(v -> {
+            // Get values from user input
+            String description = moodDescriptionInput.getText().toString();
+            String intensity = moodIntensitySpinner.getSelectedItem().toString();
+
+            // Pass data to second fragment
             Bundle args = new Bundle();
             args.putBoolean("isSecondLayout", true);
-            NavHostFragment.findNavController(AddMoodActivity.this)
+            args.putString("description", description);
+            args.putString("intensity", intensity);
+
+            NavHostFragment.findNavController(this)
                     .navigate(R.id.action_addMoodActivityFragment_to_addMoodActivityFragment2, args);
         });
     }
 
     private void setupSecondLayout() {
-        // Setup listeners for the second layout
         binding2.backbutton.setOnClickListener(v ->
-                NavHostFragment.findNavController(AddMoodActivity.this)
-                        .navigateUp());
+                NavHostFragment.findNavController(this).navigateUp());
 
-        binding2.createmood.setOnClickListener(v -> showSuccessDialog());
+        binding2.createmood.setOnClickListener(v -> {
+            // Send the mood event to Firebase
+            MoodEvent moodEvent = new MoodEvent(moodIntensity, moodDescription);
+            addMoodEventToFirebase(moodEvent);
+        });
+    }
+
+    private void addMoodEventToFirebase(MoodEvent moodEvent) {
+        String uniqueID = UUID.randomUUID().toString();
+
+        database.child(uniqueID).setValue(moodEvent)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        showSuccessDialog();
+                    } else {
+                        Toast.makeText(getContext(), "Failed to create mood event.", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void showSuccessDialog() {
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded);
-
-        // Inflate the custom layout
         View customView = getLayoutInflater().inflate(R.layout.custom_success_dialog, null);
 
         builder.setView(customView)
@@ -84,12 +126,11 @@ public class AddMoodActivity extends Fragment {
                 .setPositiveButton("OK", (dialog, which) -> {
                     dialog.dismiss();
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        NavHostFragment.findNavController(AddMoodActivity.this)
+                        NavHostFragment.findNavController(this)
                                 .navigate(R.id.action_addMoodActivityFragment2_to_SecondFragment);
                     }, 2000);
                 });
 
-        // Create and show the dialog
         AlertDialog dialog = builder.create();
         dialog.setOnShowListener(dialogInterface -> {
             Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);

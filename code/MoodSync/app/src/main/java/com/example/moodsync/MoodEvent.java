@@ -1,7 +1,9 @@
+package com.example.moodsync;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
-public class MoodEvent {
+public class MoodEvent implements Serializable {
     private UUID id;
     private String mood;
     private Date date;
@@ -9,16 +11,44 @@ public class MoodEvent {
     private String location;
     private String socialSituation;
     private String photoPath;
+    private String trigger;
+
+    public String getIntensity() {
+        return intensity;
+    }
+
+    public void setIntensity(String intensity) {
+        this.intensity = intensity;
+    }
+
+    public String getTrigger() {
+        return trigger;
+    }
+
+    public void setTrigger(String trigger) {
+        this.trigger = trigger;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    private String intensity;
+
 
     // Default constructor
-    public MoodEvent() {
+    public MoodEvent(String intensity, String description) {
         this.id = UUID.randomUUID();
         this.date = new Date();
+        this.intensity = intensity;
+        this.description = description;
+        this.trigger = trigger;
+
     }
 
     // Parameterized constructor
     public MoodEvent(String mood, String description, String location, String socialSituation, String photoPath) {
-        this();  // Call default constructor to set id and date
+        //this(intensity, description, trigger);
         this.mood = mood;
         this.description = description;
         this.location = location;
