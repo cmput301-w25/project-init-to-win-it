@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("com.android.application")
     id("com.google.gms.google-services")
 }
 
@@ -37,16 +36,15 @@ android {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
-    implementation(libs.material)
+    implementation(libs.material)  // This line adds the Material Design library
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.firebase.database)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
     implementation("com.google.firebase:firebase-analytics")
-
 }
