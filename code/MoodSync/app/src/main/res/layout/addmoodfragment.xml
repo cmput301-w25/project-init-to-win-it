@@ -18,42 +18,51 @@
             android:layout_width="182dp"
             android:layout_height="160dp"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="236dp"
+            android:layout_marginStart="214dp"
             android:layout_marginTop="126dp"
             android:background="@drawable/rectangle_1" />
 
-        <View
+        <Spinner
             android:id="@+id/main_card"
             android:layout_width="368dp"
             android:layout_height="50dp"
             android:layout_alignParentStart="true"
             android:layout_marginStart="33dp"
-            android:layout_marginTop="359dp" />
+            android:layout_marginTop="359dp"
+            android:popupBackground="@android:color/white"
+            android:dropDownWidth="368dp"
+            android:spinnerMode="dropdown"
+            android:gravity="center"
+            android:background="@drawable/button"
+            android:outlineProvider="background"
+            android:clipToOutline="true"
+            android:entries="@array/spinner_items"/>
 
-        <TextView
+
+        <Button
             android:id="@+id/cancel"
             android:layout_width="129dp"
             android:layout_height="18dp"
             android:layout_marginStart="23dp"
             android:layout_marginTop="53dp"
-            android:text="@string/cancel"
-            android:textAppearance="@style/cancel"
+            android:gravity="top"
             android:lineSpacingExtra="-4sp"
-            android:gravity="top" />
+            android:text="@string/cancel"
+            android:textAppearance="@style/cancel" />
 
         <TextView
-            android:id="@+id/pick_your_m"
+            android:id="@+id/pick_mood"
             android:layout_width="120dp"
-            android:layout_height="14dp"
+            android:layout_height="20dp"
             android:layout_marginStart="42dp"
             android:layout_marginTop="335dp"
-            android:text="@string/pick_your_m"
-            android:textAppearance="@style/pick_your_m"
+            android:gravity="top"
             android:lineSpacingExtra="-5sp"
-            android:gravity="top" />
+            android:text="@string/pick_your_m"
+            android:textAppearance="@style/pick_your_m" />
 
         <TextView
-            android:id="@+id/pick_your_e"
+            android:id="@+id/pick_emoticon"
             android:layout_width="149dp"
             android:layout_height="27dp"
             android:layout_marginStart="41dp"
@@ -63,63 +72,175 @@
             android:lineSpacingExtra="-5sp"
             android:gravity="top" />
 
+        <HorizontalScrollView
+            android:id="@+id/horizontal_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@id/pick_mood"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="101dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="55dp"
+                    android:layout_height="130dp"
+                    android:layout_marginEnd="19dp"
+                    android:src="@drawable/happy" />
+
+                <ImageView
+                    android:layout_width="55dp"
+                    android:layout_height="130dp"
+                    android:layout_marginEnd="19dp"
+                    android:src="@drawable/sad" />
+
+                <ImageView
+                    android:layout_width="55dp"
+                    android:layout_height="130dp"
+                    android:layout_marginEnd="19dp"
+                    android:src="@drawable/angry" />
+
+                <ImageView
+                    android:layout_width="55dp"
+                    android:layout_height="130dp"
+                    android:layout_marginEnd="19dp"
+                    android:src="@drawable/confused" />
+
+                <ImageView
+                    android:layout_width="55dp"
+                    android:layout_height="130dp"
+                    android:layout_marginEnd="19dp"
+                    android:src="@drawable/surprised" />
+
+                <ImageView
+                    android:layout_width="55dp"
+                    android:layout_height="130dp"
+                    android:layout_marginEnd="19dp"
+                    android:src="@drawable/ashamed" />
+
+                <ImageView
+                    android:layout_width="55dp"
+                    android:layout_height="130dp"
+                    android:layout_marginEnd="19dp"
+                    android:src="@drawable/scared" />
+
+                <ImageView
+                    android:layout_width="55dp"
+                    android:layout_height="130dp"
+                    android:layout_marginEnd="19dp"
+                    android:src="@drawable/disgusted" />
+
+
+            </LinearLayout>
+        </HorizontalScrollView>
+
         <TextView
-            android:id="@+id/add_your_de"
+            android:id="@+id/add_desc"
             android:layout_width="164dp"
             android:layout_height="28dp"
             android:layout_marginStart="36dp"
             android:layout_marginTop="558dp"
+            android:gravity="top"
             android:text="@string/add_your_de"
-            android:textAppearance="@style/add_your_de"
-            android:lineSpacingExtra="-5sp"
-            android:gravity="top" />
+            android:textAppearance="@style/add_your_de" />
+
+        <EditText
+            android:id="@+id/edit_description"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_below="@id/add_desc"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="-25dp"
+            android:layout_marginEnd="36dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/button"
+            android:hint="Enter your description here"
+            android:padding="16dp"
+            android:textColor="#000000"
+            android:textSize="16sp" />
+
+        <View
+            android:id="@+id/rectangle_2"
+            android:layout_width="182dp"
+            android:layout_height="160dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="126dp"
+            android:background="@drawable/rectangle_1" />
+
+        <ImageView
+            android:id="@+id/photos"
+            android:layout_width="49dp"
+            android:layout_height="42dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="79dp"
+            android:layout_marginTop="176dp"
+            android:src="@drawable/photos" />
 
         <TextView
-            android:id="@+id/add_from_ph"
+            android:id="@+id/add_photos"
             android:layout_width="138dp"
             android:layout_height="25dp"
-            android:layout_marginStart="56dp"
+            android:layout_marginStart="35dp"
             android:layout_marginTop="223dp"
-            android:text="@string/add_from_ph"
-            android:textAppearance="@style/add_from_ph"
+            android:gravity="center_horizontal|top"
             android:lineSpacingExtra="8sp"
-            android:translationY="-4.14sp"
-            android:gravity="center_horizontal|top" />
+            android:text="Add from Photos"
+            android:textAppearance="@style/add_from_ph" />
+
+        " />
+
+        <ImageView
+            android:id="@+id/camera"
+            android:layout_width="49dp"
+            android:layout_height="42dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="280dp"
+            android:layout_marginTop="176dp"
+            android:src="@drawable/camera" />
 
         <TextView
-            android:id="@+id/add_from_ca"
+            android:id="@+id/add_camera"
             android:layout_width="145dp"
             android:layout_height="25dp"
-            android:layout_marginStart="258dp"
+            android:layout_marginStart="230dp"
             android:layout_marginTop="223dp"
-            android:text="@string/add_from_ca"
-            android:textAppearance="@style/add_from_ca"
+            android:gravity="center_horizontal|top"
             android:lineSpacingExtra="8sp"
-            android:translationY="-4.14sp"
-            android:gravity="center_horizontal|top" />
+            android:text="Add from Camera"
+            android:textAppearance="@style/add_from_ca" />
 
         <TextView
-            android:id="@+id/up_to_12_mb"
+            android:id="@+id/upto_12mb"
             android:layout_width="85dp"
-            android:layout_height="13dp"
-            android:layout_marginStart="79dp"
+            android:layout_height="16dp"
+            android:layout_alignBottom="@+id/rectangle_2"
+            android:layout_marginStart="60dp"
             android:layout_marginTop="248dp"
-            android:text="@string/up_to_12_mb"
-            android:textAppearance="@style/up_to_12_mb"
+            android:layout_marginBottom="25dp"
             android:gravity="center_horizontal|top"
-            android:alpha="0.7" />
+            android:text="up to 12 mb"
+            android:textAppearance="@style/up_to_12_mb" />
+
 
         <TextView
             android:id="@+id/some_id"
-            android:layout_width="26dp"
+            android:layout_width="35dp"
             android:layout_height="27dp"
-            android:layout_marginStart="385dp"
+            android:layout_marginStart="210dp"
             android:layout_marginTop="49dp"
+            android:layout_toEndOf="@+id/cancel"
+            android:gravity="center_horizontal|top"
+            android:lineSpacingExtra="8sp"
             android:text="@string/some_id"
             android:textAppearance="@style/some_id"
-            android:lineSpacingExtra="8sp"
-            android:translationY="-4.02sp"
-            android:gravity="center_horizontal|top" />
+            android:translationY="-4.02sp" />
 
         <RelativeLayout
             android:id="@+id/secondary_d"
@@ -128,47 +249,49 @@
             android:layout_marginStart="252dp"
             android:layout_marginTop="778dp" />
 
-        <RelativeLayout
-            android:id="@+id/frame_2"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="461dp" />
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/frame_2"-->
+        <!--            android:layout_width="64dp"-->
+        <!--            android:layout_height="64dp"-->
+        <!--            android:layout_marginStart="12dp"-->
+        <!--            android:layout_marginTop="461dp" />-->
 
-        <RelativeLayout
-            android:id="@+id/frame_3"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_marginStart="93dp"
-            android:layout_marginTop="461dp" />
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/frame_3"-->
+        <!--            android:layout_width="64dp"-->
+        <!--            android:layout_height="64dp"-->
+        <!--            android:layout_marginStart="93dp"-->
+        <!--            android:layout_marginTop="461dp" />-->
 
-        <RelativeLayout
-            android:id="@+id/frame_4"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_marginStart="174dp"
-            android:layout_marginTop="459dp" />
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/frame_4"-->
+        <!--            android:layout_width="64dp"-->
+        <!--            android:layout_height="64dp"-->
+        <!--            android:layout_marginStart="174dp"-->
+        <!--            android:layout_marginTop="459dp" >-->
 
-        <RelativeLayout
-            android:id="@+id/frame_5"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_marginStart="255dp"
-            android:layout_marginTop="456dp" />
+        <!--        </RelativeLayout>-->
 
-        <RelativeLayout
-            android:id="@+id/material_sy"
-            android:layout_width="25.86dp"
-            android:layout_height="23.15dp"
-            android:layout_marginStart="426.99dp"
-            android:layout_marginTop="506.15dp"
-            android:clipToOutline="true" />
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/frame_5"-->
+        <!--            android:layout_width="64dp"-->
+        <!--            android:layout_height="64dp"-->
+        <!--            android:layout_marginStart="255dp"-->
+        <!--            android:layout_marginTop="456dp" />-->
 
-        <RelativeLayout
-            android:id="@+id/frame_6"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_marginStart="334dp"
-            android:layout_marginTop="460dp" />
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/material_sy"-->
+        <!--            android:layout_width="25.86dp"-->
+        <!--            android:layout_height="23.15dp"-->
+        <!--            android:layout_marginStart="426.99dp"-->
+        <!--            android:layout_marginTop="506.15dp"-->
+        <!--            android:clipToOutline="true" />-->
+
+        <!--        <RelativeLayout-->
+        <!--            android:id="@+id/frame_6"-->
+        <!--            android:layout_width="64dp"-->
+        <!--            android:layout_height="64dp"-->
+        <!--            android:layout_marginStart="334dp"-->
+        <!--            android:layout_marginTop="460dp" />-->
     </RelativeLayout>
 </androidx.core.widget.NestedScrollView>

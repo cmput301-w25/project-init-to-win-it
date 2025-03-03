@@ -9,30 +9,29 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.moodsync.databinding.FragmentSecondBinding;
+import com.example.moodsync.databinding.AddmoodfragmentBinding;
+import com.example.moodsync.databinding.FragmentFirstBinding;
 
-public class SecondFragment extends Fragment {
-
-    private FragmentSecondBinding binding;
+public class AddMoodActivity extends Fragment {
+    private AddmoodfragmentBinding binding;
 
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
+            Bundle savedInstanceState 
     ) {
-
-        binding = FragmentSecondBinding.inflate(inflater, container, false);
+        binding = AddmoodfragmentBinding.inflate(inflater, container, false);
         return binding.getRoot();
-
     }
 
+    @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.addCircleButton.setOnClickListener(v ->
-                NavHostFragment.findNavController(SecondFragment.this)
-                        .navigate(R.id.action_SecondFragment_to_addMoodActivityFragment)
-        );
+        // set click listener for the button to go back to SecondFragment
+        binding.cancel.setOnClickListener(v ->
+                NavHostFragment.findNavController(AddMoodActivity.this)
+                        .navigate(R.id.action_addMoodActivityFragment_to_SecondFragment));
     }
 
     @Override
@@ -40,5 +39,4 @@ public class SecondFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
 }
