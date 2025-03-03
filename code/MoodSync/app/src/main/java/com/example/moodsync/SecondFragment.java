@@ -9,21 +9,19 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.moodsync.databinding.FragmentSecondBinding;
+import com.example.moodsync.databinding.HomePageFragmentBinding;
 
 public class SecondFragment extends Fragment {
 
-    private FragmentSecondBinding binding;
+    private HomePageFragmentBinding binding;
 
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
-
-        binding = FragmentSecondBinding.inflate(inflater, container, false);
+        binding = HomePageFragmentBinding.inflate(inflater, container, false);
         return binding.getRoot();
-
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
@@ -33,6 +31,12 @@ public class SecondFragment extends Fragment {
                 NavHostFragment.findNavController(SecondFragment.this)
                         .navigate(R.id.action_SecondFragment_to_addMoodActivityFragment)
         );
+
+        // Correct the navigation action for the history button
+        binding.historyButton.setOnClickListener(v ->
+                NavHostFragment.findNavController(SecondFragment.this)
+                        .navigate(R.id.action_SecondFragment_to_moodHistoryFragment)
+        );
     }
 
     @Override
@@ -40,5 +44,5 @@ public class SecondFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
 }
+
