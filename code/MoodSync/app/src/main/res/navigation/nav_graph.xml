@@ -14,22 +14,12 @@
             android:id="@+id/action_FirstFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/SecondFragment"
         android:name="com.example.moodsync.SecondFragment"
         android:label="@string/second_fragment_label"
         tools:layout="@layout/styles">
-
-        <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/SecondFragment"
-        android:name="com.example.moodsync.SecondFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/styles">
-
         <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
@@ -45,6 +35,19 @@
         tools:layout="@layout/addmoodfragment">
         <action
             android:id="@+id/action_addMoodActivityFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_addMoodActivityFragment_to_addMoodActivityFragment2"
+            app:destination="@id/addMoodActivityFragment2" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addMoodActivityFragment2"
+        android:name="com.example.moodsync.AddMoodActivity"
+        android:label="Add Mood 2"
+        tools:layout="@layout/addmoodfragment2">
+        <action
+            android:id="@+id/action_addMoodActivityFragment2_to_SecondFragment"
             app:destination="@id/SecondFragment" />
     </fragment>
 

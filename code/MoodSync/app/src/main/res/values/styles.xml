@@ -74,4 +74,9 @@
         <item name="cornerSizeBottomRight">16dp</item>
         <item name="cornerSizeBottomLeft">16dp</item>
     </style>
+    <style name="PopupDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/dialog_pop_in</item>
+        <item name="android:windowExitAnimation">@anim/dialog_pop_out</item>
+    </style>
+
 </resources>

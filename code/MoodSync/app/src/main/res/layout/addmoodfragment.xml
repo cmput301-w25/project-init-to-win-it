@@ -229,8 +229,8 @@
             android:textAppearance="@style/up_to_12_mb" />
 
 
-        <TextView
-            android:id="@+id/some_id"
+        <Button
+            android:id="@+id/next"
             android:layout_width="35dp"
             android:layout_height="27dp"
             android:layout_marginStart="210dp"
