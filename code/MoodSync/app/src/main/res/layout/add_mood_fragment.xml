@@ -13,19 +13,38 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!--        <View-->
+        <!--            android:id="@+id/rectangle_1"-->
+        <!--            android:layout_width="182dp"-->
+        <!--            android:layout_height="160dp"-->
+        <!--            android:layout_alignParentStart="true"-->
+        <!--            android:layout_marginStart="214dp"-->
+        <!--            android:layout_marginTop="126dp"-->
+        <!--            android:background="@drawable/rectangle_1" />-->
 
+        <TextView
+            android:id="@+id/stepIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="330dp"
+            android:layout_marginTop="28dp"
+            android:padding="8dp"
+            android:text="1/2"
+            android:textAppearance="@style/cancel"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <Spinner
             android:id="@+id/main_card"
-            android:layout_width="348dp"
-            android:layout_height="wrap_content"
+            android:layout_width="332dp"
+            android:layout_height="51dp"
             android:layout_below="@+id/rectangle_2"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="28dp"
-            android:layout_marginTop="60dp"
+            android:layout_marginStart="44dp"
+            android:layout_marginTop="55dp"
             android:layout_marginEnd="35dp"
-            android:background="@drawable/button"
+            android:background="@drawable/newfrosted"
             android:clipToOutline="true"
             android:dropDownWidth="368dp"
             android:entries="@array/spinner_items"
@@ -39,7 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="23dp"
-            android:layout_marginTop="43dp"
+            android:layout_marginTop="25dp"
             android:background="@android:color/transparent"
             android:gravity="top"
             android:lineSpacingExtra="-4sp"
@@ -48,38 +67,43 @@
             android:paddingEnd="16dp"
             android:paddingBottom="8dp"
             android:text="@string/cancel"
+            android:textSize="18sp"
+            android:textStyle="bold"
             android:textAllCaps="false"
             android:textAppearance="@style/cancel"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp" />
+            android:textColor="#FFFFFF" />
 
         <TextView
             android:id="@+id/pick_mood"
-            android:layout_width="120dp"
-            android:layout_height="20dp"
+            android:layout_width="182dp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/rectangle_2"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="29dp"
-            android:layout_marginTop="25dp"
-            android:layout_marginEnd="262dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="200dp"
             android:gravity="top"
             android:lineSpacingExtra="-5sp"
             android:text="@string/pick_your_m"
-            android:textAppearance="@style/pick_your_m" />
+            android:textAppearance="@style/pick_your_m"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/pick_emoticon"
-            android:layout_width="149dp"
-            android:layout_height="27dp"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/main_card"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="33dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginStart="27dp"
+            android:layout_marginTop="31dp"
             android:gravity="top"
             android:lineSpacingExtra="-5sp"
             android:text="@string/pick_your_e"
-            android:textAppearance="@style/pick_your_e" />
+            android:textAppearance="@style/pick_your_e"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <HorizontalScrollView
             android:id="@+id/horizontal_spinner"
@@ -169,96 +193,134 @@
             </LinearLayout>
         </HorizontalScrollView>
 
+        <!--        <ImageView-->
+        <!--            android:id="@+id/camera"-->
+        <!--            android:layout_width="49dp"-->
+        <!--            android:layout_height="42dp"-->
+        <!--            android:layout_alignParentStart="true"-->
+        <!--            android:layout_alignParentTop="true"-->
+        <!--            android:layout_marginStart="280dp"-->
+        <!--            android:layout_marginTop="176dp"-->
+        <!--            android:src="@drawable/camera" />-->
+
+        <!--        <TextView-->
+        <!--            android:id="@+id/add_camera"-->
+        <!--            android:layout_width="145dp"-->
+        <!--            android:layout_height="25dp"-->
+        <!--            android:layout_marginStart="230dp"-->
+        <!--            android:layout_marginTop="223dp"-->
+        <!--            android:gravity="center_horizontal|top"-->
+        <!--            android:lineSpacingExtra="8sp"-->
+        <!--            android:text="Add from Camera"-->
+        <!--            android:textAppearance="@style/add_from_ca" />-->
+
         <TextView
             android:id="@+id/add_desc"
-            android:layout_width="164dp"
-            android:layout_height="28dp"
+            android:layout_width="230dp"
+            android:layout_height="31dp"
             android:layout_below="@+id/horizontal_spinner"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="36dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="211dp"
+            android:layout_marginTop="38dp"
+            android:layout_marginEnd="187dp"
             android:gravity="top"
             android:text="@string/add_your_de"
-            android:textAppearance="@style/add_your_de" />
+            android:textAppearance="@style/add_your_de"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/edit_description"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="120dp"
             android:layout_below="@id/add_desc"
             android:layout_marginStart="36dp"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="21dp"
             android:layout_marginEnd="36dp"
             android:layout_marginBottom="20dp"
-            android:background="@drawable/button"
+            android:background="@drawable/newfrosted"
             android:hint="Enter your description here"
             android:padding="16dp"
             android:textColor="#000000"
-            android:textSize="16sp" />
-
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <View
             android:id="@+id/rectangle_2"
-            android:layout_width="349dp"
-            android:layout_height="166dp"
+            android:layout_width="306dp"
+            android:layout_height="163dp"
             android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="29dp"
-            android:layout_marginTop="126dp"
-            android:layout_marginEnd="33dp"
-            android:background="@drawable/rectangle_1" />
+            android:layout_marginStart="59dp"
+            android:layout_marginTop="80dp"
+            android:background="@drawable/rectangle_2" />
 
         <ImageView
             android:id="@+id/photos"
-            android:layout_width="49dp"
-            android:layout_height="42dp"
+            android:layout_width="61dp"
+            android:layout_height="50dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="176dp"
-            android:layout_marginTop="168dp"
+            android:layout_marginStart="181dp"
+            android:layout_marginTop="110dp"
             android:src="@drawable/photos" />
 
         <TextView
             android:id="@+id/add_photos"
-            android:layout_width="138dp"
+            android:layout_width="170dp"
             android:layout_height="25dp"
-            android:layout_alignEnd="@+id/rectangle_2"
-            android:layout_marginStart="35dp"
-            android:layout_marginTop="223dp"
-            android:layout_marginEnd="116dp"
+            android:layout_marginStart="125dp"
+            android:layout_marginTop="170dp"
             android:gravity="center_horizontal|top"
             android:lineSpacingExtra="8sp"
+            android:textSize="18sp"
             android:text="Add from Photos"
             android:textAppearance="@style/add_from_ph" />
 
         <TextView
             android:id="@+id/upto_12mb"
-            android:layout_width="85dp"
-            android:layout_height="16dp"
+            android:layout_width="138dp"
+            android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/rectangle_2"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="60dp"
+            android:layout_marginStart="140dp"
             android:layout_marginTop="248dp"
-            android:layout_marginEnd="166dp"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="21dp"
             android:gravity="center_horizontal|top"
-            android:text="up to 12 mb"
-            android:textAppearance="@style/up_to_12_mb" />
+            android:text="up to 12mb"
+            android:textAppearance="@style/up_to_12_mb"
+            android:textSize="18sp" />
+
+        <!--        <Button-->
+        <!--            android:id="@+id/next"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_marginStart="191dp"-->
+        <!--            android:layout_marginTop="49dp"-->
+        <!--            android:layout_toEndOf="@+id/cancel"-->
+        <!--            android:background="@android:color/transparent"-->
+        <!--            android:gravity="center_horizontal|top"-->
+        <!--            android:lineSpacingExtra="8sp"-->
+        <!--            android:text="Next"-->
+        <!--            android:textSize="18sp"-->
+        <!--            android:textStyle="bold"-->
+        <!--            android:textAppearance="@style/some_id"-->
+        <!--            android:translationY="-4.02sp" />-->
 
         <Button
             android:id="@+id/next"
-            android:layout_width="wrap_content"
+            android:layout_width="177dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="191dp"
-            android:layout_marginTop="49dp"
-            android:layout_toEndOf="@+id/cancel"
-            android:background="@android:color/transparent"
-            android:gravity="center_horizontal|top"
-            android:lineSpacingExtra="8sp"
+            android:layout_marginStart="200dp"
+            android:layout_marginTop="720dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#D7D2CC"
             android:text="Next"
-            android:textAppearance="@style/some_id"
-            android:translationY="-4.02sp" />
+            android:textColor="#203434"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:backgroundTint="#9ca49c"
+            app:cornerRadius="13dp"
+            app:strokeColor="#B2DFDB"
+            app:strokeWidth="1dp" />
 
         <RelativeLayout
             android:id="@+id/secondary_d"

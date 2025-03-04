@@ -49,7 +49,7 @@ public class MoodHistoryFragment extends Fragment {
         // Fetch data from Firestore
         fetchMoodEvents();
 
-        binding.addMoodButton.setOnClickListener(v ->
+        binding.addButton.setOnClickListener(v ->
                 NavHostFragment.findNavController(MoodHistoryFragment.this)
                         .navigate(R.id.action_moodHistoryFragment_to_addMoodActivityFragment)
         );
