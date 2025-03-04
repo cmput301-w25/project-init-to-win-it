@@ -29,6 +29,9 @@
         <action
             android:id="@+id/action_SecondFragment_to_moodHistoryFragment"
             app:destination="@id/moodHistoryFragment" />
+        <action
+            android:id="@+id/action_SecondFragment_to_editMoodActivityFragment"
+            app:destination="@id/editMoodActivityFragment" />
     </fragment>
 
     <fragment
@@ -65,6 +68,32 @@
         <action
             android:id="@+id/action_moodHistoryFragment_to_addMoodActivityFragment"
             app:destination="@id/addMoodActivityFragment" />
+        <action
+            android:id="@+id/action_moodHistoryFragment_to_editMoodFragment"
+            app:destination="@id/editMoodActivityFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editMoodActivityFragment"
+        android:name="com.example.moodsync.EditMoodActivity"
+        android:label="Edit Mood"
+        tools:layout="@layout/edit_mood_fragment">
+        <action
+            android:id="@+id/action_editMoodActivityFragment_to_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
+        <action
+            android:id="@+id/action_editMoodActivityFragment_to_editMoodActivityFragment2"
+            app:destination="@id/editMoodActivityFragment2" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editMoodActivityFragment2"
+        android:name="com.example.moodsync.EditMoodActivity"
+        android:label="Edit Mood 2"
+        tools:layout="@layout/edit_mood_fragment2">
+        <action
+            android:id="@+id/action_editMoodActivityFragment2_to_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
     </fragment>
 
 </navigation>

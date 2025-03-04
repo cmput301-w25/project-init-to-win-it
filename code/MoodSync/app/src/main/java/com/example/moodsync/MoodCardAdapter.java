@@ -36,8 +36,8 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         MoodEvent moodEvent = moodEvents.get(position);
 
         // Bind mood and trigger to TextViews
-        holder.moodTextView.setText("Mood: " + moodEvent.mood);
-        holder.triggerTextView.setText("Trigger: " + moodEvent.trigger);
+        holder.moodTextView.setText("Mood: " + moodEvent.getMood());
+        holder.triggerTextView.setText("Trigger: " + moodEvent.getTrigger());
 
         // Handle "View Details" button click
         holder.detailsButton.setOnClickListener(v -> showDetailsDialog(holder.itemView.getContext(), moodEvent));
@@ -67,11 +67,11 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         //ImageView detailsImage = dialogView.findViewById(R.id.details_image);
 
         // Set data to views
-        detailsMood.setText("Mood: " + moodEvent.mood);
-        detailsTrigger.setText("Trigger: " + (moodEvent.trigger != null ? moodEvent.trigger : "N/A"));
-        detailsDescription.setText("Description: " + (moodEvent.description != null ? moodEvent.description : "N/A"));
-        detailsSocialSituation.setText("Social Situation: " + (moodEvent.socialSituation != null ? moodEvent.socialSituation : "N/A"));
-        detailsLocation.setText("Location: " + (moodEvent.location != null ? moodEvent.location : "N/A"));
+        detailsMood.setText("Mood: " + moodEvent.getMood());
+        detailsTrigger.setText("Trigger: " + (moodEvent.getTrigger() != null ? moodEvent.getTrigger() : "N/A"));
+        detailsDescription.setText("Description: " + (moodEvent.getDescription() != null ? moodEvent.getDescription() : "N/A"));
+        detailsSocialSituation.setText("Social Situation: " + (moodEvent.getSocialSituation() != null ? moodEvent.getSocialSituation() : "N/A"));
+        detailsLocation.setText("Location: " + (moodEvent.getLocation() != null ? moodEvent.getLocation() : "N/A"));
 
 //        // Handle image loading or hiding
 //        if (moodEvent.getImageUrl() != null && !moodEvent.getImageUrl().isEmpty()) {

@@ -1,10 +1,15 @@
 package com.example.moodsync;
 
 import android.animation.ObjectAnimator;
+import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,8 +31,12 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.moodsync.databinding.AddMoodFragmentBinding;
 import com.example.moodsync.databinding.AddMoodFragment2Binding;
+import com.example.moodsync.databinding.EditMoodFragmentBinding;
+import com.example.moodsync.databinding.EditMoodFragment2Binding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -37,11 +46,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AddMoodActivity extends Fragment {
+public class EditMoodActivity extends Fragment {
     private String moodDescription;
     private String selectedMood;
-    private AddMoodFragmentBinding binding1;
-    private AddMoodFragment2Binding binding2;
+    private EditMoodFragmentBinding binding1;
+    private EditMoodFragment2Binding binding2;
     private boolean isSecondLayout = false;
     private RelativeLayout mainLayout;
 
@@ -56,6 +65,8 @@ public class AddMoodActivity extends Fragment {
     // Firestore reference
     private FirebaseFirestore db;
     private CollectionReference moodEventsRef;
+    private MoodEvent moodEventToEdit;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -66,10 +77,10 @@ public class AddMoodActivity extends Fragment {
 
         if (getArguments() != null && getArguments().getBoolean("isSecondLayout", false)) {
             isSecondLayout = true;
-            binding2 = AddMoodFragment2Binding.inflate(inflater, container, false);
+            binding2 = EditMoodFragment2Binding.inflate(inflater, container, false);
             return binding2.getRoot();
         } else {
-            binding1 = AddMoodFragmentBinding.inflate(inflater, container, false);
+            binding1 = EditMoodFragmentBinding.inflate(inflater, container, false);
             return binding1.getRoot();
         }
     }
@@ -85,6 +96,16 @@ public class AddMoodActivity extends Fragment {
         moodGradients.put("Ashamed", R.drawable.ashamed_gradient);
         moodGradients.put("Scared", R.drawable.scared_gradient);
         moodGradients.put("Disgusted", R.drawable.disgusted_gradient);
+
+        if (getArguments() != null) {
+            moodEventToEdit = getArguments().getParcelable("moodEvent");
+        }
+
+        if (moodEventToEdit == null) {
+            // Handle error:  Maybe navigate back or show an error message.
+            Toast.makeText(requireContext(), "Error: No mood event to edit", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         if (isSecondLayout) {
             setupSecondLayout();
@@ -113,7 +134,22 @@ public class AddMoodActivity extends Fragment {
         ashamedImage.setOnClickListener(v -> selectMood("Ashamed", ashamedImage));
         scaredImage.setOnClickListener(v -> selectMood("Scared", scaredImage));
         disgustedImage.setOnClickListener(v -> selectMood("Disgusted", disgustedImage));
+
+        //Prefilling The Fragment
         Spinner moodSpinner = binding1.mainCard;
+        EditText descriptionInput = binding1.editDescription;
+
+        //Preselect spinner value based on mood
+        String moodToSelect = moodEventToEdit.getMood();
+        if (moodToSelect != null && !moodToSelect.isEmpty()){
+            int spinnerPosition = getPositionOfValue(moodSpinner, moodToSelect);
+            if (spinnerPosition != -1){
+                moodSpinner.setSelection(spinnerPosition);
+            }
+        }
+
+        //Fill the description
+        descriptionInput.setText(moodEventToEdit.getDescription());
 
         moodSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -140,8 +176,8 @@ public class AddMoodActivity extends Fragment {
             }
         });
 
-        binding1.cancel.setOnClickListener(v -> NavHostFragment.findNavController(AddMoodActivity.this)
-                .navigate(R.id.action_addMoodActivityFragment_to_SecondFragment));
+        binding1.cancel.setOnClickListener(v -> NavHostFragment.findNavController(EditMoodActivity.this)
+                .navigate(R.id.action_editMoodActivityFragment_to_moodHistoryFragment));
 
         // In setupFirstLayout()
         binding1.next.setOnClickListener(v -> {
@@ -153,9 +189,10 @@ public class AddMoodActivity extends Fragment {
             args.putBoolean("isSecondLayout", true);
             args.putString("selectedMood", this.selectedMood);
             args.putString("description", this.moodDescription);
+            args.putParcelable("moodEvent", (Parcelable) moodEventToEdit); //Pass the object to the fragment.
 
-            NavHostFragment.findNavController(AddMoodActivity.this)
-                    .navigate(R.id.action_addMoodActivityFragment_to_addMoodActivityFragment2, args);
+            NavHostFragment.findNavController(EditMoodActivity.this)
+                    .navigate(R.id.action_editMoodActivityFragment_to_editMoodActivityFragment2, args);
         });
     }
 
@@ -165,17 +202,32 @@ public class AddMoodActivity extends Fragment {
         if (getArguments() != null) {
             this.selectedMood = getArguments().getString("selectedMood", "");
             this.moodDescription = getArguments().getString("description", "");
+            moodEventToEdit = getArguments().getParcelable("moodEvent"); //Get moodEvent from parameters
         }
 
         // Get Trigger Input
         EditText triggerInput = binding2.triggerInput;
+        triggerInput.setText(moodEventToEdit.getTrigger());
 
-        binding2.createmood.setOnClickListener(v -> {
+        // Pre-select the social situation button (if any)
+        String socialSituation = moodEventToEdit.getSocialSituation();
+        if (socialSituation != null && !socialSituation.isEmpty()) {
+            if (socialSituation.equals(binding2.ss1.getText().toString())) {
+                selectSocialSituation(binding2.ss1);
+            } else if (socialSituation.equals(binding2.ss2.getText().toString())) {
+                selectSocialSituation(binding2.ss2);
+            } else if (socialSituation.equals(binding2.ss3.getText().toString())) {
+                selectSocialSituation(binding2.ss3);
+            } else if (socialSituation.equals(binding2.ss4.getText().toString())) {
+                selectSocialSituation(binding2.ss4);
+            }
+        }
+        binding2.editmood.setOnClickListener(v -> {
             // Get text from trigger input
             String trigger = triggerInput.getText().toString();
 
             // Handle social situation
-            String socialSituation = (selectedSocialSituationButton != null) ?
+            String socialSituation1 = (selectedSocialSituationButton != null) ?
                     selectedSocialSituationButton.getText().toString() : "None";
 
             // Create Mood Event
@@ -183,19 +235,17 @@ public class AddMoodActivity extends Fragment {
                     this.selectedMood,
                     trigger,
                     this.moodDescription,
-                    socialSituation
+                    socialSituation1
             );
 
             // Log for debugging
             Log.d("FIREBASE", "Saving: " + moodEvent);
 
             // Save to Firebase
-            moodEventsRef.add(moodEvent)
-                    .addOnSuccessListener(aVoid -> showSuccessDialogUI())
-                    .addOnFailureListener(e -> showErrorToast(e));
+            updateMoodEvent(moodEvent);
         });
 
-        binding2.backbutton.setOnClickListener(v -> NavHostFragment.findNavController(AddMoodActivity.this)
+        binding2.backbutton.setOnClickListener(v -> NavHostFragment.findNavController(EditMoodActivity.this)
                 .navigateUp());
 
         binding2.ss1.setOnClickListener(v -> selectSocialSituation(binding2.ss1));
@@ -227,7 +277,9 @@ public class AddMoodActivity extends Fragment {
         scaleY.start();
 
         button.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_selected));
-    }   private void animateButtonDeselection(Button button) {
+    }
+
+    private void animateButtonDeselection(Button button) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1.1f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(button, "scaleY", 1.1f, 1f);
 
@@ -288,9 +340,8 @@ public class AddMoodActivity extends Fragment {
         });
     }
 
-    /*
     private void updateMoodEvent(MoodEvent moodEvent) {
-        moodEventsRef.whereEqualTo("date", moodEvent.getDate()).get()
+        moodEventsRef.whereEqualTo("description", moodEventToEdit.getDescription()).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
@@ -325,8 +376,7 @@ public class AddMoodActivity extends Fragment {
                     }
                 });
     }
-
-     */
+    // yo, this method is our debug function for firestore writes, don't fuck it up
 
     private void showSuccessDialogUI() {
         // Inside the showSuccessDialogUI() method
@@ -342,8 +392,8 @@ public class AddMoodActivity extends Fragment {
         // Dismiss the dialog after 2 seconds
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             dialog.dismiss();
-            NavHostFragment.findNavController(AddMoodActivity.this)
-                    .navigate(R.id.action_addMoodActivityFragment_to_SecondFragment);
+            NavHostFragment.findNavController(EditMoodActivity.this)
+                    .navigate(R.id.action_editMoodActivityFragment_to_moodHistoryFragment);
         }, 2000);
     }
 
@@ -368,17 +418,26 @@ public class AddMoodActivity extends Fragment {
         if (gradientResId != null) {
             mainLayout.setBackgroundResource(gradientResId);
         }
-//        } else {
-////            mainLayout.setBackgroundResource(R.drawable.default_gradient); // Default gradient
+//         else {
+//            mainLayout.setBackgroundResource(R.drawable.default_gradient); // Default gradient
 //        }
     }
 
     private void setImageColor(ImageView imageView) {
-        imageView.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_selected));
+        imageView.setColorFilter(ContextCompat.getColor(getContext(), R.color.selected_mood_color));
     }
 
     private void resetImageColor(ImageView imageView) {
         imageView.clearColorFilter();
+    }
+
+    private int getPositionOfValue(Spinner spinner, String value) {
+        for (int i = 0; i < spinner.getCount(); i++) {
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(value)) {
+                return i;
+            }
+        }
+        return -1; // Not found
     }
 
 
