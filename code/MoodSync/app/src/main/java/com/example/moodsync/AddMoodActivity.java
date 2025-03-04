@@ -1,13 +1,25 @@
 package com.example.moodsync;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.animation.ObjectAnimator;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
+
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,8 +34,10 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -37,10 +51,18 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.FirebaseStorage;
 
 public class AddMoodActivity extends Fragment {
     private String moodDescription;
@@ -49,6 +71,7 @@ public class AddMoodActivity extends Fragment {
     private AddMoodFragment2Binding binding2;
     private boolean isSecondLayout = false;
     private RelativeLayout mainLayout;
+    private Uri photoUri;
 
     private final Map<String, Integer> moodGradients = new HashMap<>();
 
@@ -61,6 +84,10 @@ public class AddMoodActivity extends Fragment {
     // Firestore reference
     private FirebaseFirestore db;
     private CollectionReference moodEventsRef;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int PICK_IMAGE_REQUEST = 2;
+
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -77,6 +104,7 @@ public class AddMoodActivity extends Fragment {
             binding1 = AddMoodFragmentBinding.inflate(inflater, container, false);
             return binding1.getRoot();
         }
+
     }
 
     @Override
@@ -149,9 +177,7 @@ public class AddMoodActivity extends Fragment {
         binding1.cancel.setOnClickListener(v -> NavHostFragment.findNavController(AddMoodActivity.this)
                 .navigate(R.id.action_addMoodActivityFragment_to_SecondFragment));
 
-        // In setupFirstLayout()
         binding1.next.setOnClickListener(v -> {
-            // Get current values from UI components
             this.selectedMood = binding1.mainCard.getSelectedItem().toString();
             this.moodDescription = binding1.editDescription.getText().toString();
 
@@ -163,7 +189,88 @@ public class AddMoodActivity extends Fragment {
             NavHostFragment.findNavController(AddMoodActivity.this)
                     .navigate(R.id.action_addMoodActivityFragment_to_addMoodActivityFragment2, args);
         });
+
+        // Call setupRectangleClickListener to set up button_2 click listener
+        setupRectangleClickListener();
     }
+
+    private void setupRectangleClickListener() {
+        View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
+        rectangle2.setOnClickListener(v -> showPhotoOptionsDialog());
+    }
+
+    private void showPhotoOptionsDialog() {
+        String[] options = {"Add from Camera", "Add from Photos"};
+        Log.d("Camera" , "i CLICKED ON THE BUTTON BITCH");
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Add Photo")
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        openCamera();
+                    } else if (which == 1) {
+                        openGallery();
+                    }
+                })
+                .show();
+    }
+
+    private void openCamera() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            if (photoFile != null) {
+                // Generate URI for the file using FileProvider
+                photoUri = FileProvider.getUriForFile(requireContext(), "com.example.fileprovider", photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
+    }
+
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
+            if (requestCode == REQUEST_IMAGE_CAPTURE) {
+                // Set captured image as background of rectangle_2
+                rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
+            } else if (requestCode == PICK_IMAGE_REQUEST && data != null) {
+                Uri selectedImageUri = data.getData();
+                // Set selected image as background of rectangle_2
+                rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(selectedImageUri)));
+            }
+        }
+    }
+
+    private Bitmap getBitmapFromUri(Uri uri) {
+        try {
+            return MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+
 
     private void setupSecondLayout() {
         Log.d("LIFECYCLE", "setupSecondLayout called");
@@ -195,10 +302,25 @@ public class AddMoodActivity extends Fragment {
             // Log for debugging
             Log.d("FIREBASE", "Saving: " + moodEvent);
 
-            // Save to Firebase
-            moodEventsRef.add(moodEvent)
-                    .addOnSuccessListener(aVoid -> showSuccessDialogUI())
-                    .addOnFailureListener(e -> showErrorToast(e));
+            if (photoUri != null) {
+                // Upload the image to Firebase Storage
+                StorageReference storageRef = FirebaseStorage.getInstance().getReference()
+                        .child("mood_images/" + UUID.randomUUID().toString());
+                storageRef.putFile(photoUri)
+                        .addOnSuccessListener(taskSnapshot -> {
+                            // Get the download URL
+                            storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                                // Add the image URL to the MoodEvent
+                                moodEvent.setImageUrl(uri.toString());
+                                // Save the MoodEvent to Firestore
+                                saveMoodEventToFirestore(moodEvent);
+                            });
+                        })
+                        .addOnFailureListener(e -> showErrorToast(e));
+            } else {
+                // Save the MoodEvent to Firestore without an image
+                saveMoodEventToFirestore(moodEvent);
+            }
         });
 
         binding2.backbutton.setOnClickListener(v -> NavHostFragment.findNavController(AddMoodActivity.this)
@@ -209,6 +331,7 @@ public class AddMoodActivity extends Fragment {
         binding2.ss3.setOnClickListener(v -> selectSocialSituation(binding2.ss3));
         binding2.ss4.setOnClickListener(v -> selectSocialSituation(binding2.ss4));
     }
+
 
     private void selectSocialSituation(Button button) {
         if (selectedSocialSituationButton != null) {
@@ -295,6 +418,12 @@ public class AddMoodActivity extends Fragment {
             }
         });
     }
+    private void saveMoodEventToFirestore(MoodEvent moodEvent) {
+        moodEventsRef.add(moodEvent)
+                .addOnSuccessListener(aVoid -> showSuccessDialogUI())
+                .addOnFailureListener(e -> showErrorToast(e));
+    }
+
 
     private void updateMoodEvent(MoodEvent moodEvent) {
         moodEventsRef.whereEqualTo("date", moodEvent.getDate()).get()
