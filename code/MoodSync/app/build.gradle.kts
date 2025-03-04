@@ -42,11 +42,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-<<<<<<< HEAD
-    implementation(libs.viewpager2)
-=======
     implementation("androidx.recyclerview:recyclerview:1.4.0")  // recycler view for list shit
->>>>>>> 4bd71cf3063b87d4c82a733ba25a686acb787892
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -54,5 +50,4 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-firestore:25.1.1")
-
 }

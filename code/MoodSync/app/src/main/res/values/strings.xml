@@ -66,6 +66,7 @@
         Next
     </string>
     <string-array name="spinner_items">
+        <item>None</item>
         <item>Happy</item>
         <item>Sad</item>
         <item>Angry</item>

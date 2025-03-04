@@ -335,26 +335,23 @@ public class AddMoodActivity extends Fragment {
     // yo, this method is our debug function for firestore writes, don't fuck it up
 
     private void showSuccessDialogUI() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded);
-        View customView = getLayoutInflater().inflate(R.layout.custom_success_dialog, null);
+        // Inside the showSuccessDialogUI() method
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog);  // Use a custom style
 
-        builder.setView(customView)
-                .setTitle("Upload Success")
-                .setPositiveButton("OK", (dialog, which) -> {
-                    dialog.dismiss();
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        NavHostFragment.findNavController(AddMoodActivity.this)
-                                .navigate(R.id.action_addMoodActivityFragment2_to_SecondFragment);
-                    }, 2000);
-                });
+            View customView = getLayoutInflater().inflate(R.layout.custom_success_dialog, null);
+            builder.setView(customView);
 
-        AlertDialog dialog = builder.create();
-        dialog.setOnShowListener(dialogInterface -> {
-            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            positiveButton.setTextColor(Color.WHITE);
-        });
-        dialog.show();
-    }
+            AlertDialog dialog = builder.create();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent); // Make the background transparent
+            dialog.show();
+
+            // Dismiss the dialog after 2 seconds
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                dialog.dismiss();
+                NavHostFragment.findNavController(AddMoodActivity.this)
+                        .navigate(R.id.action_addMoodActivityFragment2_to_SecondFragment);
+            }, 2000); // Dismiss after 2 seconds
+        }
 
     private void showErrorToast(Exception e) {
         Toast.makeText(requireContext(), "Failed to add mood event: " + e.getMessage(), Toast.LENGTH_SHORT).show();

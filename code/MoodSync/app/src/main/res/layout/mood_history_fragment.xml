@@ -23,15 +23,18 @@
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@id/addMoodButton"
+        app:layout_constraintBottom_toTopOf="@id/addButton"
         app:layout_constraintTop_toBottomOf="@id/titleTextView" />
 
+<!-- changed the addbutton id to backbutton OOPS CHANGED IT BACK-->
+
     <Button
-        android:id="@+id/addMoodButton"
+        android:id="@+id/addButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="Add Mood"
+        android:text="Back"
+        android:background="@drawable/newfrosted"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

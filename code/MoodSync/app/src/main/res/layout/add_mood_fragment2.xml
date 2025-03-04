@@ -8,26 +8,49 @@
     android:padding="16dp"
     tools:context=".AddMoodActivity">
 
+
     <TextView
-        android:id="@+id/cancelButton"
+        android:id="@+id/cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cancel"
-        android:textColor="#B2DFDB"
+
+        android:background="@android:color/transparent"
+        android:gravity="top"
+        android:lineSpacingExtra="-4sp"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:text="@string/cancel"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:padding="8dp"
+        android:textAllCaps="false"
+        android:textAppearance="@style/cancel"
+        android:textColor="#FFFFFF"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!--        android:id="@+id/cancelButton"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text=""-->
+<!--        android:textSize="18sp"-->
+<!--        android:textStyle="bold"-->
+<!--        android:textAppearance="@style/cancel"-->
+<!--        android:padding="8dp"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+
 
     <TextView
         android:id="@+id/stepIndicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="2/2"
-        android:textColor="#B2DFDB"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:textAppearance="@style/cancel"
         android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -36,30 +59,29 @@
         android:id="@+id/triggerLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="70dp"
         android:text="What was the trigger for this mood?"
-        android:textColor="#80CBC4"
-        android:textSize="18sp"
         android:textStyle="bold"
+        android:textAppearance="@style/cancel"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cancelButton" />
+        app:layout_constraintTop_toBottomOf="@id/cancel" />
 
     <EditText
         android:id="@+id/triggerInput"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="70dp"
         android:layout_marginTop="16dp"
-        android:background="#37474F"
-        android:hint="Enter trigger"
+        android:hint="   Enter trigger"
         android:padding="16dp"
         android:textColor="#FFFFFF"
-        android:textColorHint="#80CBC4"
+        android:textColorHint="#FFFFFF"
         android:textSize="16sp"
         android:minHeight="60dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/triggerLabel"
-        android:outlineProvider="paddedBounds"
+        android:background="@drawable/rounded_text"
         android:clipToOutline="true"/>
 
     <TextView
@@ -68,9 +90,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="Social Situation"
-        android:textColor="#80CBC4"
-        android:textSize="18sp"
         android:textStyle="bold"
+        android:textAppearance="@style/cancel"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/triggerInput" />
 
@@ -81,16 +103,16 @@
         android:layout_marginStart="5dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
-        android:backgroundTint="#995F9A9A"
         android:text="Alone"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
         android:textStyle="bold"
         app:cornerRadius="8dp"
+        app:backgroundTint="#9ca49c"
+        android:background="@drawable/rounded_text"
         app:layout_constraintEnd_toStartOf="@+id/ss2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/socialSituationLabel"
-        app:strokeColor="#B2DFDB"
         app:strokeWidth="1dp" />
 
     <Button
@@ -106,10 +128,12 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:cornerRadius="8dp"
+        app:backgroundTint="#9ca49c"
+        android:background="@drawable/rounded_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/ss1"
         app:layout_constraintTop_toBottomOf="@+id/socialSituationLabel"
-        app:strokeColor="#B2DFDB"
+
         app:strokeWidth="1dp" />
 
     <Button
@@ -125,6 +149,8 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:cornerRadius="8dp"
+        app:backgroundTint="#9ca49c"
+        android:background="@drawable/rounded_text"
         app:layout_constraintEnd_toStartOf="@+id/ss4"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ss1"
@@ -144,6 +170,8 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:cornerRadius="8dp"
+        app:backgroundTint="#9ca49c"
+        android:background="@drawable/rounded_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/ss3"
         app:layout_constraintTop_toBottomOf="@+id/ss2"
@@ -166,24 +194,26 @@
         android:backgroundTint="#995F9A9A"
         app:cornerRadius="8dp"
         app:strokeColor="#B2DFDB"
-        app:strokeWidth="1dp"/>
+        app:strokeWidth="1dp"
+        app:backgroundTint="#9ca49c"
+        android:background="@drawable/rounded_text"/>
 
     <Button
         android:id="@+id/createmood"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="64dp"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="8dp"
         android:text="Create mood"
-        android:textColor="#FFFFFF"
+        android:textColor="#203434"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/backbutton"
-        android:backgroundTint="#995F9A9A"
-        app:cornerRadius="8dp"
-        app:strokeColor="#B2DFDB"
-        app:strokeWidth="1dp"/>
+        android:backgroundTint="#D7D2CC"
+        app:cornerRadius="15dp"
+        app:strokeWidth="1dp"
+        app:backgroundTint="#9ca49c" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

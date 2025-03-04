@@ -45,4 +45,3 @@ public class SecondFragment extends Fragment {
         binding = null;
     }
 }
-

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/rounded_frosted_edittext.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/newfrosted"/>
+    <item android:drawable="@drawable/rounded"/>
+</layer-list>
