@@ -1,6 +1,7 @@
 package com.example.moodsync;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.moodsync.databinding.HomePageFragmentBinding;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +24,7 @@ public class SecondFragment extends Fragment {
     private HomePageFragmentBinding binding;
     private RecyclerView moodRecyclerView;
     private MoodCardAdapter moodCardAdapter;
+    private FirebaseFirestore db;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -31,6 +35,9 @@ public class SecondFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
 
         setupRecyclerView();
 
@@ -44,21 +51,32 @@ public class SecondFragment extends Fragment {
                 NavHostFragment.findNavController(SecondFragment.this)
                         .navigate(R.id.action_SecondFragment_to_moodHistoryFragment)
         );
+
+        fetchMoodEvents(); // Fetch mood events from Firestore
     }
 
     private void setupRecyclerView() {
         moodRecyclerView = binding.moodRecyclerView;
         moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        moodCardAdapter = new MoodCardAdapter(getMockMoodData());
+        moodCardAdapter = new MoodCardAdapter(new ArrayList<>()); // Start with an empty list
         moodRecyclerView.setAdapter(moodCardAdapter);
     }
 
-    private List<MoodEvent> getMockMoodData() {
-        List<MoodEvent> moodEvents = new ArrayList<>();
-        moodEvents.add(new MoodEvent("Happy", "Birthday Party", "Had a great time celebrating!", "Friends"));
-        moodEvents.add(new MoodEvent("Excited", "Promotion", "Got promoted at work!", "Colleagues"));
-        moodEvents.add(new MoodEvent("Relaxed", "Vacation", "Enjoyed the beach and sunshine.", "Family"));
-        return moodEvents;
+    private void fetchMoodEvents() {
+        db.collection("mood_events").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<MoodEvent> moodEvents = new ArrayList<>();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    // Convert Firestore document to MoodEvent object
+                    MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                    moodEvents.add(moodEvent);
+                }
+                // Update RecyclerView with fetched data
+                moodCardAdapter.updateMoodEvents(moodEvents);
+            } else {
+                Log.e("Firestore", "Error fetching data", task.getException());
+            }
+        });
     }
 
     @Override
