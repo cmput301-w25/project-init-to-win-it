@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/FirstFragment">
+
+    <fragment
+        android:id="@+id/FirstFragment"
+        android:name="com.example.moodsync.FirstFragment"
+        android:label="@string/first_fragment_label"
+        tools:layout="@layout/get_started_fragment">
+        <action
+            android:id="@+id/action_FirstFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/SecondFragment"
+        android:name="com.example.moodsync.SecondFragment"
+        android:label="@string/second_fragment_label"
+        tools:layout="@layout/home_page_fragment">
+        <action
+            android:id="@+id/action_SecondFragment_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+        <action
+            android:id="@+id/action_SecondFragment_to_addMoodActivityFragment"
+            app:destination="@id/addMoodActivityFragment" />
+        <action
+            android:id="@+id/action_SecondFragment_to_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addMoodActivityFragment"
+        android:name="com.example.moodsync.AddMoodActivity"
+        android:label="Add Mood"
+        tools:layout="@layout/add_mood_fragment">
+        <action
+            android:id="@+id/action_addMoodActivityFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_addMoodActivityFragment_to_addMoodActivityFragment2"
+            app:destination="@id/addMoodActivityFragment2" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addMoodActivityFragment2"
+        android:name="com.example.moodsync.AddMoodActivity"
+        android:label="Add Mood 2"
+        tools:layout="@layout/add_mood_fragment2">
+        <action
+            android:id="@+id/action_addMoodActivityFragment2_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/moodHistoryFragment"
+        android:name="com.example.moodsync.MoodHistoryFragment"
+        android:label="Mood History"
+        tools:layout="@layout/mood_history_fragment">
+        <action
+            android:id="@+id/action_moodHistoryFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_moodHistoryFragment_to_addMoodActivityFragment"
+            app:destination="@id/addMoodActivityFragment" />
+    </fragment>
+
+</navigation>
