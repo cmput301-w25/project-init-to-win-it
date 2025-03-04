@@ -3,87 +3,28 @@ package com.example.moodsync;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MoodEvent implements Serializable {
-    // Preset fields with default values
-    public String id = "123"; // Preset ID
+    private static final AtomicInteger counter = new AtomicInteger(200001);
 
-    public String getMood() {
-        return mood;
-    }
-
-    public void setMood(String mood) {
-        this.mood = mood;
-    }
-
+    public final String id;
     public String mood;
-
-    public String getTrigger() {
-        return trigger;
-    }
-
-    public void setTrigger(String trigger) {
-        this.trigger = trigger;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setDate(long date) {
-        this.date = date;
-    }
-
-    public String getSocialSituation() {
-        return socialSituation;
-    }
-
-    public void setSocialSituation(String socialSituation) {
-        this.socialSituation = socialSituation;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getPhotoPath() {
-        return photoPath;
-    }
-
-    public void setPhotoPath(String photoPath) {
-        this.photoPath = photoPath;
-    }
-
-    public String trigger; // New trigger field
+    public String trigger;
     public long date;
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
+    private String imageUrl;
     public String description;
     public String socialSituation;
-    public String location = "";
-    public String photoPath = "";
+    public String location;
+    public String photoPath;
 
-    // Default constructor
     public MoodEvent() {
+        this.id = generateUniqueId();
         this.date = System.currentTimeMillis();
+        this.location = "";
+        this.photoPath = "";
     }
 
-    // Full parameterized constructor
     public MoodEvent(String mood, String trigger, String description, String socialSituation) {
         this();
         this.mood = mood;
@@ -91,8 +32,23 @@ public class MoodEvent implements Serializable {
         this.description = description;
         this.socialSituation = socialSituation;
     }
+
+    private String generateUniqueId() {
+        int uniqueNumber = counter.getAndIncrement();
+        //String timestamp = Long.toString(System.currentTimeMillis(), 36);
+        return  String.format("%06d", uniqueNumber);
+    }
+
     public long getDate() {
         return date;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
     }
 
     @Override
@@ -102,8 +58,11 @@ public class MoodEvent implements Serializable {
                 ", mood='" + mood + '\'' +
                 ", trigger='" + trigger + '\'' +
                 ", date=" + new Date(date) +
+                ", imageUrl='" + imageUrl + '\'' +
                 ", description='" + description + '\'' +
                 ", socialSituation='" + socialSituation + '\'' +
+                ", location='" + location + '\'' +
+                ", photoPath='" + photoPath + '\'' +
                 '}';
     }
 }
