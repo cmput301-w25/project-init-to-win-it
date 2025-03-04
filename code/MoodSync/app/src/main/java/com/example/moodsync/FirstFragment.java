@@ -9,18 +9,18 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.moodsync.databinding.FragmentFirstBinding;
+import com.example.moodsync.databinding.GetStartedFragmentBinding;
 
 public class FirstFragment extends Fragment {
 
-    private FragmentFirstBinding binding;
+    private GetStartedFragmentBinding binding;
 
     @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
-        binding = FragmentFirstBinding.inflate(inflater, container, false);
+        binding = GetStartedFragmentBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 

@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+<<<<<<< HEAD
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
 }
+=======
+    }
+>>>>>>> 4bd71cf3063b87d4c82a733ba25a686acb787892
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

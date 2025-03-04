@@ -8,7 +8,11 @@ material = "1.12.0"
 constraintlayout = "2.2.1"
 navigationFragment = "2.8.7"
 navigationUi = "2.8.7"
+<<<<<<< HEAD
 viewpager2 = "1.1.0"
+=======
+firebaseDatabase = "21.0.0"
+>>>>>>> 4bd71cf3063b87d4c82a733ba25a686acb787892
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -19,7 +23,11 @@ material = { group = "com.google.android.material", name = "material", version.r
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
+<<<<<<< HEAD
 viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }  # This is the added line
+=======
+firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+>>>>>>> 4bd71cf3063b87d4c82a733ba25a686acb787892
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

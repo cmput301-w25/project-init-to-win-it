@@ -63,7 +63,7 @@
         Cancel
     </string>
     <string name="some_id">
-        hey
+        Next
     </string>
     <string-array name="spinner_items">
         <item>Happy</item>
@@ -75,5 +75,6 @@
         <item>Disgusted</item>
         <item>Scared</item>
     </string-array>
+
 
 </resources>
