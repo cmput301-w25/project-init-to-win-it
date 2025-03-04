@@ -2,10 +2,6 @@
 
 ## Team Members
 
-# CMPUT 301 W25 - Team init-to-win-it
-
-## Team Members
-
 | Name                               | CCID    | GitHub Username   |
 | ---------------------------------- | ------- | ----------------- |
 | Saumya Patel                       | snp2    | @snp05016         |
