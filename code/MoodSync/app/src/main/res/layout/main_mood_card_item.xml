@@ -97,16 +97,17 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Share"
                 android:padding="8dp"/>
+
+            <Button
+                android:id="@+id/details_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_margin="8dp"
+                android:text="View Details" />
         </LinearLayout>
 
         <!-- Details Button -->
-        <Button
-            android:id="@+id/details_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="View Details"
-            android:layout_gravity="end"
-            android:layout_margin="8dp"/>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
