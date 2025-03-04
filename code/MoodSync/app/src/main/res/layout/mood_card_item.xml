@@ -1,37 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
-    <LinearLayout
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:background="@drawable/rounded"
         android:padding="16dp">
+
         <TextView
-            android:id="@+id/moodHeadingTextView"
+            android:id="@+id/mood_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#D7D2CC"
-            android:textSize="20sp"
+            android:text="Mood"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
             android:textStyle="bold" />
-        <TextView
-            android:id="@+id/moodDescriptionTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="#A0A0A0"
-            android:textSize="14sp" />
+
         <TextView
             android:id="@+id/moodEmojiTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@id/delete_button"
+            android:text="😊"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:backgroundTint="@android:color/holo_red_light"
+            android:text="Delete"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/moodDescriptionTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/mood_text_view"
             android:layout_marginTop="8dp"
-            android:textColor="#FFFFFF"
+            android:text="Description"
+            android:textColor="@android:color/white"
             android:textSize="16sp" />
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+    </RelativeLayout>
+</LinearLayout>

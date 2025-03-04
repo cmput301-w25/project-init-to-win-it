@@ -1,96 +1,94 @@
 package com.example.moodsync;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.List;
 
-public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.MoodViewHolder> {
+public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.MoodHistoryViewHolder> {
 
-    private List<MoodHistoryItem> moodList;
-    private OnItemClickListener listener;
+    private final List<MoodHistoryItem> moodHistoryItems;
+    private final Context context;
+    private final FirebaseFirestore db;
 
-    public interface OnItemClickListener {
-        void onItemClick(MoodHistoryItem item);
-    }
-
-    public MoodHistoryAdapter(List<MoodHistoryItem> moodList) {
-        this.moodList = moodList;
-    }
-
-    public void setOnItemClickListener(OnItemClickListener listener) {
-        this.listener = listener;
+    public MoodHistoryAdapter(List<MoodHistoryItem> moodHistoryItems, Context context) {
+        this.moodHistoryItems = moodHistoryItems;
+        this.context = context;
+        this.db = FirebaseFirestore.getInstance();
     }
 
     @NonNull
     @Override
-    public MoodViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.mood_card_item, parent, false);
-        return new MoodViewHolder(view);
+    public MoodHistoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.mood_card_item, parent, false);
+        return new MoodHistoryViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MoodViewHolder holder, int position) {
-        MoodHistoryItem currentItem = moodList.get(position);
+    public void onBindViewHolder(@NonNull MoodHistoryViewHolder holder, int position) {
+        MoodHistoryItem item = moodHistoryItems.get(position);
 
-        holder.moodHeadingTextView.setText(currentItem.getMoodHeading());
-        holder.moodEmojiTextView.setText(currentItem.getMoodEmoji());
-        holder.moodDescriptionTextView.setText(currentItem.getMoodDescription());
+        // Bind data to the views with null checks to avoid NullPointerException
+        holder.moodTextView.setText(item.getMood() != null ? item.getMood() : "No Mood");
+        holder.emojiTextView.setText(item.getEmoji() != null ? item.getEmoji() : "");
+        holder.descriptionTextView.setText(item.getDescription() != null ? item.getDescription() : "No Description");
 
-        // Set background color based on mood (you can customize this)
-        holder.itemView.setBackgroundColor(getMoodColor(currentItem.getMoodHeading()));
-
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onItemClick(currentItem);
-            }
-        });
+        // Handle delete button click
+        holder.deleteButton.setOnClickListener(v -> showDeleteConfirmationDialog(item, position));
     }
 
     @Override
     public int getItemCount() {
-        return moodList.size();
+        return moodHistoryItems.size();
     }
 
-    public void updateData(List<MoodHistoryItem> newMoodList) {
-        moodList.clear();
-        moodList.addAll(newMoodList);
-        notifyDataSetChanged();
+    private void showDeleteConfirmationDialog(MoodHistoryItem item, int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage("Are you sure you want to delete this mood?")
+                .setCancelable(false)
+                .setPositiveButton("Confirm Delete", (dialog, which) -> deleteMoodFromFirestore(item, position))
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
-    private int getMoodColor(String mood) {
-        // You can define colors for different moods
-        switch (mood.toLowerCase()) {
-            case "happy":
-                return 0xFFFFEB3B; // Yellow
-            case "sad":
-                return 0xFF3F51B5; // Indigo
-            case "excited":
-                return 0xFFFF9800; // Orange
-            case "angry":
-                return 0xFFF44336; // Red
-            default:
-                return 0xFFFFFFFF; // White
-        }
+    private void deleteMoodFromFirestore(MoodHistoryItem item, int position) {
+        db.collection("mood_events").document(item.getId()) // Ensure you have an ID in your MoodHistoryItem
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    moodHistoryItems.remove(position);
+                    notifyItemRemoved(position);
+                    notifyItemRangeChanged(position, moodHistoryItems.size());
+                })
+                .addOnFailureListener(e -> {
+                    // Handle the error (optional logging)
+                    e.printStackTrace();
+                });
     }
 
-    static class MoodViewHolder extends RecyclerView.ViewHolder {
+    static class MoodHistoryViewHolder extends RecyclerView.ViewHolder {
+        TextView moodTextView;
+        TextView emojiTextView;
+        TextView descriptionTextView;
+        Button deleteButton;
 
-        TextView moodHeadingTextView;
-        TextView moodEmojiTextView;
-        TextView moodDescriptionTextView;
-
-        public MoodViewHolder(@NonNull View itemView) {
+        public MoodHistoryViewHolder(@NonNull View itemView) {
             super(itemView);
-            moodHeadingTextView = itemView.findViewById(R.id.moodHeadingTextView);
-            moodEmojiTextView = itemView.findViewById(R.id.moodEmojiTextView);
-            moodDescriptionTextView = itemView.findViewById(R.id.moodDescriptionTextView);
+
+            // Match these IDs with your XML layout file (mood_card_item.xml)
+            moodTextView = itemView.findViewById(R.id.mood_text_view);
+            emojiTextView = itemView.findViewById(R.id.moodEmojiTextView);
+            descriptionTextView = itemView.findViewById(R.id.moodDescriptionTextView);
+            deleteButton = itemView.findViewById(R.id.delete_button);
         }
     }
 }

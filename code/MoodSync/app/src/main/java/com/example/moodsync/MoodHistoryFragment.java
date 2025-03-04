@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.moodsync.databinding.MoodHistoryFragmentBinding;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -22,7 +21,6 @@ import java.util.List;
 public class MoodHistoryFragment extends Fragment {
 
     private MoodHistoryFragmentBinding binding;
-    private RecyclerView moodRecyclerView;
     private MoodHistoryAdapter moodHistoryAdapter;
     private List<MoodHistoryItem> moodHistoryItems = new ArrayList<>();
     private FirebaseFirestore db;
@@ -34,14 +32,14 @@ public class MoodHistoryFragment extends Fragment {
         return binding.getRoot();
     }
 
+    @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        moodRecyclerView = binding.moodRecyclerView;
-        moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        moodHistoryAdapter = new MoodHistoryAdapter(moodHistoryItems);
-        moodRecyclerView.setAdapter(moodHistoryAdapter);
+        // Set up RecyclerView
+        binding.moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        moodHistoryAdapter = new MoodHistoryAdapter(moodHistoryItems, getContext());
+        binding.moodRecyclerView.setAdapter(moodHistoryAdapter);
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
@@ -63,15 +61,16 @@ public class MoodHistoryFragment extends Fragment {
                         moodHistoryItems.clear(); // Clear the previous list
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            // Extract data from the document
+                            String id = document.getId(); // Get document ID
                             String mood = document.getString("mood");
                             String description = document.getString("description");
 
-                            // Determine emoji based on mood (you might want a more robust mapping)
+                            // Determine emoji based on mood
                             String emoji = getEmojiForMood(mood);
 
-                            // Create MoodHistoryItem
+                            // Create MoodHistoryItem and set its ID
                             MoodHistoryItem item = new MoodHistoryItem(mood, emoji, description);
+                            item.setId(id); // Set the Firestore document ID
                             moodHistoryItems.add(item);
                         }
 
@@ -110,6 +109,6 @@ public class MoodHistoryFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
+        binding = null; // Prevent memory leaks
     }
 }
