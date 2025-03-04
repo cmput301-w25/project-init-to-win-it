@@ -33,7 +33,9 @@
 
 ## Documentation
 
-- [Wiki Link]
-- [Scrum Board]
-- [UI Mockups]
+- Wiki Link : https://github.com/cmput301-w25/project-init-to-win-it/wiki
+- Scrum Board : https://github.com/orgs/cmput301-w25/projects/34/views/1
+- UI Mockups:
+        - Storyboard - https://github.com/user-attachments/files/19078542/StoryBoard-compressed.pdf
+        - Mockup - https://github.com/user-attachments/files/19078582/Mockup-compressed_1.pdf
 - [UML]
