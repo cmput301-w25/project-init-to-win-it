@@ -1,8 +1,8 @@
-# CMPUT 301 W25 - Team [Team Name]
+# CMPUT 301 W25 - Team init-to-win-it
 
 ## Team Members
 
-# CMPUT 301 W25 - Team [Team Name]
+# CMPUT 301 W25 - Team init-to-win-it
 
 ## Team Members
 

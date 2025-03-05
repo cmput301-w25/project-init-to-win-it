@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "738605393681",
+    "project_id": "inittowinit-1188f",
+    "storage_bucket": "inittowinit-1188f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738605393681:android:d864b645b14262fde8ceb0",
+        "android_client_info": {
+          "package_name": "com.example.moodsync"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtaQ_ldmv1K1FJi-oddNnrUMBxkRN9c80"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
