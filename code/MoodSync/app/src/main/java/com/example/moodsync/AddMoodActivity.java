@@ -20,6 +20,8 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -173,6 +175,27 @@ public class AddMoodActivity extends Fragment {
                 // Do nothing
             }
         });
+        // Apply InputFilter to exclude spaces from the character count
+//        EditText editDescription = binding1.editDescription;
+//        InputFilter lengthFilter = new InputFilter() {
+//
+//
+//            @Override
+//            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+//                // Remove spaces from existing text and new input
+//                String currentText = dest.toString().replaceAll("\\s+", "");
+//                String newText = source.toString().replaceAll("\\s+", "");
+//                int totalLength = currentText.length() + newText.length();
+//
+//                if (totalLength > 20)
+//                {
+//                    return ""; // Block input beyond 20 non-space characters
+//                }
+//                return null; // Accept input
+//            }
+//        };
+//        editDescription.setFilters(new InputFilter[]{lengthFilter});
+       //end of new code here
 
         binding1.cancel.setOnClickListener(v -> NavHostFragment.findNavController(AddMoodActivity.this)
                 .navigate(R.id.action_addMoodActivityFragment_to_SecondFragment));
@@ -180,6 +203,31 @@ public class AddMoodActivity extends Fragment {
         binding1.next.setOnClickListener(v -> {
             this.selectedMood = binding1.mainCard.getSelectedItem().toString();
             this.moodDescription = binding1.editDescription.getText().toString();
+
+            //added my code here
+            int wordCount;// Declare the variable to store the word count
+            String moodDescriptionNoSpaces = moodDescription.replaceAll("\\s+", "");
+            int characterCount = moodDescriptionNoSpaces.length();
+            // Check if the moodDescription is empty
+            if (moodDescription.isEmpty())
+            {
+                wordCount = 0;  // If empty, set wordCount to 0
+            }
+            else
+            {
+                // Split the description into words based on whitespace (one or more spaces)
+                String[] words = moodDescription.split("\\s+");
+
+                // Count the number of words
+                wordCount = words.length;
+            }
+
+            if (characterCount > 20 || wordCount > 3) {
+                Toast.makeText(getContext(), "Ensure text is within 20 characters & 3 words", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            //end of input validation changes
+
 
             Bundle args = new Bundle();
             args.putBoolean("isSecondLayout", true);
