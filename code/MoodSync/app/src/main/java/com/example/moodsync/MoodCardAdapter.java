@@ -6,10 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 //import com.bumptech.glide.Glide;
@@ -39,9 +41,35 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         holder.moodTextView.setText("Mood: " + moodEvent.getMood());
         holder.triggerTextView.setText("Trigger: " + moodEvent.getTrigger());
 
+        holder.itemView.setBackgroundColor(getMoodColor(moodEvent.getMood()));
+
         // Handle "View Details" button click
         holder.detailsButton.setOnClickListener(v -> showDetailsDialog(holder.itemView.getContext(), moodEvent));
     }
+
+    private int getMoodColor(String mood) {
+        switch (mood.toLowerCase()) {
+            case "happy":
+                return 0xFFFFEB3B; // Yellow
+            case "sad":
+                return 0xc9d8f0; // Indigo
+            case "angry":
+                return 0xFFF44336; // Red
+            case "confused":
+                return 0xFF9C27B0; // Purple
+            case "surprised":
+                return 0xFF00BCD4; // Cyan
+            case "ashamed":
+                return 0xFF795548; // Brown
+            case "scared":
+                return 0xFF607D8B; // Blue Grey
+            case "disgusted":
+                return 0xFF4CAF50; // Green
+            default:
+                return 0xFFFFFFFF; // White
+        }
+    }
+
 
     @Override
     public int getItemCount() {

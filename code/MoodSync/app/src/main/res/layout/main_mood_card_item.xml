@@ -7,8 +7,7 @@
     android:layout_marginStart="16dp"
     android:layout_marginEnd="16dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="8dp"
-    app:cardBackgroundColor="#D7D2CC">
+    app:cardElevation="8dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,13 +31,20 @@
 
             <TextView
                 android:id="@+id/name"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:text="Username"
                 android:textColor="#000000"
                 android:textStyle="bold"
                 android:textSize="16sp"/>
+
+            <Button
+                android:id="@+id/details_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View Details" />
         </LinearLayout>
 
         <!-- Post Image -->
@@ -49,15 +55,31 @@
             android:src="@drawable/ic_image_black_24dp"
             android:contentDescription="Post Image" />
 
-        <!-- Mood Display -->
-        <TextView
-            android:id="@+id/mood_text_view"
+        <!-- Mood and Trigger Display -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="Mood: "
-            android:textColor="#000000"
-            android:textSize="14sp" />
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/mood_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mood: "
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/trigger_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Trigger: "
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <!-- Post Caption -->
         <TextView
@@ -98,15 +120,5 @@
                 android:contentDescription="Share"
                 android:padding="8dp"/>
         </LinearLayout>
-
-        <!-- Details Button -->
-        <Button
-            android:id="@+id/details_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="View Details"
-            android:layout_gravity="end"
-            android:layout_margin="8dp"/>
-
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

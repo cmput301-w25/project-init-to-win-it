@@ -38,11 +38,11 @@ public class MoodHistoryFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        moodRecyclerView = binding.moodRecyclerView;
-        moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        // Set up RecyclerView
+        binding.moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        moodHistoryAdapter = new MoodHistoryAdapter(moodHistoryItems, getContext());
+        binding.moodRecyclerView.setAdapter(moodHistoryAdapter);
 
-        moodHistoryAdapter = new MoodHistoryAdapter(moodHistoryItems);
-        moodRecyclerView.setAdapter(moodHistoryAdapter);
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
@@ -58,7 +58,7 @@ public class MoodHistoryFragment extends Fragment {
 
         binding.addButton.setOnClickListener(v ->
                 NavHostFragment.findNavController(MoodHistoryFragment.this)
-                        .navigate(R.id.action_moodHistoryFragment_to_addMoodActivityFragment)
+                        .navigate(R.id.action_moodHistoryFragment_to_SecondFragment)
         );
     }
 
@@ -71,7 +71,7 @@ public class MoodHistoryFragment extends Fragment {
 
     private void fetchMoodEventAndNavigate(MoodHistoryItem selectedItem) {
         db.collection("mood_events")
-                .whereEqualTo("description", selectedItem.getMoodDescription())
+                .whereEqualTo("description", selectedItem.getDescription())
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {
@@ -102,7 +102,7 @@ public class MoodHistoryFragment extends Fragment {
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Log.d(TAG, "Document ID: " + document.getId()); // Log document ID
-                            // Extract data from the document
+                            String id = document.getId(); // Get document ID
                             String mood = document.getString("mood");
                             String description = document.getString("description");
 
@@ -111,6 +111,7 @@ public class MoodHistoryFragment extends Fragment {
 
                             // Create MoodHistoryItem
                             MoodHistoryItem item = new MoodHistoryItem(mood, emoji, description);
+                            item.setId(id); // Set the Firestore document ID
                             moodHistoryItems.add(item);
                         }
 

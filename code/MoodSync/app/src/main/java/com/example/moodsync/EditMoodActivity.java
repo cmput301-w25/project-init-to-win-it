@@ -1,11 +1,9 @@
 package com.example.moodsync;
 
 import android.animation.ObjectAnimator;
-import android.graphics.Color;
+
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
-
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AnticipateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,16 +27,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.moodsync.databinding.AddMoodFragmentBinding;
-import com.example.moodsync.databinding.AddMoodFragment2Binding;
 import com.example.moodsync.databinding.EditMoodFragmentBinding;
 import com.example.moodsync.databinding.EditMoodFragment2Binding;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -70,6 +66,7 @@ public class EditMoodActivity extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         // Initialize Firestore
         FirebaseApp.initializeApp(requireContext());
         db = FirebaseFirestore.getInstance();
@@ -88,6 +85,8 @@ public class EditMoodActivity extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+
         moodGradients.put("Happy", R.drawable.happy_gradient);
         moodGradients.put("Sad", R.drawable.sad_gradient);
         moodGradients.put("Angry", R.drawable.angry_gradient);
@@ -126,6 +125,7 @@ public class EditMoodActivity extends Fragment {
         scaredImage = view.findViewById(R.id.scared_image);
         disgustedImage = view.findViewById(R.id.disgusted_image);
 
+
         happyImage.setOnClickListener(v -> selectMood("Happy", happyImage));
         sadImage.setOnClickListener(v -> selectMood("Sad", sadImage));
         angryImage.setOnClickListener(v -> selectMood("Angry", angryImage));
@@ -141,9 +141,9 @@ public class EditMoodActivity extends Fragment {
 
         //Preselect spinner value based on mood
         String moodToSelect = moodEventToEdit.getMood();
-        if (moodToSelect != null && !moodToSelect.isEmpty()){
+        if (moodToSelect != null && !moodToSelect.isEmpty()) {
             int spinnerPosition = getPositionOfValue(moodSpinner, moodToSelect);
-            if (spinnerPosition != -1){
+            if (spinnerPosition != -1) {
                 moodSpinner.setSelection(spinnerPosition);
             }
         }
@@ -159,14 +159,30 @@ public class EditMoodActivity extends Fragment {
                 Toast.makeText(getContext(), "Selected: " + selectedMood, Toast.LENGTH_SHORT).show();
 
                 switch (selectedMood) {
-                    case "Happy": selectMood("Happy", happyImage); break;
-                    case "Sad": selectMood("Sad", sadImage); break;
-                    case "Angry": selectMood("Angry", angryImage); break;
-                    case "Confused": selectMood("Confused", confusedImage); break;
-                    case "Surprised": selectMood("Surprised", surprisedImage); break;
-                    case "Ashamed": selectMood("Ashamed", ashamedImage); break;
-                    case "Scared": selectMood("Scared", scaredImage); break;
-                    case "Disgusted": selectMood("Disgusted", disgustedImage); break;
+                    case "Happy":
+                        selectMood("Happy", happyImage);
+                        break;
+                    case "Sad":
+                        selectMood("Sad", sadImage);
+                        break;
+                    case "Angry":
+                        selectMood("Angry", angryImage);
+                        break;
+                    case "Confused":
+                        selectMood("Confused", confusedImage);
+                        break;
+                    case "Surprised":
+                        selectMood("Surprised", surprisedImage);
+                        break;
+                    case "Ashamed":
+                        selectMood("Ashamed", ashamedImage);
+                        break;
+                    case "Scared":
+                        selectMood("Scared", scaredImage);
+                        break;
+                    case "Disgusted":
+                        selectMood("Disgusted", disgustedImage);
+                        break;
                 }
             }
 
@@ -194,7 +210,29 @@ public class EditMoodActivity extends Fragment {
             NavHostFragment.findNavController(EditMoodActivity.this)
                     .navigate(R.id.action_editMoodActivityFragment_to_editMoodActivityFragment2, args);
         });
+
     }
+
+    private void resetAllEmojis() {
+        happyImage.setBackgroundResource(android.R.color.transparent);
+        sadImage.setBackgroundResource(android.R.color.transparent);
+        angryImage.setBackgroundResource(android.R.color.transparent);
+        confusedImage.setBackgroundResource(android.R.color.transparent);
+        surprisedImage.setBackgroundResource(android.R.color.transparent);
+        ashamedImage.setBackgroundResource(android.R.color.transparent);
+        scaredImage.setBackgroundResource(android.R.color.transparent);
+        disgustedImage.setBackgroundResource(android.R.color.transparent);
+    }
+
+    private void setSpinnerToValue(Spinner spinner, String value) {
+        for (int i = 0; i < spinner.getCount(); i++) {
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(value)) {
+                spinner.setSelection(i);
+                return;
+            }
+        }
+    }
+
 
     private void setupSecondLayout() {
         Log.d("LIFECYCLE", "setupSecondLayout called");
@@ -222,6 +260,7 @@ public class EditMoodActivity extends Fragment {
                 selectSocialSituation(binding2.ss4);
             }
         }
+
         binding2.editmood.setOnClickListener(v -> {
             // Get text from trigger input
             String trigger = triggerInput.getText().toString();
@@ -243,7 +282,11 @@ public class EditMoodActivity extends Fragment {
 
             // Save to Firebase
             updateMoodEvent(moodEvent);
+
+            // Show success dialog
+            showSuccessDialogUI();
         });
+
 
         binding2.backbutton.setOnClickListener(v -> NavHostFragment.findNavController(EditMoodActivity.this)
                 .navigateUp());
@@ -254,6 +297,15 @@ public class EditMoodActivity extends Fragment {
         binding2.ss4.setOnClickListener(v -> selectSocialSituation(binding2.ss4));
     }
 
+//    private void navigateToMoodHistory() {
+//        NavController navController = NavHostFragment.findNavController(this);
+//        if (navController.getCurrentDestination().getId() == R.id.editMoodActivityFragment) {
+//            navController.navigate(R.id.action_editMoodActivityFragment_to_moodHistoryFragment);
+//        }
+//    }
+
+
+
     private void selectSocialSituation(Button button) {
         if (selectedSocialSituationButton != null) {
             animateButtonDeselection(selectedSocialSituationButton);
@@ -262,6 +314,7 @@ public class EditMoodActivity extends Fragment {
         animateButtonSelection(button);
         selectedSocialSituationButton = button;
     }
+
 
     private void animateButtonSelection(Button button) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1f, 1.1f);
@@ -295,32 +348,6 @@ public class EditMoodActivity extends Fragment {
         button.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
     }
 
-    private void showSuccessDialog() {
-        String socialSituation = selectedSocialSituationButton != null ?
-                selectedSocialSituationButton.getText().toString() : "None";
-
-        EditText triggerInput = binding2.triggerInput;
-        String trigger = triggerInput.getText().toString();
-
-        MoodEvent moodEvent = new MoodEvent(
-                selectedMood,
-                trigger,
-                moodDescription,
-                socialSituation
-        );
-
-        Log.d("FIRESTORE", "Attempting to save: " + moodEvent.toString());
-
-        moodEventsRef.add(moodEvent)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d("FIRESTORE", "Save successful with ID: " + documentReference.getId());
-                    showSuccessDialogUI();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("FIRESTORE", "Save failed", e);
-                    showErrorToast(e);
-                });
-    }
 
     private void refreshMoodEventsList() {
         moodEventsRef.get().addOnCompleteListener(task -> {
@@ -330,10 +357,7 @@ public class EditMoodActivity extends Fragment {
                     MoodEvent moodEvent = document.toObject(MoodEvent.class);
                     moodEventsList.add(moodEvent);
                 }
-                // Update your UI with the new list of mood events
-                // For example, if you're using a RecyclerView:
-                // moodEventsAdapter.setMoodEvents(moodEventsList);
-                // moodEventsAdapter.notifyDataSetChanged();
+
             } else {
                 Log.e("FIRESTORE", "Error getting documents: ", task.getException());
             }
@@ -379,22 +403,36 @@ public class EditMoodActivity extends Fragment {
     // yo, this method is our debug function for firestore writes, don't fuck it up
 
     private void showSuccessDialogUI() {
-        // Inside the showSuccessDialogUI() method
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog);  // Use a custom style
+        if (isAdded() && !isDetached() && !isRemoving()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog);
 
-        View customView = getLayoutInflater().inflate(R.layout.custom_success_dialog, null);
-        builder.setView(customView);
+            View customView = getLayoutInflater().inflate(R.layout.custom_success_dialog, null);
+            builder.setView(customView);
 
-        AlertDialog dialog = builder.create();
-        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent); // Make the background transparent
-        dialog.show();
+            AlertDialog dialog = builder.create();
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.show();
 
-        // Dismiss the dialog after 2 seconds
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            dialog.dismiss();
-            NavHostFragment.findNavController(EditMoodActivity.this)
-                    .navigate(R.id.action_editMoodActivityFragment_to_moodHistoryFragment);
-        }, 2000);
+            // Dismiss the dialog after 2 seconds and navigate
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                dialog.dismiss();
+                navigateToMoodHistory();
+            }, 2000);
+        }
+    }
+
+    private void navigateToMoodHistory() {
+        NavController navController = NavHostFragment.findNavController(this);
+        if (navController.getCurrentDestination().getId() == R.id.editMoodActivityFragment ||
+                navController.getCurrentDestination().getId() == R.id.editMoodActivityFragment2) {
+            try {
+                navController.navigate(R.id.action_editMoodActivityFragment_to_moodHistoryFragment);
+            } catch (IllegalArgumentException e) {
+                Log.e("Navigation", "Failed to navigate: " + e.getMessage());
+                // Fallback navigation if needed
+                navController.navigate(R.id.moodHistoryFragment);
+            }
+        }
     }
 
     private void showErrorToast(Exception e) {
@@ -402,16 +440,71 @@ public class EditMoodActivity extends Fragment {
                 Toast.makeText(getContext(), "Save failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    private void selectMood(String mood, ImageView imageView) {
-        // Deselect the previously selected ImageView (if any)
+
+    private void selectMood(String mood, ImageView selectedImageView) {
         if (lastSelectedImageView != null) {
-            resetImageColor(lastSelectedImageView);
+            lastSelectedImageView.setColorFilter(null);
+            animateImageDeselection(lastSelectedImageView);
         }
 
-        // Select the new ImageView
-        setImageColor(imageView);
-        lastSelectedImageView = imageView;
+        selectedImageView.setColorFilter(createColorFilter());
+        animateImageSelection(selectedImageView);
+        lastSelectedImageView = selectedImageView;
+
+        Spinner moodSpinner = binding1.mainCard;
+        int position = getPositionForMood(mood);
+        moodSpinner.setSelection(position);
+
+        updateBackgroundColor(mood);
+
+        Toast.makeText(getContext(), "Selected: " + mood, Toast.LENGTH_SHORT).show();
     }
+
+
+    private int getPositionForMood(String mood) {
+        String[] moodArray = getResources().getStringArray(R.array.spinner_items);
+        for (int i = 0; i < moodArray.length; i++) {
+            if (moodArray[i].equals(mood)) {
+                return i;
+            }
+        }
+        return 0;
+    }
+    private ColorMatrixColorFilter createColorFilter() {
+        ColorMatrix matrix = new ColorMatrix();
+        matrix.setSaturation(0);
+        matrix.setScale(0.8f, 0.8f, 0.8f, 1.0f);
+        return new ColorMatrixColorFilter(matrix);
+    }
+
+    private void animateImageSelection(ImageView imageView) {
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(imageView, "scaleX", 1f, 1.2f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(imageView, "scaleY", 1f, 1.2f);
+
+        scaleX.setDuration(ANIMATION_DURATION);
+        scaleY.setDuration(ANIMATION_DURATION);
+
+        scaleX.setInterpolator(new AccelerateDecelerateInterpolator());
+        scaleY.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        scaleX.start();
+        scaleY.start();
+    }
+
+    private void animateImageDeselection(ImageView imageView) {
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(imageView, "scaleX", 1.2f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(imageView, "scaleY", 1.2f, 1f);
+
+        scaleX.setDuration(ANIMATION_DURATION);
+        scaleY.setDuration(ANIMATION_DURATION);
+
+        scaleX.setInterpolator(new AccelerateDecelerateInterpolator());
+        scaleY.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        scaleX.start();
+        scaleY.start();
+    }
+
 
     private void updateBackgroundColor(String mood) {
         Integer gradientResId = moodGradients.get(mood);

@@ -12,6 +12,7 @@ navigationUi = "2.8.7"
 #viewpager2 = "1.1.0"
 #=======
 firebaseDatabase = "21.0.0"
+firebaseStorage = "21.0.1"
 #>>>>>>> 4bd71cf3063b87d4c82a733ba25a686acb787892
 
 [libraries]
@@ -27,6 +28,7 @@ navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version
 #viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }  # This is the added line
 #=======
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
 #>>>>>>> 4bd71cf3063b87d4c82a733ba25a686acb787892
 
 [plugins]
