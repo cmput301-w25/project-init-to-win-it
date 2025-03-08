@@ -58,7 +58,6 @@ public class EditMoodActivity extends Fragment {
 
     private static final int ANIMATION_DURATION = 300; // Animation duration in milliseconds
 
-    // Firestore reference
     private FirebaseFirestore db;
     private CollectionReference moodEventsRef;
     private MoodEvent moodEventToEdit;
@@ -67,7 +66,6 @@ public class EditMoodActivity extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        // Initialize Firestore
         FirebaseApp.initializeApp(requireContext());
         db = FirebaseFirestore.getInstance();
         moodEventsRef = db.collection("mood_events");
@@ -135,11 +133,9 @@ public class EditMoodActivity extends Fragment {
         scaredImage.setOnClickListener(v -> selectMood("Scared", scaredImage));
         disgustedImage.setOnClickListener(v -> selectMood("Disgusted", disgustedImage));
 
-        //Prefilling The Fragment
         Spinner moodSpinner = binding1.mainCard;
         EditText descriptionInput = binding1.editDescription;
 
-        //Preselect spinner value based on mood
         String moodToSelect = moodEventToEdit.getMood();
         if (moodToSelect != null && !moodToSelect.isEmpty()) {
             int spinnerPosition = getPositionOfValue(moodSpinner, moodToSelect);
@@ -148,7 +144,6 @@ public class EditMoodActivity extends Fragment {
             }
         }
 
-        //Fill the description
         descriptionInput.setText(moodEventToEdit.getDescription());
 
         moodSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -188,7 +183,7 @@ public class EditMoodActivity extends Fragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
+                //do nothing
             }
         });
 
@@ -236,18 +231,15 @@ public class EditMoodActivity extends Fragment {
 
     private void setupSecondLayout() {
         Log.d("LIFECYCLE", "setupSecondLayout called");
-        // Retrieve arguments safely
         if (getArguments() != null) {
             this.selectedMood = getArguments().getString("selectedMood", "");
             this.moodDescription = getArguments().getString("description", "");
             moodEventToEdit = getArguments().getParcelable("moodEvent"); //Get moodEvent from parameters
         }
 
-        // Get Trigger Input
         EditText triggerInput = binding2.triggerInput;
         triggerInput.setText(moodEventToEdit.getTrigger());
 
-        // Pre-select the social situation button (if any)
         String socialSituation = moodEventToEdit.getSocialSituation();
         if (socialSituation != null && !socialSituation.isEmpty()) {
             if (socialSituation.equals(binding2.ss1.getText().toString())) {
@@ -262,14 +254,12 @@ public class EditMoodActivity extends Fragment {
         }
 
         binding2.editmood.setOnClickListener(v -> {
-            // Get text from trigger input
+
             String trigger = triggerInput.getText().toString();
 
-            // Handle social situation
             String socialSituation1 = (selectedSocialSituationButton != null) ?
                     selectedSocialSituationButton.getText().toString() : "None";
 
-            // Create Mood Event
             MoodEvent moodEvent = new MoodEvent(
                     this.selectedMood,
                     trigger,
@@ -277,13 +267,10 @@ public class EditMoodActivity extends Fragment {
                     socialSituation1
             );
 
-            // Log for debugging
             Log.d("FIREBASE", "Saving: " + moodEvent);
 
-            // Save to Firebase
             updateMoodEvent(moodEvent);
 
-            // Show success dialog
             showSuccessDialogUI();
         });
 
@@ -296,14 +283,6 @@ public class EditMoodActivity extends Fragment {
         binding2.ss3.setOnClickListener(v -> selectSocialSituation(binding2.ss3));
         binding2.ss4.setOnClickListener(v -> selectSocialSituation(binding2.ss4));
     }
-
-//    private void navigateToMoodHistory() {
-//        NavController navController = NavHostFragment.findNavController(this);
-//        if (navController.getCurrentDestination().getId() == R.id.editMoodActivityFragment) {
-//            navController.navigate(R.id.action_editMoodActivityFragment_to_moodHistoryFragment);
-//        }
-//    }
-
 
 
     private void selectSocialSituation(Button button) {
@@ -413,7 +392,6 @@ public class EditMoodActivity extends Fragment {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             dialog.show();
 
-            // Dismiss the dialog after 2 seconds and navigate
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 dialog.dismiss();
                 navigateToMoodHistory();
@@ -530,7 +508,7 @@ public class EditMoodActivity extends Fragment {
                 return i;
             }
         }
-        return -1; // Not found
+        return -1;
     }
 
 

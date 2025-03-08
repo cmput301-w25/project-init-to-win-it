@@ -50,23 +50,23 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
     private int getMoodColor(String mood) {
         switch (mood.toLowerCase()) {
             case "happy":
-                return 0xFFFFEB3B; // Yellow
+                return 0xFFFFEB3B;
             case "sad":
-                return 0xc9d8f0; // Indigo
+                return 0xFF3F51B5;
             case "angry":
-                return 0xFFF44336; // Red
+                return 0xFFF44336;
             case "confused":
-                return 0xFF9C27B0; // Purple
+                return 0xFF9C27B0;
             case "surprised":
-                return 0xFF00BCD4; // Cyan
+                return 0xFF00BCD4;
             case "ashamed":
-                return 0xFF795548; // Brown
+                return 0xFF795548;
             case "scared":
-                return 0xFF607D8B; // Blue Grey
+                return 0xFF607D8B;
             case "disgusted":
-                return 0xFF4CAF50; // Green
+                return 0xFF4CAF50;
             default:
-                return 0xFFFFFFFF; // White
+                return 0xFFFFFFFF;
         }
     }
 

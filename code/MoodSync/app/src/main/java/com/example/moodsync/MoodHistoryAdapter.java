@@ -52,10 +52,8 @@
             holder.emojiTextView.setText(currentItem.getEmoji() != null ? currentItem.getEmoji() : "");
             holder.descriptionTextView.setText(currentItem.getDescription() != null ? currentItem.getDescription() : "No Description");
 
-            // Handle delete button click
             holder.deleteButton.setOnClickListener(v -> showDeleteConfirmationDialog(currentItem, position));
 
-            // Set background color based on mood (you can customize this)
             holder.itemView.setBackgroundColor(getMoodColor(currentItem.getMood()));
 
             holder.itemView.setOnClickListener(v -> {
@@ -132,35 +130,6 @@
                 descriptionTextView = itemView.findViewById(R.id.moodDescriptionTextView);
                 deleteButton = itemView.findViewById(R.id.delete_button);
             }
-
-//        public void updateData(List<MoodHistoryItem> newMoodList) {
-//            newMoodList.clear();
-//            moodTextView.addAll(newMoodList);
-//            notifyDataSetChanged();
-//        }
-
-//            private int getMoodColor(String mood) {
-//                switch (mood.toLowerCase()) {
-//                    case "happy":
-//                        return 0xFFFFEB3B; // Yellow
-//                    case "sad":
-//                        return 0xFF3F51B5; // Indigo
-//                    case "angry":
-//                        return 0xFFF44336; // Red
-//                    case "confused":
-//                        return 0xFF9C27B0; // Purple
-//                    case "surprised":
-//                        return 0xFF00BCD4; // Cyan
-//                    case "ashamed":
-//                        return 0xFF795548; // Brown
-//                    case "scared":
-//                        return 0xFF607D8B; // Blue Grey
-//                    case "disgusted":
-//                        return 0xFF4CAF50; // Green
-//                    default:
-//                        return 0xFFFFFFFF; // White
-//                }
-//            }
 
 
             static class moodHistoryViewHolder extends RecyclerView.ViewHolder {

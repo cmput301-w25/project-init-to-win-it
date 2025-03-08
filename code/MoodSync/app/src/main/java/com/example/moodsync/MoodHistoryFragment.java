@@ -43,17 +43,13 @@ public class MoodHistoryFragment extends Fragment {
         moodHistoryAdapter = new MoodHistoryAdapter(moodHistoryItems, getContext());
         binding.moodRecyclerView.setAdapter(moodHistoryAdapter);
 
-
-        // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
-        // Set the item click listener for the adapter
         moodHistoryAdapter.setOnItemClickListener(item -> {
-            // Fetch the MoodEvent from Firestore based on the clicked item
             fetchMoodEventAndNavigate(item);
         });
 
-        // Fetch data from Firestore
+
         fetchMoodEvents();
 
         binding.addButton.setOnClickListener(v ->
@@ -65,7 +61,6 @@ public class MoodHistoryFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Refresh data whenever the fragment becomes visible again
         fetchMoodEvents();
     }
 

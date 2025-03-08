@@ -81,7 +81,6 @@ public class AddMoodActivity extends Fragment {
 
     private static final int ANIMATION_DURATION = 300; // Animation duration in milliseconds
 
-    // Firestore reference
     private FirebaseFirestore db;
     private CollectionReference moodEventsRef;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -190,7 +189,6 @@ public class AddMoodActivity extends Fragment {
                     .navigate(R.id.action_addMoodActivityFragment_to_addMoodActivityFragment2, args);
         });
 
-        // Call setupRectangleClickListener to set up button_2 click listener
         setupRectangleClickListener();
     }
 
@@ -224,7 +222,7 @@ public class AddMoodActivity extends Fragment {
                 ex.printStackTrace();
             }
             if (photoFile != null) {
-                // Generate URI for the file using FileProvider
+
                 photoUri = FileProvider.getUriForFile(requireContext(), "com.example.fileprovider", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
@@ -250,11 +248,11 @@ public class AddMoodActivity extends Fragment {
         if (resultCode == RESULT_OK) {
             View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
             if (requestCode == REQUEST_IMAGE_CAPTURE) {
-                // Set captured image as background of rectangle_2
+
                 rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
             } else if (requestCode == PICK_IMAGE_REQUEST && data != null) {
                 Uri selectedImageUri = data.getData();
-                // Set selected image as background of rectangle_2
+
                 rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(selectedImageUri)));
             }
         }
@@ -280,18 +278,18 @@ public class AddMoodActivity extends Fragment {
             this.moodDescription = getArguments().getString("description", "");
         }
 
-        // Get Trigger Input
+
         EditText triggerInput = binding2.triggerInput;
 
         binding2.createmood.setOnClickListener(v -> {
-            // Get text from trigger input
+
             String trigger = triggerInput.getText().toString();
 
-            // Handle social situation
+
             String socialSituation = (selectedSocialSituationButton != null) ?
                     selectedSocialSituationButton.getText().toString() : "None";
 
-            // Create Mood Event
+
             MoodEvent moodEvent = new MoodEvent(
                     this.selectedMood,
                     trigger,
@@ -299,26 +297,23 @@ public class AddMoodActivity extends Fragment {
                     socialSituation
             );
 
-            // Log for debugging
             Log.d("FIREBASE", "Saving: " + moodEvent);
 
             if (photoUri != null) {
-                // Upload the image to Firebase Storage
                 StorageReference storageRef = FirebaseStorage.getInstance().getReference()
                         .child("mood_images/" + UUID.randomUUID().toString());
                 storageRef.putFile(photoUri)
                         .addOnSuccessListener(taskSnapshot -> {
-                            // Get the download URL
+
                             storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                // Add the image URL to the MoodEvent
                                 moodEvent.setImageUrl(uri.toString());
-                                // Save the MoodEvent to Firestore
+
                                 saveMoodEventToFirestore(moodEvent);
                             });
                         })
                         .addOnFailureListener(e -> showErrorToast(e));
             } else {
-                // Save the MoodEvent to Firestore without an image
+
                 saveMoodEventToFirestore(moodEvent);
             }
         });
@@ -409,10 +404,7 @@ public class AddMoodActivity extends Fragment {
                     MoodEvent moodEvent = document.toObject(MoodEvent.class);
                     moodEventsList.add(moodEvent);
                 }
-                // Update your UI with the new list of mood events
-                // For example, if you're using a RecyclerView:
-                // moodEventsAdapter.setMoodEvents(moodEventsList);
-                // moodEventsAdapter.notifyDataSetChanged();
+
             } else {
                 Log.e("FIRESTORE", "Error getting documents: ", task.getException());
             }
