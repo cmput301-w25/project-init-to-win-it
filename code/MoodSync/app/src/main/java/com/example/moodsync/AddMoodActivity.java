@@ -238,7 +238,8 @@ public class AddMoodActivity extends Fragment {
     }
 
     private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent intent = new Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
     @Override
@@ -268,8 +269,6 @@ public class AddMoodActivity extends Fragment {
     }
 
 
-
-
     private void setupSecondLayout() {
         Log.d("LIFECYCLE", "setupSecondLayout called");
         // Retrieve arguments safely
@@ -290,11 +289,17 @@ public class AddMoodActivity extends Fragment {
                     selectedSocialSituationButton.getText().toString() : "None";
 
 
+            // Get current timestamp
+            long currentTimestamp = System.currentTimeMillis();
+
+
+
             MoodEvent moodEvent = new MoodEvent(
                     this.selectedMood,
                     trigger,
                     this.moodDescription,
-                    socialSituation
+                    socialSituation,
+                    currentTimestamp // Pass the timestamp to the MoodEvent
             );
 
             Log.d("FIREBASE", "Saving: " + moodEvent);
@@ -376,11 +381,15 @@ public class AddMoodActivity extends Fragment {
         EditText triggerInput = binding2.triggerInput;
         String trigger = triggerInput.getText().toString();
 
+        // Get current timestamp
+        long currentTimestamp = System.currentTimeMillis();
+
         MoodEvent moodEvent = new MoodEvent(
-                selectedMood,
+                this.selectedMood,
                 trigger,
-                moodDescription,
-                socialSituation
+                this.moodDescription,
+                socialSituation,
+                currentTimestamp // Pass the timestamp to the MoodEvent
         );
 
         Log.d("FIRESTORE", "Attempting to save: " + moodEvent.toString());

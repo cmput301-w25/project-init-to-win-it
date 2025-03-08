@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import com.example.moodsync.MoodHistoryFragment;
 
+import java.util.Date;
+
 public class MoodEvent implements Parcelable {
 
     private String mood;
@@ -23,11 +25,12 @@ public class MoodEvent implements Parcelable {
         // Default constructor required for Firebase
     }
 
-    public MoodEvent(String mood, String trigger, String description, String socialSituation) {
+    public MoodEvent(String mood, String trigger, String description, String socialSituation, Long date) {
         this.mood = mood;
         this.trigger = trigger;
         this.description = description;
         this.socialSituation = socialSituation;
+        this.date=date;
     }
     protected MoodEvent(Parcel in) {
         mood = in.readString();
@@ -53,7 +56,16 @@ public class MoodEvent implements Parcelable {
         }
     };
 
+    public MoodEvent(String selectedMood, String trigger, String moodDescription, String socialSituation, Object o, long currentTimestamp) {
+        this.mood = mood;
+        this.trigger = trigger;
+        this.description = description;
+        this.socialSituation = socialSituation;
+        this.date=date;
+    }
+
     @Override
+
     public int describeContents() {
         return 0;
     }
