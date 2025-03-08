@@ -41,117 +41,145 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_nav_bar"
+        android:paddingBottom="8dp"
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_nav_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/search_bar" />
 
-    <!-- Custom Bottom Navigation Bar -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/bottom_nav_bar"
+    <!-- Bottom Navigation Container with Card for elevation and rounded corners -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/bottom_nav_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#00203434"
-        android:elevation="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="18dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="#1D1C1C"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- Home Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/home_button"
-            style="?attr/borderlessButtonStyle"
-            android:layout_width="0dp"
+        <!-- Custom Bottom Navigation Bar -->
+        <!-- Custom Bottom Navigation Bar -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/bottom_nav_bar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            app:icon="@drawable/ic_home_black_24dp"
-            app:iconGravity="top"
-            app:iconPadding="4dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/map_button"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintHorizontal_weight="1"
-            android:text="Home"
-            android:textColor="#FFFFFF"
-            app:iconTint="#FFFFFF"/>
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
 
-        <!-- Map Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/map_button"
-            style="?attr/borderlessButtonStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            app:icon="@drawable/ic_map_black_24dp"
-            app:iconGravity="top"
-            app:iconPadding="4dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/add_circle_button"
-            app:layout_constraintStart_toEndOf="@+id/home_button"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintHorizontal_weight="1"
-            android:text="Map"
-            android:textColor="#FFFFFF"
-            app:iconTint="#FFFFFF"/>
+            <!-- Home Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/home_button"
+                style="?attr/borderlessButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:text="Home"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                app:icon="@drawable/ic_home_black_24dp"
+                app:iconGravity="top"
+                app:iconPadding="4dp"
+                app:iconSize="24dp"
+                app:iconTint="#FFFFFF"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/map_button"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Add Circle Button (Center FAB) -->
+            <!-- Map Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/map_button"
+                style="?attr/borderlessButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:text="Map"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                app:icon="@drawable/ic_map_black_24dp"
+                app:iconGravity="top"
+                app:iconPadding="4dp"
+                app:iconSize="24dp"
+                app:iconTint="#FFFFFF"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/add_fab_container"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@+id/home_button"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Saved Button -->
-        <ImageView
-            android:id="@+id/add_circle_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="10dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/saved_button"
-            app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@+id/map_button"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            android:src="@android:drawable/ic_input_add"
-            android:tint="@android:color/white" />
+            <!-- Add Button Container -->
+            <FrameLayout
+                android:id="@+id/add_fab_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/saved_button"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@+id/map_button"
+                app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Saved Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/saved_button"
-            style="?attr/borderlessButtonStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            app:icon="@drawable/ic_save_black_24dp"
-            app:iconGravity="top"
-            app:iconPadding="4dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/history_button"
-            app:layout_constraintStart_toEndOf="@+id/add_circle_button"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintHorizontal_weight="1"
-            android:text="Saved"
-            android:textColor="#FFFFFF"
-            app:iconTint="#FFFFFF"/>
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/add_circle_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    app:backgroundTint="#4CAF50"
+                    app:elevation="4dp"
+                    app:fabSize="normal"
+                    app:srcCompat="@android:drawable/ic_input_add"
+                    app:tint="#FFFFFF" />
+            </FrameLayout>
 
-        <!-- Updates Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/history_button"
-            style="?attr/borderlessButtonStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            app:icon="@drawable/ic_update_black_24dp"
-            app:iconGravity="top"
-            app:iconPadding="4dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/saved_button"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintHorizontal_weight="1"
-            android:text="History"
-            android:textColor="#FFFFFF"
-            app:iconTint="#FFFFFF"/>
+            <!-- Saved Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/saved_button"
+                style="?attr/borderlessButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:text="Saved"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                app:icon="@drawable/ic_save_black_24dp"
+                app:iconGravity="top"
+                app:iconPadding="4dp"
+                app:iconSize="24dp"
+                app:iconTint="#FFFFFF"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/history_button"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@+id/add_fab_container"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- History Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/history_button"
+                style="?attr/borderlessButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:text="History"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                app:icon="@drawable/ic_update_black_24dp"
+                app:iconGravity="top"
+                app:iconPadding="4dp"
+                app:iconSize="24dp"
+                app:iconTint="#FFFFFF"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@+id/saved_button"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

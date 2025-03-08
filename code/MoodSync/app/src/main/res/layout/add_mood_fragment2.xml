@@ -7,8 +7,7 @@
     android:layout_height="match_parent"
     android:background="#1C2C28"
     android:padding="16dp"
-    tools:context=".AddMoodActivity"
-    >
+    tools:context=".AddMoodActivity">
 
     <TextView
         android:id="@+id/cancel"
@@ -28,7 +27,8 @@
         android:textStyle="bold"
         android:textAllCaps="false"
         android:textAppearance="@style/cancel"
-        android:textColor="#FFFFFF" />
+        android:textColor="#FFFFFF"
+        android:elevation="2dp" />
 
     <TextView
         android:id="@+id/stepIndicator"
@@ -40,7 +40,10 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:textAppearance="@style/cancel"
-        android:padding="8dp" />
+        android:padding="12dp"
+        android:background="@drawable/step_indicator_background"
+        android:textColor="#FFFFFF"
+        android:elevation="4dp" />
 
     <TextView
         android:id="@+id/triggerLabel"
@@ -51,21 +54,24 @@
         android:text="What was the trigger for this mood?"
         android:textStyle="bold"
         android:textAppearance="@style/cancel"
-        android:textSize="18sp" />
+        android:textSize="22sp"
+        android:textColor="#FBFAF5"
+        android:letterSpacing="0.02" />
 
     <EditText
         android:id="@+id/triggerInput"
         android:layout_width="match_parent"
         android:layout_height="120dp"
         android:layout_below="@+id/triggerLabel"
-        android:layout_marginTop="29dp"
+        android:layout_marginTop="24dp"
         android:background="@drawable/edit_text_background"
         android:gravity="top|start"
         android:hint="Enter trigger"
         android:padding="16dp"
         android:textColor="@color/secondary_text_color"
         android:textColorHint="@color/hint_text_color"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:elevation="4dp" />
 
     <TextView
         android:id="@+id/socialSituationLabel"
@@ -76,7 +82,9 @@
         android:text="Social Situation"
         android:textStyle="bold"
         android:textAppearance="@style/cancel"
-        android:textSize="18sp" />
+        android:textSize="22sp"
+        android:textColor="#FBFAF5"
+        android:letterSpacing="0.02" />
 
     <LinearLayout
         android:id="@+id/topButtonRow"
@@ -85,44 +93,44 @@
         android:layout_below="@id/socialSituationLabel"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         android:baselineAligned="false"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/ss1"
             android:layout_width="0dp"
             android:layout_height="60dp"
-            android:layout_marginStart="5dp"
+            android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:background="@drawable/rounded_text"
             android:text="Alone"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
             app:backgroundTint="#9ca49c"
-            app:cornerRadius="8dp"
-            app:strokeWidth="1dp" />
+            app:cornerRadius="12dp"
+            app:elevation="4dp"
+            app:rippleColor="#FFFFFF" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/ss2"
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="5dp"
+            android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:background="@drawable/rounded_text"
             android:text="With one other person"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
             app:backgroundTint="#9ca49c"
-            app:cornerRadius="8dp"
-            app:strokeWidth="1dp" />
+            app:cornerRadius="12dp"
+            app:elevation="4dp"
+            app:rippleColor="#FFFFFF" />
     </LinearLayout>
 
     <LinearLayout
@@ -132,75 +140,71 @@
         android:layout_below="@id/topButtonRow"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         android:baselineAligned="false"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/ss3"
             android:layout_width="0dp"
             android:layout_height="60dp"
-            android:layout_marginStart="5dp"
+            android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:background="@drawable/rounded_text"
             android:text="With two to several people"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
             app:backgroundTint="#9ca49c"
-            app:cornerRadius="8dp"
-            app:strokeWidth="1dp" />
+            app:cornerRadius="12dp"
+            app:elevation="4dp"
+            app:rippleColor="#FFFFFF" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/ss4"
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="5dp"
+            android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:background="@drawable/rounded_text"
             android:text="With a crowd"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
             app:backgroundTint="#9ca49c"
-            app:cornerRadius="8dp"
-            app:strokeWidth="1dp" />
+            app:cornerRadius="12dp"
+            app:elevation="4dp"
+            app:rippleColor="#FFFFFF" />
     </LinearLayout>
-
-
-
-
 
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="12dp"
         android:baselineAligned="false"
         android:orientation="horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/backbutton"
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:background="@drawable/rounded_text"
             android:text="Back"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold"
             app:backgroundTint="#9ca49c"
-            app:cornerRadius="8dp"
-            app:strokeWidth="1dp" />
+            app:cornerRadius="16dp"
+            app:elevation="4dp"
+            app:rippleColor="#FFFFFF" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/createmood"
             android:layout_width="0dp"
             android:layout_height="60dp"
@@ -210,10 +214,10 @@
             android:textColor="#203434"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:backgroundTint="#D7D2CC"
-            app:cornerRadius="15dp"
-            app:strokeWidth="1dp" />
+            app:backgroundTint="#FFFDD0"
+            app:cornerRadius="16dp"
+            app:elevation="4dp"
+            app:rippleColor="#80203434" />
     </LinearLayout>
-
 
 </RelativeLayout>

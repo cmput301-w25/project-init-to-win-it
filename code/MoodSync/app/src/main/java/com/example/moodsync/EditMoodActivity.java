@@ -2,6 +2,7 @@ package com.example.moodsync;
 
 import android.animation.ObjectAnimator;
 
+import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -254,7 +256,7 @@ public class EditMoodActivity extends Fragment {
             }
         }
 
-        binding2.editmood.setOnClickListener(v -> {
+        binding2.createmood.setOnClickListener(v -> {
 
             String trigger = triggerInput.getText().toString();
 
@@ -491,9 +493,101 @@ public class EditMoodActivity extends Fragment {
         if (gradientResId != null) {
             mainLayout.setBackgroundResource(gradientResId);
         }
-//         else {
-//            mainLayout.setBackgroundResource(R.drawable.default_gradient); // Default gradient
-//        }
+         else {
+            mainLayout.setBackgroundColor(Color.parseColor("#203434")); // Default gradient
+        }
+        EditText editDescription = binding1.editDescription;
+        Spinner spinnerStuff = binding1.mainCard;
+        View rectangleViewOrSum = binding1.rectangle2;
+        TextView textView = binding1.stepIndicator;
+        Button button = binding1.next;
+
+        switch (mood) {
+            case "None":
+                editDescription.setBackgroundResource(R.drawable.edit_text_background);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_background);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_background);
+                button.setBackgroundResource(R.drawable.edit_text_background);
+                textView.setBackgroundResource(R.drawable.edit_text_background);
+                textView.setTextColor(R.drawable.blackmamba);
+                editDescription.setTextColor(Color.parseColor("#5A4A33"));
+                break;
+            case "Happy":
+                editDescription.setBackgroundResource(R.drawable.edit_text_happy);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_happy);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_happy);
+                button.setBackgroundResource(R.drawable.edit_text_happy);
+                textView.setBackgroundResource(R.drawable.edit_text_happy);
+                editDescription.setTextColor(Color.parseColor("#5A4A33"));
+                break;
+            case "Sad":
+                editDescription.setBackgroundResource(R.drawable.edit_text_sad);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_sad);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_sad);
+                button.setBackgroundResource(R.drawable.edit_text_sad);
+                textView.setBackgroundResource(R.drawable.edit_text_sad);
+                editDescription.setTextColor(Color.parseColor("#2C3E50"));
+                break;
+            case "Angry":
+                editDescription.setBackgroundResource(R.drawable.edit_text_angry);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_angry);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_angry);
+                button.setBackgroundResource(R.drawable.edit_text_angry);
+                textView.setBackgroundResource(R.drawable.edit_text_angry);
+                editDescription.setTextColor(Color.parseColor("#4D1A1A"));
+                break;
+            case "Confused":
+                editDescription.setBackgroundResource(R.drawable.edit_text_confused);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_confused);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_confused);
+                button.setBackgroundResource(R.drawable.edit_text_confused);
+                textView.setBackgroundResource(R.drawable.edit_text_confused);
+                editDescription.setTextColor(Color.parseColor("#3A2D58"));
+                break;
+            case "Surprised":
+                editDescription.setBackgroundResource(R.drawable.edit_text_surprised);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_surprised);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_surprised);
+                button.setBackgroundResource(R.drawable.edit_text_surprised);
+                textView.setBackgroundResource(R.drawable.edit_text_surprised);
+                editDescription.setTextColor(Color.parseColor("#5D2B3E"));
+                break;
+            case "Ashamed":
+                editDescription.setBackgroundResource(R.drawable.edit_text_ashamed);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_ashamed);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_ashamed);
+                textView.setBackgroundResource(R.drawable.edit_text_ashamed);
+                button.setBackgroundResource(R.drawable.edit_text_ashamed);
+
+                editDescription.setTextColor(Color.parseColor("#5C3A21"));
+                break;
+            case "Scared":
+                editDescription.setBackgroundResource(R.drawable.edit_text_scared);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_scared);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_scared);
+                textView.setBackgroundResource(R.drawable.edit_text_scared);
+                button.setBackgroundResource(R.drawable.edit_text_scared);
+
+                editDescription.setTextColor(Color.parseColor("#2B3F5D"));
+                break;
+            case "Disgusted":
+                editDescription.setBackgroundResource(R.drawable.edit_text_disgusted);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_disgusted);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_disgusted);
+                textView.setBackgroundResource(R.drawable.edit_text_disgusted);
+                button.setBackgroundResource(R.drawable.edit_text_disgusted);
+
+                editDescription.setTextColor(Color.parseColor("#264D33"));
+                break;
+
+            default:
+                // Default textbox background if no mood matches
+                editDescription.setBackgroundResource(R.drawable.edit_text_default);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_default);
+                button.setBackgroundResource(R.drawable.edit_text_default);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_default);
+                editDescription.setTextColor(Color.parseColor("#204343"));
+        }
     }
 
     private void setImageColor(ImageView imageView) {
