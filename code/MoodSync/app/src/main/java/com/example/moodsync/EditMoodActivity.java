@@ -49,6 +49,7 @@ public class EditMoodActivity extends Fragment {
     private EditMoodFragment2Binding binding2;
     private boolean isSecondLayout = false;
     private RelativeLayout mainLayout;
+    private String imageUrl = "";
 
     private final Map<String, Integer> moodGradients = new HashMap<>();
 
@@ -264,7 +265,8 @@ public class EditMoodActivity extends Fragment {
                     this.selectedMood,
                     trigger,
                     this.moodDescription,
-                    socialSituation1
+                    socialSituation1,
+                    imageUrl
             );
 
             Log.d("FIREBASE", "Saving: " + moodEvent);

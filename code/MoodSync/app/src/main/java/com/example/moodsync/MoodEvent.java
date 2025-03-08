@@ -23,7 +23,7 @@ public class MoodEvent implements Parcelable {
         // Default constructor required for Firebase
     }
 
-    public MoodEvent(String mood, String trigger, String description, String socialSituation) {
+    public MoodEvent(String mood, String trigger, String description, String socialSituation,String imageUrl) {
         this.mood = mood;
         this.trigger = trigger;
         this.description = description;

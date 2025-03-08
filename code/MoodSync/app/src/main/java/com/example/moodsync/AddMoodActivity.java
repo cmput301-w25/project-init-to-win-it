@@ -3,13 +3,12 @@ package com.example.moodsync;
 import static android.app.Activity.RESULT_OK;
 
 import android.animation.ObjectAnimator;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
-
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.BitmapDrawable;
@@ -20,6 +19,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,6 +72,7 @@ public class AddMoodActivity extends Fragment {
     private boolean isSecondLayout = false;
     private RelativeLayout mainLayout;
     private Uri photoUri;
+    private String imageUrl;
 
     private final Map<String, Integer> moodGradients = new HashMap<>();
 
@@ -82,6 +83,7 @@ public class AddMoodActivity extends Fragment {
     private static final int ANIMATION_DURATION = 300; // Animation duration in milliseconds
 
     private FirebaseFirestore db;
+    private long MAX_PHOTO_SIZE = 1000;
     private CollectionReference moodEventsRef;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int PICK_IMAGE_REQUEST = 2;
@@ -211,53 +213,124 @@ public class AddMoodActivity extends Fragment {
                 })
                 .show();
     }
+    private long checkImageSize(Uri imageUri) {
+        Cursor cursor = requireContext().getContentResolver().query(imageUri, null, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+            if (sizeIndex != -1) {
+                long imageSizeInBytes = cursor.getLong(sizeIndex);
+                long imageSizeInKB = imageSizeInBytes / 1024;
+                long imageSizeInMB = imageSizeInKB / 1024;
+                Log.d("Image Size", "Size in bytes: " + imageSizeInKB);
+                return imageSizeInKB;
+            }
+            cursor.close();
+        }
+        return 0;
+    }
 
     private void openCamera() {
+
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            if (photoFile != null) {
-
-                photoUri = FileProvider.getUriForFile(requireContext(), "com.example.fileprovider", photoFile);
+            createImageFile();
+            if (photoUri != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+
             }
         }
     }
+    private void createImageFile() {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, "JPEG_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()));
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/");
 
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        return File.createTempFile(imageFileName, ".jpg", storageDir);
+        photoUri = requireActivity().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
     }
 
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
+    private void uploadImageToFirebase(Uri imageUri, OnImageUploadedListener listener) {
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference()
+                .child("mood_images/" + UUID.randomUUID().toString());
+
+        storageRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        listener.onImageUploaded(uri.toString());
+                        this.imageUrl = uri.toString(); // Update imageUrl here
+                    });
+                })
+                .addOnFailureListener(e -> listener.onUploadFailed(e));
+    }
+
+
+    interface OnImageUploadedListener {
+        void onImageUploaded(String imageUrl);
+        void onUploadFailed(Exception e);
+    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK) {
-            View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
             if (requestCode == REQUEST_IMAGE_CAPTURE) {
+                long size = checkImageSize(photoUri);
+                if (size < MAX_PHOTO_SIZE) {
+                    uploadImageToFirebase(photoUri, new OnImageUploadedListener() {
+                        @Override
+                        public void onImageUploaded(String imageUrl) {
+                            AddMoodActivity.this.imageUrl = imageUrl; // Update imageUrl here
+                        }
 
-                rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
+                        @Override
+                        public void onUploadFailed(Exception e) {
+                            showErrorToast(e);
+                        }
+                    });
+                } else {
+                    showPhotoOptionsDialog();
+                }
             } else if (requestCode == PICK_IMAGE_REQUEST && data != null) {
                 Uri selectedImageUri = data.getData();
+                long size = checkImageSize(selectedImageUri);
+                if (size < MAX_PHOTO_SIZE) {
+                    uploadImageToFirebase(selectedImageUri, new OnImageUploadedListener() {
+                        @Override
+                        public void onImageUploaded(String imageUrl) {
+                            AddMoodActivity.this.imageUrl = imageUrl; // Update imageUrl here
+                        }
 
-                rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(selectedImageUri)));
+                        @Override
+                        public void onUploadFailed(Exception e) {
+                            showErrorToast(e);
+                        }
+                    });
+                } else {
+                    showPhotoOptionsDialog();
+                }
             }
         }
     }
 
+
+    private void uploadImageToFirebase(Uri imageUri) {
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference()
+                .child("mood_images/" + UUID.randomUUID().toString());
+
+        storageRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        Log.d("Firebase", "Image uploaded successfully. URL: " + uri.toString());
+                        photoUri = null; // Reset photoUri to avoid local display
+                    });
+                })
+                .addOnFailureListener(e -> showErrorToast(e));
+    }
     private Bitmap getBitmapFromUri(Uri uri) {
         try {
             return MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), uri);
@@ -281,42 +354,24 @@ public class AddMoodActivity extends Fragment {
 
         EditText triggerInput = binding2.triggerInput;
 
-        binding2.createmood.setOnClickListener(v -> {
+        {
 
-            String trigger = triggerInput.getText().toString();
+            binding2.createmood.setOnClickListener(v -> {
+                String trigger = triggerInput.getText().toString();
+                String socialSituation = (selectedSocialSituationButton != null) ?
+                        selectedSocialSituationButton.getText().toString() : "None";
 
-
-            String socialSituation = (selectedSocialSituationButton != null) ?
-                    selectedSocialSituationButton.getText().toString() : "None";
-
-
-            MoodEvent moodEvent = new MoodEvent(
-                    this.selectedMood,
-                    trigger,
-                    this.moodDescription,
-                    socialSituation
-            );
-
-            Log.d("FIREBASE", "Saving: " + moodEvent);
-
-            if (photoUri != null) {
-                StorageReference storageRef = FirebaseStorage.getInstance().getReference()
-                        .child("mood_images/" + UUID.randomUUID().toString());
-                storageRef.putFile(photoUri)
-                        .addOnSuccessListener(taskSnapshot -> {
-
-                            storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                moodEvent.setImageUrl(uri.toString());
-
-                                saveMoodEventToFirestore(moodEvent);
-                            });
-                        })
-                        .addOnFailureListener(e -> showErrorToast(e));
-            } else {
+                MoodEvent moodEvent = new MoodEvent(
+                        this.selectedMood,
+                        trigger,
+                        this.moodDescription,
+                        socialSituation,
+                        imageUrl // Use the updated imageUrl variable
+                );
 
                 saveMoodEventToFirestore(moodEvent);
-            }
-        });
+            });
+        }
 
         binding2.backbutton.setOnClickListener(v -> NavHostFragment.findNavController(AddMoodActivity.this)
                 .navigateUp());
@@ -375,12 +430,12 @@ public class AddMoodActivity extends Fragment {
 
         EditText triggerInput = binding2.triggerInput;
         String trigger = triggerInput.getText().toString();
-
+        imageUrl = "";
         MoodEvent moodEvent = new MoodEvent(
                 selectedMood,
                 trigger,
                 moodDescription,
-                socialSituation
+                socialSituation,imageUrl
         );
 
         Log.d("FIRESTORE", "Attempting to save: " + moodEvent.toString());
