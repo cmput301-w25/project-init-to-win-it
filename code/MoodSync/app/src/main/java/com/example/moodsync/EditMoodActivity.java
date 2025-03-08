@@ -42,6 +42,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A fragment for editing an existing mood event.
+ * This fragment allows users to modify the mood, description, trigger, and social situation
+ * associated with a mood event. It uses two layouts: one for basic mood and description,
+ * and another for more detailed information like trigger and social situation.
+ */
 public class EditMoodActivity extends Fragment {
     private String moodDescription;
     private String selectedMood;
@@ -63,6 +69,7 @@ public class EditMoodActivity extends Fragment {
     private MoodEvent moodEventToEdit;
 
 
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -79,6 +86,7 @@ public class EditMoodActivity extends Fragment {
             return binding1.getRoot();
         }
     }
+
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
@@ -111,6 +119,12 @@ public class EditMoodActivity extends Fragment {
         }
     }
 
+    /**
+     * Sets up the first layout (EditMoodFragmentBinding) by initializing UI elements,
+     * setting up listeners for mood selection, and handling navigation to the second layout.
+     *
+     * @param view The root view of the fragment.
+     */
     private void setupFirstLayout(View view) {
         mainLayout = view.findViewById(R.id.main_layout);
 
@@ -208,6 +222,10 @@ public class EditMoodActivity extends Fragment {
 
     }
 
+    /**
+     * Resets the background of all emoji ImageViews to transparent.
+     * This is used to clear the selection state of emojis.
+     */
     private void resetAllEmojis() {
         happyImage.setBackgroundResource(android.R.color.transparent);
         sadImage.setBackgroundResource(android.R.color.transparent);
@@ -219,6 +237,12 @@ public class EditMoodActivity extends Fragment {
         disgustedImage.setBackgroundResource(android.R.color.transparent);
     }
 
+    /**
+     * Sets the spinner to a specific value.
+     *
+     * @param spinner The spinner to set the value for.
+     * @param value   The value to be selected in the spinner.
+     */
     private void setSpinnerToValue(Spinner spinner, String value) {
         for (int i = 0; i < spinner.getCount(); i++) {
             if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(value)) {
@@ -228,7 +252,11 @@ public class EditMoodActivity extends Fragment {
         }
     }
 
-
+    /**
+     * Sets up the second layout (EditMoodFragment2Binding) by initializing UI elements,
+     * retrieving data from arguments, and setting up listeners for social situation selection
+     * and mood event editing.
+     */
     private void setupSecondLayout() {
         Log.d("LIFECYCLE", "setupSecondLayout called");
         if (getArguments() != null) {
@@ -291,6 +319,12 @@ public class EditMoodActivity extends Fragment {
     }
 
 
+    /**
+     * Handles the selection of a social situation button.
+     * It deselects the previously selected button and selects the new one, applying animations.
+     *
+     * @param button The button that represents the selected social situation.
+     */
     private void selectSocialSituation(Button button) {
         if (selectedSocialSituationButton != null) {
             animateButtonDeselection(selectedSocialSituationButton);
@@ -301,6 +335,11 @@ public class EditMoodActivity extends Fragment {
     }
 
 
+    /**
+     * Animates the selection of a button by scaling it up and changing its background tint.
+     *
+     * @param button The button to animate.
+     */
     private void animateButtonSelection(Button button) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1f, 1.1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(button, "scaleY", 1f, 1.1f);
@@ -317,6 +356,11 @@ public class EditMoodActivity extends Fragment {
         button.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_selected));
     }
 
+    /**
+     * Animates the deselection of a button by scaling it down and changing its background tint.
+     *
+     * @param button The button to animate.
+     */
     private void animateButtonDeselection(Button button) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1.1f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(button, "scaleY", 1.1f, 1f);
@@ -333,7 +377,9 @@ public class EditMoodActivity extends Fragment {
         button.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
     }
 
-
+    /**
+     * Refreshes the mood events list by fetching the latest data from Firestore.
+     */
     private void refreshMoodEventsList() {
         moodEventsRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -349,6 +395,12 @@ public class EditMoodActivity extends Fragment {
         });
     }
 
+    /**
+     * Updates a mood event in Firestore.
+     * It finds the document matching the mood event to edit and updates it with the new data.
+     *
+     * @param moodEvent The mood event to update.
+     */
     private void updateMoodEvent(MoodEvent moodEvent) {
         moodEventsRef.whereEqualTo("description", moodEventToEdit.getDescription()).get()
                 .addOnCompleteListener(task -> {
@@ -368,6 +420,11 @@ public class EditMoodActivity extends Fragment {
     }
 
 
+    /**
+     * Deletes a mood event from Firestore.
+     *
+     * @param moodEvent The mood event to delete.
+     */
     private void deleteMoodEvent(MoodEvent moodEvent) {
         moodEventsRef.whereEqualTo("date", moodEvent.getDate()).get()
                 .addOnCompleteListener(task -> {
@@ -387,6 +444,12 @@ public class EditMoodActivity extends Fragment {
     }
     // yo, this method is our debug function for firestore writes, don't fuck it up
 
+    /**
+     * Shows a success dialog UI after a mood event is successfully edited.
+     * The dialog automatically dismisses after 2 seconds and navigates the user
+     * to the mood history screen. It checks to ensure the fragment is still attached
+     * to the activity before attempting to display the dialog.
+     */
     private void showSuccessDialogUI() {
         if (isAdded() && !isDetached() && !isRemoving()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog);
@@ -405,6 +468,12 @@ public class EditMoodActivity extends Fragment {
         }
     }
 
+    /**
+     * Navigates the user to the mood history screen.
+     * This method ensures that the navigation only occurs if the current destination
+     * is one of the edit mood fragments. It includes a fallback navigation in case
+     * of an IllegalArgumentException during navigation.
+     */
     private void navigateToMoodHistory() {
         NavController navController = NavHostFragment.findNavController(this);
         if (navController.getCurrentDestination().getId() == R.id.editMoodActivityFragment ||
@@ -419,12 +488,24 @@ public class EditMoodActivity extends Fragment {
         }
     }
 
+    /**
+     * Shows an error toast message on the UI thread.
+     *
+     * @param e The exception whose message is to be displayed in the toast.
+     */
     private void showErrorToast(Exception e) {
         new Handler(Looper.getMainLooper()).post(() ->
                 Toast.makeText(getContext(), "Save failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-
+    /**
+     * Selects a mood and updates the corresponding UI elements.
+     * This method updates the color filter of the selected image, animates it,
+     * updates the spinner selection, and changes the background color.
+     *
+     * @param mood              The mood that was selected.
+     * @param selectedImageView The ImageView corresponding to the selected mood.
+     */
     private void selectMood(String mood, ImageView selectedImageView) {
         if (lastSelectedImageView != null) {
             lastSelectedImageView.setColorFilter(null);
@@ -445,6 +526,12 @@ public class EditMoodActivity extends Fragment {
     }
 
 
+    /**
+     * Gets the position of a mood in the mood spinner.
+     *
+     * @param mood The mood to find the position for.
+     * @return The position of the mood in the spinner array.
+     */
     private int getPositionForMood(String mood) {
         String[] moodArray = getResources().getStringArray(R.array.spinner_items);
         for (int i = 0; i < moodArray.length; i++) {
@@ -454,6 +541,11 @@ public class EditMoodActivity extends Fragment {
         }
         return 0;
     }
+    /**
+     * Creates a color filter to desaturate and darken an image.
+     *
+     * @return A ColorMatrixColorFilter that desaturates and darkens an image.
+     */
     private ColorMatrixColorFilter createColorFilter() {
         ColorMatrix matrix = new ColorMatrix();
         matrix.setSaturation(0);
@@ -461,6 +553,11 @@ public class EditMoodActivity extends Fragment {
         return new ColorMatrixColorFilter(matrix);
     }
 
+    /**
+     * Animates the selection of an image view by scaling it up.
+     *
+     * @param imageView The ImageView to animate.
+     */
     private void animateImageSelection(ImageView imageView) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(imageView, "scaleX", 1f, 1.2f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(imageView, "scaleY", 1f, 1.2f);
@@ -475,6 +572,11 @@ public class EditMoodActivity extends Fragment {
         scaleY.start();
     }
 
+    /**
+     * Animates the deselection of an image view by scaling it down.
+     *
+     * @param imageView The ImageView to animate.
+     */
     private void animateImageDeselection(ImageView imageView) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(imageView, "scaleX", 1.2f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(imageView, "scaleY", 1.2f, 1f);
@@ -489,7 +591,11 @@ public class EditMoodActivity extends Fragment {
         scaleY.start();
     }
 
-
+    /**
+     * Updates the background color of the main layout based on the selected mood.
+     *
+     * @param mood The selected mood.
+     */
     private void updateBackgroundColor(String mood) {
         Integer gradientResId = moodGradients.get(mood);
         if (gradientResId != null) {
@@ -500,14 +606,31 @@ public class EditMoodActivity extends Fragment {
 //        }
     }
 
+    /**
+     * Sets the color filter of an image view to the selected mood color.
+     *
+     * @param imageView The ImageView to set the color for.
+     */
     private void setImageColor(ImageView imageView) {
         imageView.setColorFilter(ContextCompat.getColor(getContext(), R.color.selected_mood_color));
     }
 
+    /**
+     * Resets the color filter of an image view.
+     *
+     * @param imageView The ImageView to reset the color for.
+     */
     private void resetImageColor(ImageView imageView) {
         imageView.clearColorFilter();
     }
 
+    /**
+     * Gets the position of a value in a spinner.
+     *
+     * @param spinner The spinner to search in.
+     * @param value   The value to find the position for.
+     * @return The position of the value in the spinner, or -1 if not found.
+     */
     private int getPositionOfValue(Spinner spinner, String value) {
         for (int i = 0; i < spinner.getCount(); i++) {
             if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(value)) {
@@ -516,6 +639,7 @@ public class EditMoodActivity extends Fragment {
         }
         return -1;
     }
+
 
 
     @Override

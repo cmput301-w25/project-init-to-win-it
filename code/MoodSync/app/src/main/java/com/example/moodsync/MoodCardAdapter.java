@@ -14,17 +14,26 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-//import com.bumptech.glide.Glide;
+
 
 import java.util.List;
-
+/**
+ * Adapter for displaying MoodEvent objects in a RecyclerView as mood cards.
+ * This adapter binds the data from MoodEvent objects to the views within each card,
+ * allowing users to see a summary of their recorded moods.
+ */
 public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCardViewHolder> {
 
     private final List<MoodEvent> moodEvents;
 
+    /**
+     * Constructs a MoodCardAdapter with the provided list of MoodEvent objects.
+     * @param moodEvents The list of MoodEvent objects to display.
+     */
     public MoodCardAdapter(List<MoodEvent> moodEvents) {
         this.moodEvents = moodEvents;
     }
+
 
     @NonNull
     @Override
@@ -32,6 +41,7 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.main_mood_card_item, parent, false);
         return new MoodCardViewHolder(view);
     }
+
 
     @Override
     public void onBindViewHolder(@NonNull MoodCardViewHolder holder, int position) {
@@ -47,6 +57,11 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         holder.detailsButton.setOnClickListener(v -> showDetailsDialog(holder.itemView.getContext(), moodEvent));
     }
 
+    /**
+     * Determines the background color of the mood card based on the mood.
+     * @param mood The mood string.
+     * @return The corresponding color resource ID.
+     */
     private int getMoodColor(String mood) {
         switch (mood.toLowerCase()) {
             case "happy":
@@ -71,17 +86,27 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
     }
 
 
+
     @Override
     public int getItemCount() {
         return moodEvents != null ? moodEvents.size() : 0;
     }
 
+    /**
+     * Updates the list of MoodEvent objects in the adapter and refreshes the RecyclerView.
+     * @param newMoodEvents The new list of MoodEvent objects.
+     */
     public void updateMoodEvents(List<MoodEvent> newMoodEvents) {
         this.moodEvents.clear();
         this.moodEvents.addAll(newMoodEvents);
         notifyDataSetChanged();
     }
 
+    /**
+     * Shows a detailed view of a MoodEvent in a popup dialog.
+     * @param context The context in which to show the dialog.
+     * @param moodEvent The MoodEvent object to display.
+     */
     private void showDetailsDialog(Context context, MoodEvent moodEvent) {
         // Inflate custom dialog layout
         View dialogView = LayoutInflater.from(context).inflate(R.layout.popup_details, null);
@@ -121,11 +146,18 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         builder.create().show();
     }
 
+    /**
+     * ViewHolder class that holds the views for each mood card item in the RecyclerView.
+     */
     static class MoodCardViewHolder extends RecyclerView.ViewHolder {
         TextView moodTextView;
         TextView triggerTextView;
         Button detailsButton;
 
+        /**
+         * Constructs a MoodCardViewHolder.
+         * @param itemView The item view.
+         */
         public MoodCardViewHolder(@NonNull View itemView) {
             super(itemView);
             moodTextView = itemView.findViewById(R.id.mood_text_view); // Matches XML ID for mood

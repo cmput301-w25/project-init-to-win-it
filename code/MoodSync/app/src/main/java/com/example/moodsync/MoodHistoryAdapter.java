@@ -15,6 +15,7 @@
 
     import java.util.List;
 
+
     public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.MoodHistoryViewHolder> {
 
         private final List<MoodHistoryItem> moodHistoryItems;
@@ -22,15 +23,20 @@
         private final FirebaseFirestore db;
         private OnItemClickListener listener;
 
+
         public interface OnItemClickListener {
+
             void onItemClick(MoodHistoryItem item);
         }
+
 
         public MoodHistoryAdapter(List<MoodHistoryItem> moodHistoryItems, Context context) {
             this.moodHistoryItems = moodHistoryItems;
             this.context = context;
             this.db = FirebaseFirestore.getInstance();
         }
+
+
 
         public void setOnItemClickListener(OnItemClickListener listener) {
             this.listener = listener;
@@ -43,6 +49,7 @@
                     .inflate(R.layout.mood_card_item, parent, false);
             return new MoodHistoryViewHolder(view);
         }
+
 
         @Override
         public void onBindViewHolder(@NonNull MoodHistoryViewHolder holder, int position) {
@@ -62,6 +69,7 @@
                 }
             });
         }
+
 
         private int getMoodColor(String mood) {
             switch (mood.toLowerCase()) {
@@ -86,6 +94,7 @@
             }
         }
 
+
         @Override
         public int getItemCount() {
             return moodHistoryItems.size();
@@ -101,6 +110,7 @@
                     .show();
         }
 
+
         private void deleteMoodFromFirestore(MoodHistoryItem item, int position) {
             db.collection("mood_events").document(item.getId()) // Ensure you have an ID in your MoodHistoryItem
                     .delete()
@@ -115,11 +125,13 @@
                     });
         }
 
+
         static class MoodHistoryViewHolder extends RecyclerView.ViewHolder {
             static TextView moodTextView;
             static TextView emojiTextView;
             static TextView descriptionTextView;
             Button deleteButton;
+
 
             public MoodHistoryViewHolder(@NonNull View itemView) {
                 super(itemView);

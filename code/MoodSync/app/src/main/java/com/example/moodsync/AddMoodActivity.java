@@ -7,6 +7,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
+import android.widget.Toast;
+import android.widget.RelativeLayout;
+import android.net.Uri;
+import android.widget.ImageView;
+import android.widget.Button;
 
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -14,7 +19,7 @@ import com.google.firebase.storage.StorageReference;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
+
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -64,6 +69,12 @@ import java.util.UUID;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.FirebaseStorage;
 
+/**
+ * A Fragment class for adding and managing mood entries.
+ * This class allows users to select their current mood, provide a description,
+ * and specify the social situation associated with their mood. It also includes
+ * functionality to add a photo related to the mood.
+ */
 public class AddMoodActivity extends Fragment {
     private String moodDescription;
     private String selectedMood;
@@ -106,6 +117,8 @@ public class AddMoodActivity extends Fragment {
 
     }
 
+
+
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -125,6 +138,12 @@ public class AddMoodActivity extends Fragment {
         }
     }
 
+    /**
+     * Sets up the first layout which includes mood selection and description input.
+     *
+     * @param view
+     *     The root view of the fragment.
+     */
     private void setupFirstLayout(View view) {
         mainLayout = view.findViewById(R.id.main_layout);
 
@@ -192,11 +211,17 @@ public class AddMoodActivity extends Fragment {
         setupRectangleClickListener();
     }
 
+    /**
+     * Sets up a click listener for the rectangle view to allow users to add a photo.
+     */
     private void setupRectangleClickListener() {
         View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
         rectangle2.setOnClickListener(v -> showPhotoOptionsDialog());
     }
 
+    /**
+     * Displays a dialog to allow users to choose between adding a photo from the camera or gallery.
+     */
     private void showPhotoOptionsDialog() {
         String[] options = {"Add from Camera", "Add from Photos"};
         Log.d("Camera" , "i CLICKED ON THE BUTTON BITCH");
@@ -212,6 +237,9 @@ public class AddMoodActivity extends Fragment {
                 .show();
     }
 
+    /**
+     * Opens the camera application to capture a photo.
+     */
     private void openCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
@@ -230,6 +258,12 @@ public class AddMoodActivity extends Fragment {
         }
     }
 
+    /**
+     * Creates an image file to store the captured photo.
+     *
+     * @return The created File object.
+     * @throws IOException If an error occurs during file creation.
+     */
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
@@ -237,11 +271,17 @@ public class AddMoodActivity extends Fragment {
         return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
+
+    /**
+     * Opens the gallery application to select a photo.
+     */
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
+
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -259,6 +299,12 @@ public class AddMoodActivity extends Fragment {
         }
     }
 
+    /**
+     * Retrieves a Bitmap from the given Uri.
+     *
+     * @param uri The Uri of the image.
+     * @return The Bitmap image, or null if an error occurred.
+     */
     private Bitmap getBitmapFromUri(Uri uri) {
         try {
             return MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), uri);
@@ -269,6 +315,9 @@ public class AddMoodActivity extends Fragment {
     }
 
 
+    /**
+     * Sets up the second layout which includes trigger input and social situation selection.
+     */
     private void setupSecondLayout() {
         Log.d("LIFECYCLE", "setupSecondLayout called");
         // Retrieve arguments safely
@@ -333,6 +382,11 @@ public class AddMoodActivity extends Fragment {
     }
 
 
+    /**
+     * Selects a social situation and updates the UI accordingly.
+     *
+     * @param button The button representing the selected social situation.
+     */
     private void selectSocialSituation(Button button) {
         if (selectedSocialSituationButton != null) {
             animateButtonDeselection(selectedSocialSituationButton);
@@ -342,6 +396,11 @@ public class AddMoodActivity extends Fragment {
         selectedSocialSituationButton = button;
     }
 
+    /**
+     * Animates the selection of a social situation button.
+     *
+     * @param button The button to animate.
+     */
     private void animateButtonSelection(Button button) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1f, 1.1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(button, "scaleY", 1f, 1.1f);
@@ -358,6 +417,11 @@ public class AddMoodActivity extends Fragment {
         button.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_selected));
     }
 
+    /**
+     * Animates the deselection of a social situation button.
+     *
+     * @param button The button to animate.
+     */
     private void animateButtonDeselection(Button button) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1.1f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(button, "scaleY", 1.1f, 1f);
@@ -374,6 +438,9 @@ public class AddMoodActivity extends Fragment {
         button.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
     }
 
+    /**
+     * Displays a success dialog after successfully saving the mood event.
+     */
     private void showSuccessDialog() {
         String socialSituation = selectedSocialSituationButton != null ?
                 selectedSocialSituationButton.getText().toString() : "None";
@@ -405,6 +472,13 @@ public class AddMoodActivity extends Fragment {
                 });
     }
 
+    /**
+     * Refreshes the list of mood events from Firestore.
+     * Retrieves all mood events from the "mood_events" collection in Firestore,
+     * converts them into `MoodEvent` objects, and adds them to a list.
+     * If the retrieval is successful, the mood events list is updated.
+     * If there is an error during retrieval, an error message is logged.
+     */
     private void refreshMoodEventsList() {
         moodEventsRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -419,13 +493,30 @@ public class AddMoodActivity extends Fragment {
             }
         });
     }
+
+    /**
+     * Saves a mood event to Firestore.
+     * Adds the provided `MoodEvent` object to the "mood_events" collection in Firestore.
+     * On successful addition, it triggers the UI to show a success dialog.
+     * On failure, it displays an error message using a toast.
+     *
+     * @param moodEvent The `MoodEvent` object to be saved to Firestore.
+     */
     private void saveMoodEventToFirestore(MoodEvent moodEvent) {
         moodEventsRef.add(moodEvent)
                 .addOnSuccessListener(aVoid -> showSuccessDialogUI())
                 .addOnFailureListener(e -> showErrorToast(e));
     }
 
-
+    /**
+     * Updates an existing mood event in Firestore.
+     * It first queries Firestore to find the document matching the mood event's date.
+     * If a matching document is found, it updates that document with the new `MoodEvent` data.
+     * On successful update, it logs a success message and refreshes the mood events list.
+     * On failure, it logs an error message. If no matching mood event is found, it logs a "not found" error.
+     *
+     * @param moodEvent The `MoodEvent` object containing the updated data.  The date field is used to identify the event to update.
+     */
     private void updateMoodEvent(MoodEvent moodEvent) {
         moodEventsRef.whereEqualTo("date", moodEvent.getDate()).get()
                 .addOnCompleteListener(task -> {
@@ -444,7 +535,15 @@ public class AddMoodActivity extends Fragment {
                 });
     }
 
-
+    /**
+     * Deletes a mood event from Firestore.
+     * It queries Firestore to find the document matching the mood event's date.
+     * If a matching document is found, it deletes that document.
+     * On successful deletion, it logs a success message and refreshes the mood events list.
+     * On failure, it logs an error message. If no matching mood event is found, it logs a "not found" error.
+     *
+     * @param moodEvent The `MoodEvent` object identifying the event to delete. The date field is used to identify the event.
+     */
     private void deleteMoodEvent(MoodEvent moodEvent) {
         moodEventsRef.whereEqualTo("date", moodEvent.getDate()).get()
                 .addOnCompleteListener(task -> {
@@ -462,8 +561,12 @@ public class AddMoodActivity extends Fragment {
                     }
                 });
     }
-    // yo, this method is our debug function for firestore writes, don't fuck it up
 
+    /**
+     * Displays a custom success dialog to indicate that the mood event has been saved successfully.
+     * The dialog is displayed using a custom style and layout, and it automatically dismisses
+     * after 2 seconds, navigating the user back to the previous fragment.
+     */
     private void showSuccessDialogUI() {
         // Inside the showSuccessDialogUI() method
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog);  // Use a custom style
@@ -483,10 +586,24 @@ public class AddMoodActivity extends Fragment {
         }, 2000); // Dismiss after 2 seconds
     }
 
+    /**
+     * Displays an error message as a toast when saving the mood event fails.
+     * The toast message includes the specific error message from the exception.
+     *
+     * @param e The exception that occurred during the mood event saving process.  The exception's message is displayed in the toast.
+     */
     private void showErrorToast(Exception e) {
         Toast.makeText(requireContext(), "Failed to add mood event: " + e.getMessage(), Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Updates the background color of the main layout based on the selected mood.
+     * It checks if the selected mood exists in the `moodGradients` map.
+     * If it exists, it sets the background of the `mainLayout` to the corresponding gradient drawable.
+     * If the drawable is null, or the mood doesn't exist in the map, it sets the background color to a default value.
+     *
+     * @param mood The selected mood to update the background color for.
+     */
     private void updateBackgroundColor(String mood) {
         if (moodGradients.containsKey(mood)) {
             int gradientResId = moodGradients.get(mood);
@@ -501,6 +618,16 @@ public class AddMoodActivity extends Fragment {
             mainLayout.setBackgroundColor(Color.parseColor("#203434"));
         }
     }
+
+    /**
+     * A debug function for writing a MoodEvent object to Firestore.
+     * Initializes a Firestore instance and attempts to add the provided MoodEvent
+     * to the "mood_events" collection. On success, it logs the document ID and
+     * displays a success toast. On failure, it logs the error and displays an
+     * error toast with the exception message.
+     *
+     * @param moodEvent The MoodEvent object to be written to Firestore for debugging purposes.
+     */
     private void debugFirestoreWrite(MoodEvent moodEvent) {
         // init the firestore db, bro, don't be a chutiya and skip this
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -518,6 +645,20 @@ public class AddMoodActivity extends Fragment {
                     Toast.makeText(getContext(), "fuck! write failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
+
+    /**
+     * Handles the selection of a mood, updating the UI accordingly.
+     * When a mood is selected:
+     * 1. It deselects the previously selected mood image, if any.
+     * 2. It applies a color filter to the newly selected mood image.
+     * 3. It animates the selection/deselection of the images.
+     * 4. It updates the selected mood in the mood spinner.
+     * 5. It updates the background color of the main layout.
+     * 6. It displays a toast message indicating the selected mood.
+     *
+     * @param mood The selected mood.
+     * @param selectedImageView The ImageView corresponding to the selected mood.
+     */
     private void selectMood(String mood, ImageView selectedImageView) {
         if (lastSelectedImageView != null) {
             lastSelectedImageView.setColorFilter(null);
@@ -537,6 +678,14 @@ public class AddMoodActivity extends Fragment {
         Toast.makeText(getContext(), "Selected: " + mood, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Animates the selection of an ImageView by scaling it up.
+     * Uses ObjectAnimator to create a scaling effect on the X and Y axes of the ImageView.
+     * The animation duration and interpolator are defined by `ANIMATION_DURATION` and
+     * `AccelerateDecelerateInterpolator`, respectively.
+     *
+     * @param imageView The ImageView to be animated.
+     */
     private void animateImageSelection(ImageView imageView) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(imageView, "scaleX", 1f, 1.2f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(imageView, "scaleY", 1f, 1.2f);
@@ -551,6 +700,14 @@ public class AddMoodActivity extends Fragment {
         scaleY.start();
     }
 
+    /**
+     * Animates the deselection of an ImageView by scaling it down.
+     * Uses ObjectAnimator to create a scaling effect on the X and Y axes of the ImageView,
+     * returning it to its original size. The animation duration and interpolator are defined
+     * by `ANIMATION_DURATION` and `AccelerateDecelerateInterpolator`, respectively.
+     *
+     * @param imageView The ImageView to be animated.
+     */
     private void animateImageDeselection(ImageView imageView) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(imageView, "scaleX", 1.2f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(imageView, "scaleY", 1.2f, 1f);
@@ -565,6 +722,14 @@ public class AddMoodActivity extends Fragment {
         scaleY.start();
     }
 
+    /**
+     * Gets the position of a mood in the mood spinner's array.
+     * Iterates through the mood array defined in `R.array.spinner_items` and returns the index
+     * of the mood that matches the provided `mood` parameter. If the mood is not found, it returns 0.
+     *
+     * @param mood The mood to find the position for.
+     * @return The position of the mood in the spinner's array, or 0 if not found.
+     */
     private int getPositionForMood(String mood) {
         String[] moodArray = getResources().getStringArray(R.array.spinner_items);
         for (int i = 0; i < moodArray.length; i++) {
@@ -575,12 +740,20 @@ public class AddMoodActivity extends Fragment {
         return 0;
     }
 
+    /**
+     * Creates a color filter to apply to mood images.
+     * Creates a `ColorMatrixColorFilter` that desaturates the image and reduces its brightness.
+     * This filter is used to visually distinguish the selected mood image.
+     *
+     * @return A `ColorMatrixColorFilter` for desaturating and dimming an image.
+     */
     private ColorMatrixColorFilter createColorFilter() {
         ColorMatrix matrix = new ColorMatrix();
         matrix.setSaturation(0);
         matrix.setScale(0.8f, 0.8f, 0.8f, 1.0f);
         return new ColorMatrixColorFilter(matrix);
     }
+
 
     @Override
     public void onDestroyView() {

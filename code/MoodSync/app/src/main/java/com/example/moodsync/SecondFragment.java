@@ -19,6 +19,14 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Home page fragment displaying a list of recent mood events.
+ * Provides navigation to add new mood events or view mood history.
+ *
+ * @see Fragment
+ */
+
 public class SecondFragment extends Fragment {
 
     private HomePageFragmentBinding binding;
@@ -26,11 +34,13 @@ public class SecondFragment extends Fragment {
     private MoodCardAdapter moodCardAdapter;
     private FirebaseFirestore db;
 
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = HomePageFragmentBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
+
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
@@ -55,6 +65,11 @@ public class SecondFragment extends Fragment {
         fetchMoodEvents(); // Fetch mood events from Firestore
     }
 
+    /**
+     * Initializes the RecyclerView to display mood events.
+     * Sets the layout manager and adapter for the RecyclerView.
+     */
+
     private void setupRecyclerView() {
         moodRecyclerView = binding.moodRecyclerView;
         moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -62,6 +77,9 @@ public class SecondFragment extends Fragment {
         moodRecyclerView.setAdapter(moodCardAdapter);
     }
 
+    /**
+     * Fetches mood events from Firestore and updates the RecyclerView with the retrieved data.
+     */
     private void fetchMoodEvents() {
         db.collection("mood_events").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -78,6 +96,7 @@ public class SecondFragment extends Fragment {
             }
         });
     }
+
 
     @Override
     public void onDestroyView() {

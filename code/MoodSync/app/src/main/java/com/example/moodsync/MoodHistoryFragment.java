@@ -23,6 +23,10 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+
+/**
+ * A {@link Fragment} that displays the user's mood history.
+ */
 public class MoodHistoryFragment extends Fragment {
 
     private MoodHistoryFragmentBinding binding;
@@ -32,12 +36,20 @@ public class MoodHistoryFragment extends Fragment {
     private FirebaseFirestore db;
     private static final String TAG = "MoodHistoryFragment";
 
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = MoodHistoryFragmentBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
+    /**
+     * Called immediately after {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * has returned, but before any saved state has been restored in to the view.
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -61,12 +73,17 @@ public class MoodHistoryFragment extends Fragment {
         );
     }
 
+
     @Override
     public void onResume() {
         super.onResume();
         fetchMoodEvents();
     }
 
+    /**
+     * Fetches a specific mood event from Firestore and navigates to the edit screen.
+     * @param selectedItem The selected MoodHistoryItem.
+     */
     private void fetchMoodEventAndNavigate(MoodHistoryItem selectedItem) {
         db.collection("mood_events")
                 .whereEqualTo("description", selectedItem.getDescription())
@@ -90,6 +107,9 @@ public class MoodHistoryFragment extends Fragment {
                 });
     }
 
+    /**
+     * Fetches mood events from Firestore and updates the RecyclerView.
+     */
     private void fetchMoodEvents() {
         db.collection("mood_events")
                 .get()
@@ -133,6 +153,11 @@ public class MoodHistoryFragment extends Fragment {
     }
 
 
+    /**
+     * Gets the appropriate emoji for a given mood.
+     * @param mood The mood string.
+     * @return The corresponding emoji.
+     */
     private String getEmojiForMood(String mood) {
         switch (mood.toLowerCase()) {
             case "happy":
@@ -157,6 +182,7 @@ public class MoodHistoryFragment extends Fragment {
                 return "";
         }
     }
+
 
     @Override
     public void onDestroyView() {
