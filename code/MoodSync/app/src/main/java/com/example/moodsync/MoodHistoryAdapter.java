@@ -66,25 +66,26 @@
         private int getMoodColor(String mood) {
             switch (mood.toLowerCase()) {
                 case "happy":
-                    return 0xFFFFEB3B; // Yellow
+                    return 0xFFFFF8E1; // Soft Yellow
                 case "sad":
-                    return 0xFF3F51B5; // Indigo
+                    return 0xFFE3F2FD; // Soft Blue
                 case "angry":
-                    return 0xFFF44336; // Red
+                    return 0xFFFFEBEE; // Soft Red
                 case "confused":
-                    return 0xFF9C27B0; // Purple
+                    return 0xFFF3E5F5; // Soft Purple
                 case "surprised":
-                    return 0xFF00BCD4; // Cyan
+                    return 0xFFE0F7FA; // Soft Cyan
                 case "ashamed":
-                    return 0xFF795548; // Brown
+                    return 0xFFEFEBE9; // Soft Brown
                 case "scared":
-                    return 0xFF607D8B; // Blue Grey
+                    return 0xFFECEFF1; // Soft Blue Grey
                 case "disgusted":
-                    return 0xFF4CAF50; // Green
+                    return 0xFFE8F5E9; // Soft Green
                 default:
-                    return 0xFFFFFFFF; // White
+                    return 0xFFFFFFFF; // Pure White
             }
         }
+
 
         @Override
         public int getItemCount() {

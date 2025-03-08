@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainlayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#1C2C28"
     android:padding="16dp"
-    tools:context=".AddMoodActivity">
-
+    tools:context=".AddMoodActivity"
+    >
 
     <TextView
         android:id="@+id/cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:background="@android:color/transparent"
         android:gravity="top"
         android:lineSpacingExtra="-4sp"
@@ -26,194 +28,192 @@
         android:textStyle="bold"
         android:textAllCaps="false"
         android:textAppearance="@style/cancel"
-        android:textColor="#FFFFFF"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!--        android:id="@+id/cancelButton"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:text=""-->
-    <!--        android:textSize="18sp"-->
-    <!--        android:textStyle="bold"-->
-    <!--        android:textAppearance="@style/cancel"-->
-    <!--        android:padding="8dp"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toTopOf="parent" />-->
-
-
+        android:textColor="#FFFFFF" />
 
     <TextView
         android:id="@+id/stepIndicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
         android:text="2/2"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textAppearance="@style/cancel"
-        android:padding="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:padding="8dp" />
 
     <TextView
         android:id="@+id/triggerLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/cancel"
         android:layout_marginTop="70dp"
         android:text="What was the trigger for this mood?"
         android:textStyle="bold"
         android:textAppearance="@style/cancel"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cancel" />
+        android:textSize="18sp" />
 
     <EditText
         android:id="@+id/triggerInput"
-        android:layout_width="0dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="16dp"
-        android:hint="   Enter trigger"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_below="@+id/triggerLabel"
+        android:layout_marginTop="29dp"
+        android:background="@drawable/edit_text_background"
+        android:gravity="top|start"
+        android:hint="Enter trigger"
         android:padding="16dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#FFFFFF"
-        android:textSize="16sp"
-        android:minHeight="60dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/triggerLabel"
-        android:background="@drawable/rounded_text"
-        android:clipToOutline="true"/>
+        android:textColor="@color/secondary_text_color"
+        android:textColorHint="@color/hint_text_color"
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/socialSituationLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/triggerInput"
         android:layout_marginTop="32dp"
         android:text="Social Situation"
         android:textStyle="bold"
         android:textAppearance="@style/cancel"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/triggerInput" />
+        android:textSize="18sp" />
 
-    <Button
-        android:id="@+id/ss1"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="5dp"
+    <LinearLayout
+        android:id="@+id/topButtonRow"
+        android:layout_width="match_parent"
+        android:layout_height="82dp"
+        android:layout_below="@id/socialSituationLabel"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/ss1"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_text"
+            android:text="Alone"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="#9ca49c"
+            app:cornerRadius="8dp"
+            app:strokeWidth="1dp" />
+
+        <Button
+            android:id="@+id/ss2"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_text"
+            android:text="With one other person"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="#9ca49c"
+            app:cornerRadius="8dp"
+            app:strokeWidth="1dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bottomButtonRow"
+        android:layout_width="match_parent"
+        android:layout_height="74dp"
+        android:layout_below="@id/topButtonRow"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:text="Alone"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:cornerRadius="8dp"
-        app:backgroundTint="#9ca49c"
-        android:background="@drawable/rounded_text"
-        app:layout_constraintEnd_toStartOf="@+id/ss2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/socialSituationLabel"
-        app:strokeWidth="1dp" />
+        android:layout_marginEnd="16dp"
+        android:baselineAligned="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/ss2"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="5dp"
-        android:backgroundTint="#995F9A9A"
-        android:text="With one other person"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:cornerRadius="8dp"
-        app:backgroundTint="#9ca49c"
-        android:background="@drawable/rounded_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/ss1"
-        app:layout_constraintTop_toBottomOf="@+id/socialSituationLabel"
+        <Button
+            android:id="@+id/ss3"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_text"
+            android:text="With two to several people"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="#9ca49c"
+            app:cornerRadius="8dp"
+            app:strokeWidth="1dp" />
 
-        app:strokeWidth="1dp" />
+        <Button
+            android:id="@+id/ss4"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="5dp"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_text"
+            android:text="With a crowd"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="#9ca49c"
+            app:cornerRadius="8dp"
+            app:strokeWidth="1dp" />
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/ss3"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:backgroundTint="#995F9A9A"
-        android:text="With two to several people"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:cornerRadius="8dp"
-        app:backgroundTint="#9ca49c"
-        android:background="@drawable/rounded_text"
-        app:layout_constraintEnd_toStartOf="@+id/ss4"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ss1"
-        app:strokeColor="#B2DFDB"
-        app:strokeWidth="1dp" />
 
-    <Button
-        android:id="@+id/ss4"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="5dp"
-        android:backgroundTint="#995F9A9A"
-        android:text="With a crowd"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:cornerRadius="8dp"
-        app:backgroundTint="#9ca49c"
-        android:background="@drawable/rounded_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/ss3"
-        app:layout_constraintTop_toBottomOf="@+id/ss2"
-        app:strokeColor="#B2DFDB"
-        app:strokeWidth="1dp" />
 
-    <Button
-        android:id="@+id/backbutton"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
+
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="Back"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/createmood"
-        app:layout_constraintStart_toStartOf="parent"
-        android:backgroundTint="#995F9A9A"
-        app:cornerRadius="8dp"
-        app:strokeColor="#B2DFDB"
-        app:strokeWidth="1dp"
-        app:backgroundTint="#9ca49c"
-        android:background="@drawable/rounded_text"/>
+        android:baselineAligned="false"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/createmood"
-        android:layout_width="0dp"
-        android:layout_height="64dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="8dp"
-        android:text="Create mood"
-        android:textColor="#203434"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/backbutton"
-        android:backgroundTint="#D7D2CC"
-        app:cornerRadius="15dp"
-        app:strokeWidth="1dp"
-        app:backgroundTint="#9ca49c" />
+        <Button
+            android:id="@+id/backbutton"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/rounded_text"
+            android:text="Back"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:backgroundTint="#9ca49c"
+            app:cornerRadius="8dp"
+            app:strokeWidth="1dp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <Button
+            android:id="@+id/createmood"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="Create mood"
+            android:textColor="#203434"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:backgroundTint="#D7D2CC"
+            app:cornerRadius="15dp"
+            app:strokeWidth="1dp" />
+    </LinearLayout>
+
+
+</RelativeLayout>

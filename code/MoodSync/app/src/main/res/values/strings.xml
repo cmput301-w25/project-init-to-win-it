@@ -65,6 +65,9 @@
     <string name="some_id">
         Next
     </string>
+    <string name="enter_your_description_here">Enter your description here</string>
+    <string name="add_from_photos">Add from Photos</string>
+    <string name="up_to_12mb">Up to 12MB</string>
     <string-array name="spinner_items">
         <item>None</item>
         <item>Happy</item>
