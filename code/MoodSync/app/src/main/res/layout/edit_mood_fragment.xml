@@ -13,15 +13,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!--        <View-->
-        <!--            android:id="@+id/rectangle_1"-->
-        <!--            android:layout_width="182dp"-->
-        <!--            android:layout_height="160dp"-->
-        <!--            android:layout_alignParentStart="true"-->
-        <!--            android:layout_marginStart="214dp"-->
-        <!--            android:layout_marginTop="126dp"-->
-        <!--            android:background="@drawable/rectangle_1" />-->
-
         <TextView
             android:id="@+id/stepIndicator"
             android:layout_width="wrap_content"
@@ -196,27 +187,6 @@
             </LinearLayout>
         </HorizontalScrollView>
 
-        <!--        <ImageView-->
-        <!--            android:id="@+id/camera"-->
-        <!--            android:layout_width="49dp"-->
-        <!--            android:layout_height="42dp"-->
-        <!--            android:layout_alignParentStart="true"-->
-        <!--            android:layout_alignParentTop="true"-->
-        <!--            android:layout_marginStart="280dp"-->
-        <!--            android:layout_marginTop="176dp"-->
-        <!--            android:src="@drawable/camera" />-->
-
-        <!--        <TextView-->
-        <!--            android:id="@+id/add_camera"-->
-        <!--            android:layout_width="145dp"-->
-        <!--            android:layout_height="25dp"-->
-        <!--            android:layout_marginStart="230dp"-->
-        <!--            android:layout_marginTop="223dp"-->
-        <!--            android:gravity="center_horizontal|top"-->
-        <!--            android:lineSpacingExtra="8sp"-->
-        <!--            android:text="Add from Camera"-->
-        <!--            android:textAppearance="@style/add_from_ca" />-->
-
         <TextView
             android:id="@+id/add_desc"
             android:layout_width="230dp"
@@ -295,22 +265,6 @@
             android:text="up to 12mb"
             android:textAppearance="@style/up_to_12_mb"
             android:textSize="18sp" />
-
-        <!--        <Button-->
-        <!--            android:id="@+id/next"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_marginStart="191dp"-->
-        <!--            android:layout_marginTop="49dp"-->
-        <!--            android:layout_toEndOf="@+id/cancel"-->
-        <!--            android:background="@android:color/transparent"-->
-        <!--            android:gravity="center_horizontal|top"-->
-        <!--            android:lineSpacingExtra="8sp"-->
-        <!--            android:text="Next"-->
-        <!--            android:textSize="18sp"-->
-        <!--            android:textStyle="bold"-->
-        <!--            android:textAppearance="@style/some_id"-->
-        <!--            android:translationY="-4.02sp" />-->
 
         <Button
             android:id="@+id/next"

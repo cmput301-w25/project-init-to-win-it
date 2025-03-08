@@ -3,6 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="original_button_color">#5F9A9A</color>
+    <color name="selected_mood_color">#80CBC4</color>
 
         <!-- ... other color definitions ... -->
         <color name="button_normal">#5F9A9A</color>

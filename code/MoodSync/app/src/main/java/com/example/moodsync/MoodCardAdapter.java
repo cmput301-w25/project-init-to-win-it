@@ -6,10 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 //import com.bumptech.glide.Glide;
@@ -36,12 +38,38 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         MoodEvent moodEvent = moodEvents.get(position);
 
         // Bind mood and trigger to TextViews
-        holder.moodTextView.setText("Mood: " + moodEvent.mood);
-        holder.triggerTextView.setText("Trigger: " + moodEvent.trigger);
+        holder.moodTextView.setText("Mood: " + moodEvent.getMood());
+        holder.triggerTextView.setText("Trigger: " + moodEvent.getTrigger());
+
+        holder.itemView.setBackgroundColor(getMoodColor(moodEvent.getMood()));
 
         // Handle "View Details" button click
         holder.detailsButton.setOnClickListener(v -> showDetailsDialog(holder.itemView.getContext(), moodEvent));
     }
+
+    private int getMoodColor(String mood) {
+        switch (mood.toLowerCase()) {
+            case "happy":
+                return 0xFFFFEB3B;
+            case "sad":
+                return 0xFF3F51B5;
+            case "angry":
+                return 0xFFF44336;
+            case "confused":
+                return 0xFF9C27B0;
+            case "surprised":
+                return 0xFF00BCD4;
+            case "ashamed":
+                return 0xFF795548;
+            case "scared":
+                return 0xFF607D8B;
+            case "disgusted":
+                return 0xFF4CAF50;
+            default:
+                return 0xFFFFFFFF;
+        }
+    }
+
 
     @Override
     public int getItemCount() {
@@ -67,11 +95,11 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         //ImageView detailsImage = dialogView.findViewById(R.id.details_image);
 
         // Set data to views
-        detailsMood.setText("Mood: " + moodEvent.mood);
-        detailsTrigger.setText("Trigger: " + (moodEvent.trigger != null ? moodEvent.trigger : "N/A"));
-        detailsDescription.setText("Description: " + (moodEvent.description != null ? moodEvent.description : "N/A"));
-        detailsSocialSituation.setText("Social Situation: " + (moodEvent.socialSituation != null ? moodEvent.socialSituation : "N/A"));
-        detailsLocation.setText("Location: " + (moodEvent.location != null ? moodEvent.location : "N/A"));
+        detailsMood.setText("Mood: " + moodEvent.getMood());
+        detailsTrigger.setText("Trigger: " + (moodEvent.getTrigger() != null ? moodEvent.getTrigger() : "N/A"));
+        detailsDescription.setText("Description: " + (moodEvent.getDescription() != null ? moodEvent.getDescription() : "N/A"));
+        detailsSocialSituation.setText("Social Situation: " + (moodEvent.getSocialSituation() != null ? moodEvent.getSocialSituation() : "N/A"));
+        detailsLocation.setText("Location: " + (moodEvent.getLocation() != null ? moodEvent.getLocation() : "N/A"));
 
 //        // Handle image loading or hiding
 //        if (moodEvent.getImageUrl() != null && !moodEvent.getImageUrl().isEmpty()) {
