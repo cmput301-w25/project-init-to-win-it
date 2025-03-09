@@ -20,6 +20,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -353,7 +355,10 @@ public class AddMoodActivity extends Fragment {
 
 
         EditText triggerInput = binding2.triggerInput;
-
+        InputFilter[] filters = new InputFilter[] {
+                new TriggerInputFilter(3, 20)
+        };
+        triggerInput.setFilters(filters);
         {
 
             binding2.createmood.setOnClickListener(v -> {
@@ -450,6 +455,50 @@ public class AddMoodActivity extends Fragment {
                     showErrorToast(e);
                 });
     }
+    public class TriggerInputFilter implements InputFilter {
+        private final int maxWords;
+        private final int maxChars;
+
+        public TriggerInputFilter(int maxWords, int maxChars) {
+            this.maxWords = maxWords;
+            this.maxChars = maxChars;
+        }
+
+        @Override
+        public CharSequence filter(CharSequence source, int start, int end,
+                                   Spanned dest, int dstart, int dend) {
+
+            int keep = maxChars - (dest.length() - (dend - dstart));
+            if (keep <= 0) {
+                return "";
+            }
+
+
+            StringBuilder resultBuilder = new StringBuilder();
+            resultBuilder.append(dest.subSequence(0, dstart));
+            resultBuilder.append(source.subSequence(start, end));
+            resultBuilder.append(dest.subSequence(dend, dest.length()));
+            String resultString = resultBuilder.toString();
+
+
+            String[] words = resultString.trim().split("\\s+");
+            if (words.length > maxWords && words[0].length() > 0) {
+                return "";
+            }
+
+            if (keep >= end - start) {
+                return null;
+            } else {
+                // Otherwise, truncate to the maximum allowed characters
+                keep += start;
+                if (Character.isHighSurrogate(source.charAt(keep - 1))) {
+                    keep--;
+                }
+                return source.subSequence(start, keep);
+            }
+        }
+    }
+
 
     private void refreshMoodEventsList() {
         moodEventsRef.get().addOnCompleteListener(task -> {
