@@ -1,5 +1,6 @@
 package com.example.moodsync;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -28,6 +29,7 @@ public class MoodEvent implements Parcelable {
         this.trigger = trigger;
         this.description = description;
         this.socialSituation = socialSituation;
+        this.imageUrl = imageUrl;
     }
     protected MoodEvent(Parcel in) {
         mood = in.readString();

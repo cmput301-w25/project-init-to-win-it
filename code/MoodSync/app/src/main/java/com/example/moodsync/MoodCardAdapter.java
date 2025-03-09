@@ -1,7 +1,11 @@
 package com.example.moodsync;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,9 +22,15 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.graphics.Bitmap;
+import android.util.Log;
+
+import java.util.concurrent.CompletableFuture;
+
 //import com.bumptech.glide.Glide;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCardViewHolder> {
 
@@ -41,7 +51,23 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
     public void onBindViewHolder(@NonNull MoodCardViewHolder holder, int position) {
         MoodEvent moodEvent = moodEvents.get(position);
 
-        // Bind mood and trigger to TextViews
+        CompletableFuture<Bitmap> bitmapFuture = BitmapUtils.getBitmapFromUrl(holder.itemView.getContext(), moodEvent.getImageUrl()); // Use context here!
+
+        bitmapFuture.thenAccept(bitmap -> {
+            if (bitmap != null) {
+                holder.moodBanner.post(() -> {
+                    try {
+                        holder.moodBanner.setBackground(new BitmapDrawable(holder.itemView.getContext().getResources(), bitmap));
+                    } catch (Exception e) {
+                        Log.e("BitmapDraw", "Error setting background", e);
+                    }
+                });
+            }
+        }).exceptionally(throwable -> {
+            Log.e("BitmapUtils", "Bitmap load failed: " + throwable.getMessage());
+            throwable.printStackTrace();
+            return null;
+        });
         holder.moodTextView.setText("Mood: " + moodEvent.getMood());
         holder.triggerTextView.setText("Trigger: " + moodEvent.getTrigger());
         holder.moodDescrip.setText(moodEvent.getDescription());
@@ -172,7 +198,7 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         TextView moodTextView;
         TextView triggerTextView;
         Button detailsButton;
-        LinearLayout moodBanner;
+        ImageView moodBanner;
         TextView moodEmoji;
         TextView moodDescrip;
 
@@ -181,7 +207,7 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
             moodTextView = itemView.findViewById(R.id.mood_text_view); // Matches XML ID for mood
             triggerTextView = itemView.findViewById(R.id.trigger_text_view); // Matches XML ID for trigger
             detailsButton = itemView.findViewById(R.id.details_button); // Matches XML ID for button
-            moodBanner = itemView.findViewById(R.id.mood_banner); // Reference to the mood banner
+            moodBanner = itemView.findViewById(R.id.post_image); // Reference to the mood banner
             moodDescrip = itemView.findViewById(R.id.status);
             // Commented out as per your code
              moodEmoji = itemView.findViewById(R.id.details_emoji); // Reference to the mood emoji

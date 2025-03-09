@@ -324,7 +324,7 @@
                 android:layout_below="@+id/add_photos"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="4dp"
-                android:text="@string/up_to_12mb"
+                android:text="Up to 64KB"
                 android:textColor="@color/hint_text_color"
                 android:textSize="14sp" />
         </RelativeLayout>
