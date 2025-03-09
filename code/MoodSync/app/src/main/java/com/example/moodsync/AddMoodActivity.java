@@ -112,6 +112,17 @@ public class AddMoodActivity extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        initMoodGradients();
+
+        if (isSecondLayout) {
+            setupSecondLayout();
+        } else {
+            setupFirstLayout(view);
+        }
+    }
+
+    void initMoodGradients() {
         moodGradients.put("Happy", R.drawable.happy_gradient);
         moodGradients.put("Sad", R.drawable.sad_gradient);
         moodGradients.put("Angry", R.drawable.angry_gradient);
@@ -120,12 +131,6 @@ public class AddMoodActivity extends Fragment {
         moodGradients.put("Ashamed", R.drawable.ashamed_gradient);
         moodGradients.put("Scared", R.drawable.scared_gradient);
         moodGradients.put("Disgusted", R.drawable.disgusted_gradient);
-
-        if (isSecondLayout) {
-            setupSecondLayout();
-        } else {
-            setupFirstLayout(view);
-        }
     }
 
     private void setupFirstLayout(View view) {
@@ -195,7 +200,7 @@ public class AddMoodActivity extends Fragment {
 //            }
 //        };
 //        editDescription.setFilters(new InputFilter[]{lengthFilter});
-       //end of new code here
+        //end of new code here
 
         binding1.cancel.setOnClickListener(v -> NavHostFragment.findNavController(AddMoodActivity.this)
                 .navigate(R.id.action_addMoodActivityFragment_to_SecondFragment));
