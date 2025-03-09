@@ -3,10 +3,19 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="original_button_color">#5F9A9A</color>
+    <color name="selected_mood_color">#80CBC4</color>
 
         <!-- ... other color definitions ... -->
         <color name="button_normal">#5F9A9A</color>
         <color name="button_selected">#7FBFBF</color>
+
+
+        <color name="primary_text_color">#FFFFFF</color>
+        <color name="secondary_text_color">#BDBDBD</color>
+        <color name="hint_text_color">#757575</color>
+        <color name="cancel_button_color">#F44336</color>
+        <color name="spinner_dropdown_background">#FFFFFF</color>
+
 
 
 </resources>

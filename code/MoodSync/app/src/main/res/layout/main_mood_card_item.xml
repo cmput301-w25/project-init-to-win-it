@@ -1,112 +1,282 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
+    android:layout_marginBottom="12dp"
     android:layout_marginStart="16dp"
     android:layout_marginEnd="16dp"
+    android:layout_marginTop="8dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="8dp"
-    app:cardBackgroundColor="#D7D2CC">
+    app:cardElevation="3dp"
+    app:strokeWidth="0.5dp"
+    app:strokeColor="#E0E0E0"
+    app:cardBackgroundColor="#FBFAF5">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Post Header (User Info) -->
-        <LinearLayout
+        <!-- Enhanced Post Header with Status Indicator -->
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="12dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp">
 
             <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/profile_image"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_person_black_24dp"
                 app:shapeAppearanceOverlay="@style/CircleImageView"
                 android:scaleType="centerCrop"/>
 
-            <TextView
-                android:id="@+id/name"
+            <View
+                android:id="@+id/status_indicator"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/circle_shape"
+                android:layout_alignRight="@id/profile_image"
+                android:layout_alignBottom="@id/profile_image"
+                android:backgroundTint="#4CAF50" />
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="Username"
-                android:textColor="#000000"
+                android:orientation="vertical"
+                android:layout_toEndOf="@id/profile_image"
+                android:layout_toStartOf="@id/details_button"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="12dp">
+
+                <TextView
+                    android:id="@+id/name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Username"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:textSize="15sp"/>
+
+                <TextView
+                    android:id="@+id/time_stamp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2 hours ago"
+                    android:textColor="#757575"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/details_button"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Details"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:cornerRadius="20dp"
+                app:strokeColor="#3F51B5"
+                app:strokeWidth="1dp"
+                android:textColor="#3F51B5"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingVertical="8dp"
+                android:paddingHorizontal="16dp" />
+        </RelativeLayout>
+
+        <!-- Mood Tag Banner -->
+        <!-- Mood Tag Banner - ENHANCED SIZE -->
+        <LinearLayout
+            android:id="@+id/mood_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="#E8F5E9"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="12dp">
+
+            <ImageView
+                android:id="@+id/mood_emoji"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_mood_black_24dp"
+                app:tint="#4CAF50"
+                android:layout_gravity="center_vertical"/>
+
+            <TextView
+                android:id="@+id/mood_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Happy"
+                android:textColor="#1B5E20"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textSize="16sp"/>
+                android:layout_marginStart="12dp"
+                android:layout_gravity="center_vertical"/>
         </LinearLayout>
 
-        <!-- Post Image -->
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_image_black_24dp"
-            android:contentDescription="Post Image" />
 
-        <!-- Mood Display -->
-        <TextView
-            android:id="@+id/mood_text_view"
+        <!-- Post Image with Rounded Corners - ENHANCED WITH MORE SPACE -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="Mood: "
-            android:textColor="#000000"
-            android:textSize="14sp" />
+            android:layout_height="wrap_content">
 
-        <!-- Post Caption -->
-        <TextView
-            android:id="@+id/status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="This is a sample post caption."
-            android:textColor="#000000"
-            android:textSize="14sp"/>
+            <ImageView
+                android:id="@+id/post_image"
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_image_black_24dp"
+                android:contentDescription="Post Image" />
 
-        <!-- Post Actions (Like, Comment, Share) -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/gradient_overlay" />
+        </FrameLayout>
+
+        <!-- Enhanced Post Actions with Material Icons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="8dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:background="#FAFAFA">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageButton
+                    android:id="@+id/like_button"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_thumb_up_black_24dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Like"
+                    app:tint="#757575"
+                    android:padding="4dp"/>
+
+                <TextView
+                    android:id="@+id/like_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="24"
+                    android:textColor="#757575"
+                    android:textSize="14sp"
+                    android:layout_marginStart="4dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginStart="16dp">
+
+                <ImageButton
+                    android:id="@+id/comment_button"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_comment_black_24dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Comment"
+                    app:tint="#757575"
+                    android:padding="4dp"/>
+
+                <TextView
+                    android:id="@+id/comment_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="8"
+                    android:textColor="#757575"
+                    android:textSize="14sp"
+                    android:layout_marginStart="4dp"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
 
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_thumb_up_black_24dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Like"
-                android:padding="8dp"/>
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_comment_black_24dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Comment"
-                android:padding="8dp"/>
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/share_button"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:src="@drawable/ic_share_black_24dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Share"
-                android:padding="8dp"/>
+                android:padding="4dp"
+                app:tint="#757575" />
+
+            <ImageButton
+                android:id="@+id/bookmark_button"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_bookmark_border_black_24dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Bookmark"
+                android:layout_marginStart="8dp"
+                android:padding="4dp"
+                app:tint="#757575" />
         </LinearLayout>
 
-        <!-- Details Button -->
-        <Button
-            android:id="@+id/details_button"
-            android:layout_width="wrap_content"
+        <!-- Trigger Info with Icon -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="View Details"
-            android:layout_gravity="end"
-            android:layout_margin="8dp"/>
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp">
 
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_info_outline_black_24dp"
+                android:layout_gravity="center_vertical"
+                app:tint="#757575" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="#757575"
+                android:textSize="14sp"
+                android:layout_marginStart="8dp" />
+
+            <TextView
+                android:id="@+id/trigger_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="None"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Post Caption with Rounded Background -->
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:text="This is a sample post caption that describes how I'm feeling today. #MoodSync"
+            android:textColor="#000000"
+            android:background="#F5F5F5"
+            android:layout_margin="16dp"
+            android:textSize="14sp"
+            android:lineSpacingExtra="4dp"/>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

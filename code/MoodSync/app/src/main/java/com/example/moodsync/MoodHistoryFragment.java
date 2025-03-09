@@ -1,6 +1,7 @@
 package com.example.moodsync;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,22 +38,53 @@ public class MoodHistoryFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        moodRecyclerView = binding.moodRecyclerView;
-        moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        // Set up RecyclerView
+        binding.moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        moodHistoryAdapter = new MoodHistoryAdapter(moodHistoryItems, getContext());
+        binding.moodRecyclerView.setAdapter(moodHistoryAdapter);
 
-        moodHistoryAdapter = new MoodHistoryAdapter(moodHistoryItems);
-        moodRecyclerView.setAdapter(moodHistoryAdapter);
-
-        // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
-        // Fetch data from Firestore
+        moodHistoryAdapter.setOnItemClickListener(item -> {
+            fetchMoodEventAndNavigate(item);
+        });
+
+
         fetchMoodEvents();
 
         binding.addButton.setOnClickListener(v ->
                 NavHostFragment.findNavController(MoodHistoryFragment.this)
-                        .navigate(R.id.action_moodHistoryFragment_to_addMoodActivityFragment)
+                        .navigate(R.id.action_moodHistoryFragment_to_SecondFragment)
         );
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        fetchMoodEvents();
+    }
+
+    private void fetchMoodEventAndNavigate(MoodHistoryItem selectedItem) {
+        db.collection("mood_events")
+                .whereEqualTo("description", selectedItem.getDescription())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                            moodEvent.setId(document.getId()); // Store the document ID in MoodEvent
+
+                            Bundle args = new Bundle();
+                            args.putParcelable("moodEvent", (Parcelable) moodEvent);
+
+                            NavHostFragment.findNavController(MoodHistoryFragment.this)
+                                    .navigate(R.id.action_moodHistoryFragment_to_editMoodFragment, args);
+                            break; // Assuming only one MoodEvent will match the description
+                        }
+                    } else {
+                        Log.d(TAG, "Error getting MoodEvent: ", task.getException());
+                    }
+                });
     }
 
     private void fetchMoodEvents() {
@@ -60,10 +92,12 @@ public class MoodHistoryFragment extends Fragment {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        Log.d(TAG, "Fetch task successful");
                         moodHistoryItems.clear(); // Clear the previous list
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            // Extract data from the document
+                            Log.d(TAG, "Document ID: " + document.getId()); // Log document ID
+                            String id = document.getId(); // Get document ID
                             String mood = document.getString("mood");
                             String description = document.getString("description");
 
@@ -72,9 +106,11 @@ public class MoodHistoryFragment extends Fragment {
 
                             // Create MoodHistoryItem
                             MoodHistoryItem item = new MoodHistoryItem(mood, emoji, description);
+                            item.setId(id); // Set the Firestore document ID
                             moodHistoryItems.add(item);
                         }
 
+                        Log.d(TAG, "Number of items fetched: " + moodHistoryItems.size()); // Log item count
                         moodHistoryAdapter.notifyDataSetChanged(); // Notify the adapter about the new data
                     } else {
                         Log.w(TAG, "Error getting documents.", task.getException());
