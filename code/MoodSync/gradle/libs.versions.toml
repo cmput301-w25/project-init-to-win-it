@@ -8,6 +8,8 @@ glide = "4.12.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
+test-runner = "1.5.2"
+test-rules = "1.5.0"
 appcompat = "1.7.0"
 material = "1.12.0"
 constraintlayout = "2.2.1"
@@ -37,6 +39,8 @@ google-firebase-storage = { module = "com.google.firebase:firebase-storage" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "test-runner" }
+androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "test-rules" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
