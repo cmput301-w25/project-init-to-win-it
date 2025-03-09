@@ -173,7 +173,7 @@ public class AddMoodActivity extends Fragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
+                // literally do nothing
             }
         });
 
@@ -347,7 +347,7 @@ public class AddMoodActivity extends Fragment {
 
     private void setupSecondLayout() {
         Log.d("LIFECYCLE", "setupSecondLayout called");
-        // Retrieve arguments safely
+
         if (getArguments() != null) {
             this.selectedMood = getArguments().getString("selectedMood", "");
             this.moodDescription = getArguments().getString("description", "");
@@ -366,12 +366,16 @@ public class AddMoodActivity extends Fragment {
                 String socialSituation = (selectedSocialSituationButton != null) ?
                         selectedSocialSituationButton.getText().toString() : "None";
 
+                long currentTimestamp = System.currentTimeMillis();
+
+
+
                 MoodEvent moodEvent = new MoodEvent(
                         this.selectedMood,
                         trigger,
                         this.moodDescription,
                         socialSituation,
-                        imageUrl // Use the updated imageUrl variable
+                        currentTimestamp
                 );
 
                 saveMoodEventToFirestore(moodEvent);
@@ -436,12 +440,16 @@ public class AddMoodActivity extends Fragment {
         EditText triggerInput = binding2.triggerInput;
         String trigger = triggerInput.getText().toString();
         imageUrl = "";
+        long currentTimestamp = System.currentTimeMillis();
         MoodEvent moodEvent = new MoodEvent(
-                selectedMood,
+                this.selectedMood,
                 trigger,
-                moodDescription,
-                socialSituation,imageUrl
+                this.moodDescription,
+                socialSituation,
+                currentTimestamp
         );
+
+
 
         Log.d("FIRESTORE", "Attempting to save: " + moodEvent.toString());
 
@@ -489,7 +497,6 @@ public class AddMoodActivity extends Fragment {
             if (keep >= end - start) {
                 return null;
             } else {
-                // Otherwise, truncate to the maximum allowed characters
                 keep += start;
                 if (Character.isHighSurrogate(source.charAt(keep - 1))) {
                     keep--;

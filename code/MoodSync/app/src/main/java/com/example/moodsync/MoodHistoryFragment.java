@@ -18,7 +18,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Date;
 
 public class MoodHistoryFragment extends Fragment {
 
@@ -96,22 +98,32 @@ public class MoodHistoryFragment extends Fragment {
                         moodHistoryItems.clear(); // Clear the previous list
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            Log.d(TAG, "Document ID: " + document.getId()); // Log document ID
-                            String id = document.getId(); // Get document ID
+                            Log.d(TAG, "Processing document: " + document.getId());
+                            String id = document.getId();
                             String mood = document.getString("mood");
                             String description = document.getString("description");
+                            Long datems = document.getLong("date");
 
-                            // Determine emoji based on mood (you might want a more robust mapping)
+                            if (mood == null || description == null || datems == null) {
+                                Log.w(TAG, "Missing data in document: " + id);
+                                continue;
+                            }
+
+                            Date date = new Date(datems);
                             String emoji = getEmojiForMood(mood);
 
-                            // Create MoodHistoryItem
-                            MoodHistoryItem item = new MoodHistoryItem(mood, emoji, description);
-                            item.setId(id); // Set the Firestore document ID
+                            MoodHistoryItem item = new MoodHistoryItem(mood, emoji, description, date);
+                            item.setId(id);
                             moodHistoryItems.add(item);
+                            Log.d(TAG, "Added item: " + item.toString());
                         }
 
-                        Log.d(TAG, "Number of items fetched: " + moodHistoryItems.size()); // Log item count
-                        moodHistoryAdapter.notifyDataSetChanged(); // Notify the adapter about the new data
+                        Collections.sort(moodHistoryItems, (item1, item2) -> item2.getDate().compareTo(item1.getDate()));
+                        Log.d(TAG, "Sorted items. First item date: " +
+                                (moodHistoryItems.isEmpty() ? "N/A" : moodHistoryItems.get(0).getDate()));
+
+                        Log.d(TAG, "Number of items fetched: " + moodHistoryItems.size());
+                        moodHistoryAdapter.notifyDataSetChanged();
                     } else {
                         Log.w(TAG, "Error getting documents.", task.getException());
                     }

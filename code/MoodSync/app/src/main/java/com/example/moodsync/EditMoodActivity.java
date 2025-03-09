@@ -263,13 +263,16 @@ public class EditMoodActivity extends Fragment {
             String socialSituation1 = (selectedSocialSituationButton != null) ?
                     selectedSocialSituationButton.getText().toString() : "None";
 
+            long currentTimestamp = System.currentTimeMillis();
             MoodEvent moodEvent = new MoodEvent(
                     this.selectedMood,
                     trigger,
                     this.moodDescription,
-                    socialSituation1,
-                    imageUrl
+                    socialSituation,
+                    currentTimestamp // Pass the timestamp to the MoodEvent
             );
+
+
 
             Log.d("FIREBASE", "Saving: " + moodEvent);
 
