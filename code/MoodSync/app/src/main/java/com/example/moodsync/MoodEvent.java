@@ -1,11 +1,20 @@
 package com.example.moodsync;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.example.moodsync.MoodHistoryFragment;
 
 import java.util.Date;
+
+/**
+ * Represents a utility class for performing arithmetic operations.
+ *
+ * <p>This class provides methods for basic arithmetic calculations such as addition,
+ * subtraction, multiplication, and division. It is intended for demonstration purposes.</p>
+ *
+ */
 
 public class MoodEvent implements Parcelable {
 
@@ -25,12 +34,13 @@ public class MoodEvent implements Parcelable {
         // Default constructor required for Firebase
     }
 
-    public MoodEvent(String mood, String trigger, String description, String socialSituation, Long date) {
+    public MoodEvent(String mood, String trigger, String description, String socialSituation,String imageUrl) {
         this.mood = mood;
         this.trigger = trigger;
         this.description = description;
         this.socialSituation = socialSituation;
         this.date=date;
+        this.imageUrl = imageUrl;
     }
     protected MoodEvent(Parcel in) {
         mood = in.readString();
@@ -56,16 +66,16 @@ public class MoodEvent implements Parcelable {
         }
     };
 
-    public MoodEvent(String selectedMood, String trigger, String moodDescription, String socialSituation, Object o, long currentTimestamp) {
-        this.mood = mood;
+    public MoodEvent(String selectedMood, String trigger, String moodDescription, String socialSituation, long currentTimestamp,String imageeUrl) {
+        this.mood = selectedMood;
         this.trigger = trigger;
-        this.description = description;
+        this.description = moodDescription;
         this.socialSituation = socialSituation;
-        this.date=date;
+        this.date=currentTimestamp;
+        this.imageUrl = imageeUrl;
     }
 
     @Override
-
     public int describeContents() {
         return 0;
     }

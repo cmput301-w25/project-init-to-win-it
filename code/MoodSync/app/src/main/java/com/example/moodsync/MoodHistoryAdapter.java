@@ -2,17 +2,12 @@ package com.example.moodsync;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -61,7 +56,6 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         holder.emojiTextView.setText(getEmojiForMood(currentItem.getMood()));
         holder.descriptionTextView.setText(currentItem.getDescription() != null ? currentItem.getDescription() : "No Description");
 
-        // i set the background color of the inner layout based on mood
         holder.moodBackground.setBackgroundColor(getMoodColor(currentItem.getMood()));
 
         // i adjusted text colors based on background color for better readability

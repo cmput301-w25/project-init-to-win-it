@@ -133,14 +133,9 @@
                 android:layout_height="350dp"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_image_black_24dp"
-                android:contentDescription="Post Image" />
+                android:contentDescription="Post Image"
+                android:background="@drawable/ic_image_black_24dp"/>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_gravity="bottom"
-                android:background="@drawable/gradient_overlay" />
         </FrameLayout>
 
         <!-- Enhanced Post Actions with Material Icons -->
