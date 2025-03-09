@@ -184,6 +184,11 @@ public class AddMoodActivity extends Fragment {
             this.selectedMood = binding1.mainCard.getSelectedItem().toString();
             this.moodDescription = binding1.editDescription.getText().toString();
 
+            if (selectedMood.equals("None")) {
+                Toast.makeText(getContext(), "Please select a mood other than 'None'.", Toast.LENGTH_SHORT).show();
+                return; // Don't proceed if "None" is selected
+            }
+
             Bundle args = new Bundle();
             args.putBoolean("isSecondLayout", true);
             args.putString("selectedMood", this.selectedMood);
@@ -192,6 +197,7 @@ public class AddMoodActivity extends Fragment {
             NavHostFragment.findNavController(AddMoodActivity.this)
                     .navigate(R.id.action_addMoodActivityFragment_to_addMoodActivityFragment2, args);
         });
+
 
         setupRectangleClickListener();
     }

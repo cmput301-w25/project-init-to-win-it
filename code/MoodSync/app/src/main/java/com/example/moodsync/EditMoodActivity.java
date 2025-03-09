@@ -192,23 +192,25 @@ public class EditMoodActivity extends Fragment {
 
         binding1.cancel.setOnClickListener(v -> NavHostFragment.findNavController(EditMoodActivity.this)
                 .navigate(R.id.action_editMoodActivityFragment_to_moodHistoryFragment));
-
-        // In setupFirstLayout()
         binding1.next.setOnClickListener(v -> {
-            // Get current values from UI components
-            this.selectedMood = binding1.mainCard.getSelectedItem().toString();
-            this.moodDescription = binding1.editDescription.getText().toString();
+            String selectedMood = binding1.mainCard.getSelectedItem().toString();
 
-            Bundle args = new Bundle();
-            args.putBoolean("isSecondLayout", true);
-            args.putString("selectedMood", this.selectedMood);
-            args.putString("description", this.moodDescription);
-            args.putParcelable("moodEvent", (Parcelable) moodEventToEdit); //Pass the object to the fragment.
+            if (selectedMood.equals("None")) {
+                Toast.makeText(requireContext(), "Please select a mood other than 'None'", Toast.LENGTH_SHORT).show();
+            } else {
+                this.selectedMood = selectedMood;
+                this.moodDescription = binding1.editDescription.getText().toString();
 
-            NavHostFragment.findNavController(EditMoodActivity.this)
-                    .navigate(R.id.action_editMoodActivityFragment_to_editMoodActivityFragment2, args);
+                Bundle args = new Bundle();
+                args.putBoolean("isSecondLayout", true);
+                args.putString("selectedMood", this.selectedMood);
+                args.putString("description", this.moodDescription);
+                args.putParcelable("moodEvent", (Parcelable) moodEventToEdit); //Pass the object to the fragment.
+
+                NavHostFragment.findNavController(EditMoodActivity.this)
+                        .navigate(R.id.action_editMoodActivityFragment_to_editMoodActivityFragment2, args);
+            }
         });
-
     }
 
     private void resetAllEmojis() {
@@ -257,6 +259,12 @@ public class EditMoodActivity extends Fragment {
         }
 
         binding2.createmood.setOnClickListener(v -> {
+            String selectedMood = getArguments().getString("selectedMood", "");
+
+            if (selectedMood.equals("None")) {
+                Toast.makeText(requireContext(), "Please select a mood other than 'None'", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             String trigger = triggerInput.getText().toString();
 
@@ -268,11 +276,9 @@ public class EditMoodActivity extends Fragment {
                     this.selectedMood,
                     trigger,
                     this.moodDescription,
-                    socialSituation,
+                    socialSituation1, // Use socialSituation1 here instead of socialSituation
                     currentTimestamp // Pass the timestamp to the MoodEvent
             );
-
-
 
             Log.d("FIREBASE", "Saving: " + moodEvent);
 
@@ -280,6 +286,7 @@ public class EditMoodActivity extends Fragment {
 
             showSuccessDialogUI();
         });
+
 
 
         binding2.backbutton.setOnClickListener(v -> NavHostFragment.findNavController(EditMoodActivity.this)
