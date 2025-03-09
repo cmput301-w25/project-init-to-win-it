@@ -115,7 +115,7 @@ public class AddMoodActivity extends Fragment {
     private boolean isSecondLayout = false;
     private RelativeLayout mainLayout;
     private Uri photoUri;
-    private String imageUrl;
+    static String imageUrl;
 
     private ImageView happyImage, sadImage, angryImage, confusedImage, surprisedImage, ashamedImage, scaredImage, disgustedImage;
     private ImageView lastSelectedImageView = null;
@@ -124,7 +124,7 @@ public class AddMoodActivity extends Fragment {
     private static final int ANIMATION_DURATION = 300; // Animation duration in milliseconds
 
     private FirebaseFirestore db;
-    private long MAX_PHOTO_SIZE = 1000;
+    private long MAX_PHOTO_SIZE = 64;
     private CollectionReference moodEventsRef;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int PICK_IMAGE_REQUEST = 2;
@@ -299,7 +299,6 @@ public class AddMoodActivity extends Fragment {
             if (sizeIndex != -1) {
                 long imageSizeInBytes = cursor.getLong(sizeIndex);
                 long imageSizeInKB = imageSizeInBytes / 1024;
-                long imageSizeInMB = imageSizeInKB / 1024;
                 Log.d("Image Size", "Size in bytes: " + imageSizeInKB);
                 return imageSizeInKB;
             }
@@ -395,6 +394,18 @@ public class AddMoodActivity extends Fragment {
                     public void onImageUploaded(String imageUrl) {
                         View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
                         rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
+                        TextView text = binding1.getRoot().findViewById(R.id.add_photos);
+                        text.setText("");
+                        text = binding1.getRoot().findViewById(R.id.upto_12mb);
+                        text.setText("");
+                        ImageView image = binding1.getRoot().findViewById(R.id.photos);
+
+                        GradientDrawable drawable = new GradientDrawable();
+                        drawable.setCornerRadius(20); // Set the corner radius in pixels
+                        drawable.setColor(Color.TRANSPARENT);
+
+                        image.setBackground(drawable);
+                        image.setClipToOutline(true); // Round thhe corners
                         imageAddedFlag = 1;
                     }
                     @Override
@@ -416,18 +427,20 @@ public class AddMoodActivity extends Fragment {
                     public void onImageUploaded(String imageUrl) {
                         View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
                         rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(selectedImageUri)));
+                        rectangle2.setClipToOutline(true); // Round thhe corners
+
                         TextView text = binding1.getRoot().findViewById(R.id.add_photos);
                         text.setText("");
                         text = binding1.getRoot().findViewById(R.id.upto_12mb);
                         text.setText("");
-                        ImageView image = binding1.getRoot().findViewById(R.id.photos);
 
+                        ImageView image = binding1.getRoot().findViewById(R.id.photos);
+                        image.setAlpha(0);
                         GradientDrawable drawable = new GradientDrawable();
                         drawable.setCornerRadius(20); // Set the corner radius in pixels
-                        drawable.setColor(Color.TRANSPARENT);
+                        drawable.setAlpha(0);
 
-                        image.setBackground(drawable);
-                        image.setClipToOutline(true); // Round thhe corners
+
 
                     }
                     @Override
