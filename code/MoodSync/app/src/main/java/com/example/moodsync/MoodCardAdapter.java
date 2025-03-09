@@ -2,14 +2,20 @@ package com.example.moodsync;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 //import com.bumptech.glide.Glide;
@@ -36,11 +42,85 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         MoodEvent moodEvent = moodEvents.get(position);
 
         // Bind mood and trigger to TextViews
-        holder.moodTextView.setText("Mood: " + moodEvent.mood);
-        holder.triggerTextView.setText("Trigger: " + moodEvent.trigger);
+        holder.moodTextView.setText("Mood: " + moodEvent.getMood());
+        holder.triggerTextView.setText("Trigger: " + moodEvent.getTrigger());
+        holder.moodDescrip.setText(moodEvent.getDescription());
+
+        // Set the background color of the mood_banner based on the mood
+        int moodColor = getMoodColor(moodEvent.getMood());
+        holder.moodBanner.setBackgroundColor(moodColor);
+
+        // Set appropriate emoji based on mood
+        if (holder.moodEmoji != null) {
+            setMoodEmoji(holder.moodEmoji, moodEvent.getMood());
+        }
 
         // Handle "View Details" button click
         holder.detailsButton.setOnClickListener(v -> showDetailsDialog(holder.itemView.getContext(), moodEvent));
+    }
+
+    private void setMoodEmoji(TextView textView, String mood) {
+        if (mood == null) {
+            textView.setText("😐");
+            return;
+        }
+
+        switch (mood.toLowerCase()) {
+            case "happy":
+                textView.setText("😄");
+                break;
+            case "sad":
+                textView.setText("😞");
+                break;
+            case "angry":
+                textView.setText("😠");
+                break;
+            case "confused":
+                textView.setText("😕");
+                break;
+            case "surprised":
+                textView.setText("😲");
+                break;
+            case "ashamed":
+                textView.setText("😳");
+                break;
+            case "scared":
+                textView.setText("😨");
+                break;
+            case "disgusted":
+                textView.setText("🤢");
+                break;
+            default:
+                textView.setText("😐");
+                break;
+        }
+    }
+
+    private int getMoodColor(String mood) {
+        if (mood == null) {
+            return 0xFFFFFFFF; // Default white if mood is null
+        }
+
+        switch (mood.toLowerCase()) {
+            case "happy":
+                return 0xFFFFF8E1; // Soft Yellow
+            case "sad":
+                return 0xFFE3F2FD; // Soft Blue
+            case "angry":
+                return 0xFFFFEBEE; // Soft Red
+            case "confused":
+                return 0xFFF3E5F5; // Soft Purple
+            case "surprised":
+                return 0xFFE0F7FA; // Soft Cyan
+            case "ashamed":
+                return 0xFFEFEBE9; // Soft Brown
+            case "scared":
+                return 0xFFECEFF1; // Soft Blue Grey
+            case "disgusted":
+                return 0xFFE8F5E9; // Soft Green
+            default:
+                return 0xFFFFFFFF; // Pure White
+        }
     }
 
     @Override
@@ -55,54 +135,56 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
     }
 
     private void showDetailsDialog(Context context, MoodEvent moodEvent) {
-        // Inflate custom dialog layout
-        View dialogView = LayoutInflater.from(context).inflate(R.layout.popup_details, null);
-
-        // Bind views in the dialog layout
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.popup_details2, null);
         TextView detailsMood = dialogView.findViewById(R.id.details_mood);
         TextView detailsTrigger = dialogView.findViewById(R.id.details_trigger);
         TextView detailsDescription = dialogView.findViewById(R.id.details_description);
         TextView detailsSocialSituation = dialogView.findViewById(R.id.details_social_situation);
         TextView detailsLocation = dialogView.findViewById(R.id.details_location);
-        //ImageView detailsImage = dialogView.findViewById(R.id.details_image);
+        LinearLayout headerLayout = dialogView.findViewById(R.id.dialog_header);
+        TextView emojiView = dialogView.findViewById(R.id.details_emoji);
+        headerLayout.setBackgroundColor(getMoodColor(moodEvent.getMood()));
+        setMoodEmoji(emojiView, moodEvent.getMood());
+        detailsMood.setText("Mood: " + moodEvent.getMood());
+        detailsTrigger.setText("Trigger: " + (moodEvent.getTrigger() != null ? moodEvent.getTrigger() : "N/A"));
+        detailsDescription.setText("Description: " + (moodEvent.getDescription() != null ? moodEvent.getDescription() : "N/A"));
+        detailsSocialSituation.setText("Social Situation: " + (moodEvent.getSocialSituation() != null ? moodEvent.getSocialSituation() : "N/A"));
+        detailsLocation.setText("Location: " + (moodEvent.getLocation() != null ? moodEvent.getLocation() : "N/A"));
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.BottomSheetDialogTheme);
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+        Button closeButton = dialogView.findViewById(R.id.close_button);
+        closeButton.setOnClickListener(v -> dialog.dismiss());
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+            WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
+            layoutParams.gravity = Gravity.BOTTOM;  // This part is fine
+            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT; // **ADD THIS LINE**
+            dialog.getWindow().setAttributes(layoutParams);
+            dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        }
 
-        // Set data to views
-        detailsMood.setText("Mood: " + moodEvent.mood);
-        detailsTrigger.setText("Trigger: " + (moodEvent.trigger != null ? moodEvent.trigger : "N/A"));
-        detailsDescription.setText("Description: " + (moodEvent.description != null ? moodEvent.description : "N/A"));
-        detailsSocialSituation.setText("Social Situation: " + (moodEvent.socialSituation != null ? moodEvent.socialSituation : "N/A"));
-        detailsLocation.setText("Location: " + (moodEvent.location != null ? moodEvent.location : "N/A"));
-
-//        // Handle image loading or hiding
-//        if (moodEvent.getImageUrl() != null && !moodEvent.getImageUrl().isEmpty()) {
-//            Glide.with(context)
-//                    .load(moodEvent.getImageUrl())
-//                    .into(detailsImage);
-//            detailsImage.setVisibility(View.VISIBLE);
-//        } else {
-//            detailsImage.setVisibility(View.GONE); // Hide Image if no URL is provided
-//        }
-
-        // Build and show the dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(context)
-                .setTitle("Mood Details")
-                .setCancelable(true)
-                .setPositiveButton("Close", (dialog, which) -> dialog.dismiss())
-                .setView(dialogView);
-
-        builder.create().show();
+        dialog.show();
     }
 
     static class MoodCardViewHolder extends RecyclerView.ViewHolder {
         TextView moodTextView;
         TextView triggerTextView;
         Button detailsButton;
+        LinearLayout moodBanner;
+        TextView moodEmoji;
+        TextView moodDescrip;
 
         public MoodCardViewHolder(@NonNull View itemView) {
             super(itemView);
             moodTextView = itemView.findViewById(R.id.mood_text_view); // Matches XML ID for mood
-            triggerTextView = itemView.findViewById(R.id.status); // Matches XML ID for trigger
+            triggerTextView = itemView.findViewById(R.id.trigger_text_view); // Matches XML ID for trigger
             detailsButton = itemView.findViewById(R.id.details_button); // Matches XML ID for button
+            moodBanner = itemView.findViewById(R.id.mood_banner); // Reference to the mood banner
+            moodDescrip = itemView.findViewById(R.id.status);
+            // Commented out as per your code
+             moodEmoji = itemView.findViewById(R.id.details_emoji); // Reference to the mood emoji
         }
     }
 }

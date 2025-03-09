@@ -1,68 +1,157 @@
 package com.example.moodsync;
 
-import java.io.Serializable;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.example.moodsync.MoodHistoryFragment;
+
 import java.util.Date;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class MoodEvent implements Serializable {
-    private static final AtomicInteger counter = new AtomicInteger(200001);
+public class MoodEvent implements Parcelable {
 
-    public final String id;
-    public String mood;
-    public String trigger;
-    public long date;
+    private String mood;
+    private String trigger;
+    private long date;
     private String imageUrl;
-    public String description;
-    public String socialSituation;
-    public String location;
-    public String photoPath;
+    private String description;
+    private String socialSituation;
+    private String location;
+    private String photoPath;
+    private String id;
+
+    // Constructors, getters, and setters
 
     public MoodEvent() {
-        this.id = generateUniqueId();
-        this.date = System.currentTimeMillis();
-        this.location = "";
-        this.photoPath = "";
+        // Default constructor required for Firebase
     }
 
-    public MoodEvent(String mood, String trigger, String description, String socialSituation) {
-        this();
+    public MoodEvent(String mood, String trigger, String description, String socialSituation, Long date) {
         this.mood = mood;
         this.trigger = trigger;
         this.description = description;
         this.socialSituation = socialSituation;
+        this.date=date;
+    }
+    protected MoodEvent(Parcel in) {
+        mood = in.readString();
+        trigger = in.readString();
+        date = in.readLong();
+        imageUrl = in.readString();
+        description = in.readString();
+        socialSituation = in.readString();
+        location = in.readString();
+        photoPath = in.readString();
+        id = in.readString();
     }
 
-    private String generateUniqueId() {
-        int uniqueNumber = counter.getAndIncrement();
-        //String timestamp = Long.toString(System.currentTimeMillis(), 36);
-        return  String.format("%06d", uniqueNumber);
+    public static final Creator<MoodEvent> CREATOR = new Creator<MoodEvent>() {
+        @Override
+        public MoodEvent createFromParcel(Parcel in) {
+            return new MoodEvent(in);
+        }
+
+        @Override
+        public MoodEvent[] newArray(int size) {
+            return new MoodEvent[size];
+        }
+    };
+
+    public MoodEvent(String selectedMood, String trigger, String moodDescription, String socialSituation, Object o, long currentTimestamp) {
+        this.mood = mood;
+        this.trigger = trigger;
+        this.description = description;
+        this.socialSituation = socialSituation;
+        this.date=date;
+    }
+
+    @Override
+
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mood);
+        dest.writeString(trigger);
+        dest.writeLong(date);
+        dest.writeString(imageUrl);
+        dest.writeString(description);
+        dest.writeString(socialSituation);
+        dest.writeString(location);
+        dest.writeString(photoPath);
+        dest.writeString(id);
+    }
+
+    public String getMood() {
+        return mood;
+    }
+
+    public void setMood(String mood) {
+        this.mood = mood;
+    }
+
+    public String getTrigger() {
+        return trigger;
+    }
+
+    public void setTrigger(String trigger) {
+        this.trigger = trigger;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getSocialSituation() {
+        return socialSituation;
+    }
+
+    public void setSocialSituation(String socialSituation) {
+        this.socialSituation = socialSituation;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public long getDate() {
         return date;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setDate(long date) {
+        this.date = date;
     }
 
     public String getImageUrl() {
         return imageUrl;
     }
 
-    @Override
-    public String toString() {
-        return "MoodEvent{" +
-                "id='" + id + '\'' +
-                ", mood='" + mood + '\'' +
-                ", trigger='" + trigger + '\'' +
-                ", date=" + new Date(date) +
-                ", imageUrl='" + imageUrl + '\'' +
-                ", description='" + description + '\'' +
-                ", socialSituation='" + socialSituation + '\'' +
-                ", location='" + location + '\'' +
-                ", photoPath='" + photoPath + '\'' +
-                '}';
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getPhotoPath() {
+        return photoPath;
+    }
+
+    public void setPhotoPath(String photoPath) {
+        this.photoPath = photoPath;
     }
 }

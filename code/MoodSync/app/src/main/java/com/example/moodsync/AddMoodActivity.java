@@ -3,13 +3,12 @@ package com.example.moodsync;
 import static android.app.Activity.RESULT_OK;
 
 import android.animation.ObjectAnimator;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
-
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.BitmapDrawable;
@@ -20,6 +19,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.Log;
@@ -30,9 +30,11 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -74,8 +76,7 @@ public class AddMoodActivity extends Fragment {
     private boolean isSecondLayout = false;
     private RelativeLayout mainLayout;
     private Uri photoUri;
-
-    private final Map<String, Integer> moodGradients = new HashMap<>();
+    private String imageUrl;
 
     private ImageView happyImage, sadImage, angryImage, confusedImage, surprisedImage, ashamedImage, scaredImage, disgustedImage;
     private ImageView lastSelectedImageView = null;
@@ -83,12 +84,12 @@ public class AddMoodActivity extends Fragment {
 
     private static final int ANIMATION_DURATION = 300; // Animation duration in milliseconds
 
-    // Firestore reference
     private FirebaseFirestore db;
+    private long MAX_PHOTO_SIZE = 1000;
     private CollectionReference moodEventsRef;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int PICK_IMAGE_REQUEST = 2;
-
+    private Map<String, Integer> moodGradients = new HashMap<>();
 
 
     @Override
@@ -177,7 +178,7 @@ public class AddMoodActivity extends Fragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
+                // literally do nothing
             }
         });
         // Apply InputFilter to exclude spaces from the character count
@@ -243,7 +244,6 @@ public class AddMoodActivity extends Fragment {
                     .navigate(R.id.action_addMoodActivityFragment_to_addMoodActivityFragment2, args);
         });
 
-        // Call setupRectangleClickListener to set up button_2 click listener
         setupRectangleClickListener();
     }
 
@@ -266,53 +266,124 @@ public class AddMoodActivity extends Fragment {
                 })
                 .show();
     }
+    private long checkImageSize(Uri imageUri) {
+        Cursor cursor = requireContext().getContentResolver().query(imageUri, null, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+            if (sizeIndex != -1) {
+                long imageSizeInBytes = cursor.getLong(sizeIndex);
+                long imageSizeInKB = imageSizeInBytes / 1024;
+                long imageSizeInMB = imageSizeInKB / 1024;
+                Log.d("Image Size", "Size in bytes: " + imageSizeInKB);
+                return imageSizeInKB;
+            }
+            cursor.close();
+        }
+        return 0;
+    }
 
     private void openCamera() {
+
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            if (photoFile != null) {
-                // Generate URI for the file using FileProvider
-                photoUri = FileProvider.getUriForFile(requireContext(), "com.example.fileprovider", photoFile);
+            createImageFile();
+            if (photoUri != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+
             }
         }
     }
+    private void createImageFile() {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, "JPEG_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()));
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/");
 
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        return File.createTempFile(imageFileName, ".jpg", storageDir);
+        photoUri = requireActivity().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
     }
 
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
+    private void uploadImageToFirebase(Uri imageUri, OnImageUploadedListener listener) {
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference()
+                .child("mood_images/" + UUID.randomUUID().toString());
+
+        storageRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        listener.onImageUploaded(uri.toString());
+                        this.imageUrl = uri.toString(); // Update imageUrl here
+                    });
+                })
+                .addOnFailureListener(e -> listener.onUploadFailed(e));
+    }
+
+
+    interface OnImageUploadedListener {
+        void onImageUploaded(String imageUrl);
+        void onUploadFailed(Exception e);
+    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK) {
-            View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
             if (requestCode == REQUEST_IMAGE_CAPTURE) {
-                // Set captured image as background of rectangle_2
-                rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
+                long size = checkImageSize(photoUri);
+                if (size < MAX_PHOTO_SIZE) {
+                    uploadImageToFirebase(photoUri, new OnImageUploadedListener() {
+                        @Override
+                        public void onImageUploaded(String imageUrl) {
+                            AddMoodActivity.this.imageUrl = imageUrl; // Update imageUrl here
+                        }
+
+                        @Override
+                        public void onUploadFailed(Exception e) {
+                            showErrorToast(e);
+                        }
+                    });
+                } else {
+                    showPhotoOptionsDialog();
+                }
             } else if (requestCode == PICK_IMAGE_REQUEST && data != null) {
                 Uri selectedImageUri = data.getData();
-                // Set selected image as background of rectangle_2
-                rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(selectedImageUri)));
+                long size = checkImageSize(selectedImageUri);
+                if (size < MAX_PHOTO_SIZE) {
+                    uploadImageToFirebase(selectedImageUri, new OnImageUploadedListener() {
+                        @Override
+                        public void onImageUploaded(String imageUrl) {
+                            AddMoodActivity.this.imageUrl = imageUrl; // Update imageUrl here
+                        }
+
+                        @Override
+                        public void onUploadFailed(Exception e) {
+                            showErrorToast(e);
+                        }
+                    });
+                } else {
+                    showPhotoOptionsDialog();
+                }
             }
         }
     }
 
+
+    private void uploadImageToFirebase(Uri imageUri) {
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference()
+                .child("mood_images/" + UUID.randomUUID().toString());
+
+        storageRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        Log.d("Firebase", "Image uploaded successfully. URL: " + uri.toString());
+                        photoUri = null; // Reset photoUri to avoid local display
+                    });
+                })
+                .addOnFailureListener(e -> showErrorToast(e));
+    }
     private Bitmap getBitmapFromUri(Uri uri) {
         try {
             return MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), uri);
@@ -327,54 +398,40 @@ public class AddMoodActivity extends Fragment {
 
     private void setupSecondLayout() {
         Log.d("LIFECYCLE", "setupSecondLayout called");
-        // Retrieve arguments safely
+
         if (getArguments() != null) {
             this.selectedMood = getArguments().getString("selectedMood", "");
             this.moodDescription = getArguments().getString("description", "");
         }
 
-        // Get Trigger Input
+
         EditText triggerInput = binding2.triggerInput;
+        InputFilter[] filters = new InputFilter[] {
+                new TriggerInputFilter(3, 20)
+        };
+        triggerInput.setFilters(filters);
+        {
 
-        binding2.createmood.setOnClickListener(v -> {
-            // Get text from trigger input
-            String trigger = triggerInput.getText().toString();
+            binding2.createmood.setOnClickListener(v -> {
+                String trigger = triggerInput.getText().toString();
+                String socialSituation = (selectedSocialSituationButton != null) ?
+                        selectedSocialSituationButton.getText().toString() : "None";
 
-            // Handle social situation
-            String socialSituation = (selectedSocialSituationButton != null) ?
-                    selectedSocialSituationButton.getText().toString() : "None";
+                long currentTimestamp = System.currentTimeMillis();
 
-            // Create Mood Event
-            MoodEvent moodEvent = new MoodEvent(
-                    this.selectedMood,
-                    trigger,
-                    this.moodDescription,
-                    socialSituation
-            );
 
-            // Log for debugging
-            Log.d("FIREBASE", "Saving: " + moodEvent);
 
-            if (photoUri != null) {
-                // Upload the image to Firebase Storage
-                StorageReference storageRef = FirebaseStorage.getInstance().getReference()
-                        .child("mood_images/" + UUID.randomUUID().toString());
-                storageRef.putFile(photoUri)
-                        .addOnSuccessListener(taskSnapshot -> {
-                            // Get the download URL
-                            storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                                // Add the image URL to the MoodEvent
-                                moodEvent.setImageUrl(uri.toString());
-                                // Save the MoodEvent to Firestore
-                                saveMoodEventToFirestore(moodEvent);
-                            });
-                        })
-                        .addOnFailureListener(e -> showErrorToast(e));
-            } else {
-                // Save the MoodEvent to Firestore without an image
+                MoodEvent moodEvent = new MoodEvent(
+                        this.selectedMood,
+                        trigger,
+                        this.moodDescription,
+                        socialSituation,
+                        currentTimestamp
+                );
+
                 saveMoodEventToFirestore(moodEvent);
-            }
-        });
+            });
+        }
 
         binding2.backbutton.setOnClickListener(v -> NavHostFragment.findNavController(AddMoodActivity.this)
                 .navigateUp());
@@ -433,13 +490,17 @@ public class AddMoodActivity extends Fragment {
 
         EditText triggerInput = binding2.triggerInput;
         String trigger = triggerInput.getText().toString();
-
+        imageUrl = "";
+        long currentTimestamp = System.currentTimeMillis();
         MoodEvent moodEvent = new MoodEvent(
-                selectedMood,
+                this.selectedMood,
                 trigger,
-                moodDescription,
-                socialSituation
+                this.moodDescription,
+                socialSituation,
+                currentTimestamp
         );
+
+
 
         Log.d("FIRESTORE", "Attempting to save: " + moodEvent.toString());
 
@@ -453,6 +514,49 @@ public class AddMoodActivity extends Fragment {
                     showErrorToast(e);
                 });
     }
+    public class TriggerInputFilter implements InputFilter {
+        private final int maxWords;
+        private final int maxChars;
+
+        public TriggerInputFilter(int maxWords, int maxChars) {
+            this.maxWords = maxWords;
+            this.maxChars = maxChars;
+        }
+
+        @Override
+        public CharSequence filter(CharSequence source, int start, int end,
+                                   Spanned dest, int dstart, int dend) {
+
+            int keep = maxChars - (dest.length() - (dend - dstart));
+            if (keep <= 0) {
+                return "";
+            }
+
+
+            StringBuilder resultBuilder = new StringBuilder();
+            resultBuilder.append(dest.subSequence(0, dstart));
+            resultBuilder.append(source.subSequence(start, end));
+            resultBuilder.append(dest.subSequence(dend, dest.length()));
+            String resultString = resultBuilder.toString();
+
+
+            String[] words = resultString.trim().split("\\s+");
+            if (words.length > maxWords && words[0].length() > 0) {
+                return "";
+            }
+
+            if (keep >= end - start) {
+                return null;
+            } else {
+                keep += start;
+                if (Character.isHighSurrogate(source.charAt(keep - 1))) {
+                    keep--;
+                }
+                return source.subSequence(start, keep);
+            }
+        }
+    }
+
 
     private void refreshMoodEventsList() {
         moodEventsRef.get().addOnCompleteListener(task -> {
@@ -462,10 +566,7 @@ public class AddMoodActivity extends Fragment {
                     MoodEvent moodEvent = document.toObject(MoodEvent.class);
                     moodEventsList.add(moodEvent);
                 }
-                // Update your UI with the new list of mood events
-                // For example, if you're using a RecyclerView:
-                // moodEventsAdapter.setMoodEvents(moodEventsList);
-                // moodEventsAdapter.notifyDataSetChanged();
+
             } else {
                 Log.e("FIRESTORE", "Error getting documents: ", task.getException());
             }
@@ -517,25 +618,22 @@ public class AddMoodActivity extends Fragment {
     // yo, this method is our debug function for firestore writes, don't fuck it up
 
     private void showSuccessDialogUI() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded);
-        View customView = getLayoutInflater().inflate(R.layout.custom_success_dialog, null);
+        // Inside the showSuccessDialogUI() method
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog);  // Use a custom style
 
-        builder.setView(customView)
-                .setTitle("Upload Success")
-                .setPositiveButton("OK", (dialog, which) -> {
-                    dialog.dismiss();
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        NavHostFragment.findNavController(AddMoodActivity.this)
-                                .navigate(R.id.action_addMoodActivityFragment2_to_SecondFragment);
-                    }, 2000);
-                });
+        View customView = getLayoutInflater().inflate(R.layout.custom_success_dialog, null);
+        builder.setView(customView);
 
         AlertDialog dialog = builder.create();
-        dialog.setOnShowListener(dialogInterface -> {
-            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            positiveButton.setTextColor(Color.WHITE);
-        });
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent); // Make the background transparent
         dialog.show();
+
+        // Dismiss the dialog after 2 seconds
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            dialog.dismiss();
+            NavHostFragment.findNavController(AddMoodActivity.this)
+                    .navigate(R.id.action_addMoodActivityFragment2_to_SecondFragment);
+        }, 2000); // Dismiss after 2 seconds
     }
 
     private void showErrorToast(Exception e) {
@@ -543,19 +641,109 @@ public class AddMoodActivity extends Fragment {
     }
 
     private void updateBackgroundColor(String mood) {
-        if (moodGradients.containsKey(mood)) {
-            int gradientResId = moodGradients.get(mood);
-            Drawable gradient = ContextCompat.getDrawable(requireContext(), gradientResId);
+        int gradientResId = moodGradients.getOrDefault(mood, R.drawable.edit_text_default);
+        Drawable gradient = ContextCompat.getDrawable(requireContext(), gradientResId);
+        if (gradient != null) {
+            mainLayout.setBackground(gradient);
 
-            if (gradient != null) {
-                mainLayout.setBackground(gradient);
-            } else {
-                mainLayout.setBackgroundColor(Color.parseColor("#203434"));
-            }
         } else {
             mainLayout.setBackgroundColor(Color.parseColor("#203434"));
         }
+
+        EditText editDescription = binding1.editDescription;
+        Spinner spinnerStuff = binding1.mainCard;
+        View rectangleViewOrSum = binding1.rectangle2;
+        TextView textView = binding1.stepIndicator;
+        Button button = binding1.next;
+
+        switch (mood) {
+            case "None":
+                editDescription.setBackgroundResource(R.drawable.edit_text_background);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_background);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_background);
+                button.setBackgroundResource(R.drawable.edit_text_background);
+                textView.setBackgroundResource(R.drawable.edit_text_background);
+                textView.setTextColor(R.drawable.blackmamba);
+                editDescription.setTextColor(Color.parseColor("#5A4A33"));
+                break;
+            case "Happy":
+                editDescription.setBackgroundResource(R.drawable.edit_text_happy);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_happy);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_happy);
+                button.setBackgroundResource(R.drawable.edit_text_happy);
+                textView.setBackgroundResource(R.drawable.edit_text_happy);
+                editDescription.setTextColor(Color.parseColor("#5A4A33"));
+                break;
+            case "Sad":
+                editDescription.setBackgroundResource(R.drawable.edit_text_sad);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_sad);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_sad);
+                button.setBackgroundResource(R.drawable.edit_text_sad);
+                textView.setBackgroundResource(R.drawable.edit_text_sad);
+                editDescription.setTextColor(Color.parseColor("#2C3E50"));
+                break;
+            case "Angry":
+                editDescription.setBackgroundResource(R.drawable.edit_text_angry);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_angry);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_angry);
+                button.setBackgroundResource(R.drawable.edit_text_angry);
+                textView.setBackgroundResource(R.drawable.edit_text_angry);
+                editDescription.setTextColor(Color.parseColor("#4D1A1A"));
+                break;
+            case "Confused":
+                editDescription.setBackgroundResource(R.drawable.edit_text_confused);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_confused);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_confused);
+                button.setBackgroundResource(R.drawable.edit_text_confused);
+                textView.setBackgroundResource(R.drawable.edit_text_confused);
+                editDescription.setTextColor(Color.parseColor("#3A2D58"));
+                break;
+            case "Surprised":
+                editDescription.setBackgroundResource(R.drawable.edit_text_surprised);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_surprised);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_surprised);
+                button.setBackgroundResource(R.drawable.edit_text_surprised);
+                textView.setBackgroundResource(R.drawable.edit_text_surprised);
+                editDescription.setTextColor(Color.parseColor("#5D2B3E"));
+                break;
+            case "Ashamed":
+                editDescription.setBackgroundResource(R.drawable.edit_text_ashamed);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_ashamed);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_ashamed);
+                textView.setBackgroundResource(R.drawable.edit_text_ashamed);
+                button.setBackgroundResource(R.drawable.edit_text_ashamed);
+
+                editDescription.setTextColor(Color.parseColor("#5C3A21"));
+                break;
+            case "Scared":
+                editDescription.setBackgroundResource(R.drawable.edit_text_scared);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_scared);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_scared);
+                textView.setBackgroundResource(R.drawable.edit_text_scared);
+                button.setBackgroundResource(R.drawable.edit_text_scared);
+
+                editDescription.setTextColor(Color.parseColor("#2B3F5D"));
+                break;
+            case "Disgusted":
+                editDescription.setBackgroundResource(R.drawable.edit_text_disgusted);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_disgusted);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_disgusted);
+                textView.setBackgroundResource(R.drawable.edit_text_disgusted);
+                button.setBackgroundResource(R.drawable.edit_text_disgusted);
+
+                editDescription.setTextColor(Color.parseColor("#264D33"));
+                break;
+
+            default:
+                // Default textbox background if no mood matches
+                editDescription.setBackgroundResource(R.drawable.edit_text_default);
+                rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_default);
+                button.setBackgroundResource(R.drawable.edit_text_default);
+                spinnerStuff.setBackgroundResource(R.drawable.edit_text_default);
+                editDescription.setTextColor(Color.parseColor("#204343"));
+        }
     }
+
     private void debugFirestoreWrite(MoodEvent moodEvent) {
         // init the firestore db, bro, don't be a chutiya and skip this
         FirebaseFirestore db = FirebaseFirestore.getInstance();
