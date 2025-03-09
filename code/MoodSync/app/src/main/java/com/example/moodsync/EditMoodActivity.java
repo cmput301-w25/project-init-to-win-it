@@ -307,7 +307,8 @@ public class EditMoodActivity extends Fragment {
                     trigger,
                     this.moodDescription,
                     socialSituation,
-                    currentTimestamp // Pass the timestamp to the MoodEvent
+                    currentTimestamp, // Pass the timestamp to the MoodEvent
+                    imageUrl
             );
 
 
