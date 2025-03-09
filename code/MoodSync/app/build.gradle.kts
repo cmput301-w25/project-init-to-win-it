@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
+    id("org.jetbrains.kotlin.android") // Add this line
+
 }
 
 android {
@@ -51,6 +53,23 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-firestore:25.1.1")
     implementation("com.google.firebase:firebase-storage")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation(files("C:/Users/mehak/AppData/Local/Android/Sdk/platforms/android-34/android.jar"))
 
+}
+
+
+tasks.withType<Javadoc> {
+    exclude("/module-info.java")
+    options.encoding = "UTF-8"
+
+    // Properly set failOnError
+    (options as StandardJavadocDocletOptions).apply {
+        addBooleanOption("Xdoclint:none", true)
+    }
+
+    // Use the setFailOnError method directly on the task
+    setFailOnError(false)
 }
