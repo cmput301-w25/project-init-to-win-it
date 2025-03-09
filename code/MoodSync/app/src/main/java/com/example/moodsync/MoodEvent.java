@@ -7,6 +7,14 @@ import com.example.moodsync.MoodHistoryFragment;
 
 import java.util.Date;
 
+/**
+ * Represents a utility class for performing arithmetic operations.
+ *
+ * <p>This class provides methods for basic arithmetic calculations such as addition,
+ * subtraction, multiplication, and division. It is intended for demonstration purposes.</p>
+ *
+ */
+
 public class MoodEvent implements Parcelable {
 
     private String mood;
