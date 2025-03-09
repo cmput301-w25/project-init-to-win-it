@@ -1,21 +1,19 @@
 package com.example.moodsync;
 
-public class MoodHistoryItem {
+import java.util.Date;
 
-    private String id; // Firestore document ID
+public class MoodHistoryItem {
+    private String id;
     private String mood;
     private String emoji;
     private String description;
-
-    // Constructor
-    public MoodHistoryItem(String mood, String emoji, String description) {
+    private Date date;
+    public MoodHistoryItem(String mood, String emoji, String description, Date date) {
         this.mood = mood;
         this.emoji = emoji;
         this.description = description;
+        this.date=date;
     }
-
-
-    // Getters and setters for all fields including id
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     public String getMood() { return mood; }
@@ -24,4 +22,10 @@ public class MoodHistoryItem {
     public void setEmoji(String emoji) { this.emoji = emoji; }
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+    public Date getDate() {
+        return date;
+    }
+    public void setDate(Date date) {
+        this.date = date;
+    }
 }

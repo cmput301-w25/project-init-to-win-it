@@ -6,6 +6,16 @@ import android.os.Parcelable;
 
 import com.example.moodsync.MoodHistoryFragment;
 
+import java.util.Date;
+
+/**
+ * Represents a utility class for performing arithmetic operations.
+ *
+ * <p>This class provides methods for basic arithmetic calculations such as addition,
+ * subtraction, multiplication, and division. It is intended for demonstration purposes.</p>
+ *
+ */
+
 public class MoodEvent implements Parcelable {
 
     private String mood;
@@ -29,6 +39,7 @@ public class MoodEvent implements Parcelable {
         this.trigger = trigger;
         this.description = description;
         this.socialSituation = socialSituation;
+        this.date=date;
         this.imageUrl = imageUrl;
     }
     protected MoodEvent(Parcel in) {
@@ -54,6 +65,14 @@ public class MoodEvent implements Parcelable {
             return new MoodEvent[size];
         }
     };
+
+    public MoodEvent(String selectedMood, String trigger, String moodDescription, String socialSituation, Object o, long currentTimestamp) {
+        this.mood = mood;
+        this.trigger = trigger;
+        this.description = description;
+        this.socialSituation = socialSituation;
+        this.date=date;
+    }
 
     @Override
     public int describeContents() {

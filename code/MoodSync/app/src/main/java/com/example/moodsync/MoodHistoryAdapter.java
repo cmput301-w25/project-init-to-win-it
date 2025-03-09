@@ -61,10 +61,10 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         holder.emojiTextView.setText(getEmojiForMood(currentItem.getMood()));
         holder.descriptionTextView.setText(currentItem.getDescription() != null ? currentItem.getDescription() : "No Description");
 
-        // Set the background color of the inner layout based on mood
+        // i set the background color of the inner layout based on mood
         holder.moodBackground.setBackgroundColor(getMoodColor(currentItem.getMood()));
 
-        // Adjust text colors based on background color for better readability
+        // i adjusted text colors based on background color for better readability
         adjustTextColors(holder, currentItem.getMood());
 
         holder.deleteButton.setOnClickListener(v -> showDeleteConfirmationDialog(currentItem, position));
@@ -104,7 +104,7 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
     }
 
     private void adjustTextColors(MoodHistoryViewHolder holder, String mood) {
-        // Using consistent text colors that work well with all our pastel backgrounds
+        // using consistent text colors that work well with all our pastel backgrounds
         holder.moodTextView.setTextColor(0xFF333333);
         holder.descriptionTextView.setTextColor(0xFF555555);
     }
@@ -153,27 +153,26 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         MaterialButton cancelButton = dialogView.findViewById(R.id.cancel_button);
         MaterialButton deleteButton = dialogView.findViewById(R.id.delete_button);
 
-        // Set dialog content
+
         titleTextView.setText("Delete Mood");
         messageTextView.setText("Are you sure you want to delete this mood entry? This action cannot be undone.");
 
-        // Create the dialog
         AlertDialog dialog = builder.create();
 
-        // Set up button click listeners
+
         cancelButton.setOnClickListener(v -> dialog.dismiss());
         deleteButton.setOnClickListener(v -> {
             deleteMoodFromFirestore(item, position);
             dialog.dismiss();
         });
 
-        // Set up dialog window properties
+
         if (dialog.getWindow() != null) {
             dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
             WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
-            layoutParams.gravity = Gravity.BOTTOM;  // This part is fine
+            layoutParams.gravity = Gravity.BOTTOM;
             layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT; // **ADD THIS LINE**
+            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
             dialog.getWindow().setAttributes(layoutParams);
             dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         }
@@ -184,7 +183,7 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
     }
 
     private void deleteMoodFromFirestore(MoodHistoryItem item, int position) {
-        db.collection("mood_events").document(item.getId()) // Ensure you have an ID in your MoodHistoryItem
+        db.collection("mood_events").document(item.getId())
                 .delete()
                 .addOnSuccessListener(aVoid -> {
                     moodHistoryItems.remove(position);

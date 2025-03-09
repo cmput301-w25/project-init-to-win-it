@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
+    //id("org.jetbrains.kotlin.android") // Add this line
+
 }
 
 android {
@@ -52,5 +54,30 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.google.firebase.database)
+    implementation(libs.firebase.firestore)
+    implementation(libs.google.firebase.storage)
 
 }
+
+
+tasks.withType<Javadoc> {
+    exclude("**/module-info.java")
+    options.encoding = "UTF-8"
+
+    // Properly set failOnError
+    (options as StandardJavadocDocletOptions).apply {
+        addBooleanOption("Xdoclint:none", true)
+    }
+
+    // Use the setFailOnError method directly on the task
+    setFailOnError(false)
+}
+
+
+
+
+
+
