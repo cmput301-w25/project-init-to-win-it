@@ -80,15 +80,15 @@ public class MoodSyncTest {
      */
     @Test
     public void testViewMoodEventDetails() {
-        MoodEvent event = new MoodEvent("Happy", "Got a new job", "Feeling excited and grateful", "With friends");
+        long date = System.currentTimeMillis();
+        MoodEvent event = new MoodEvent("Happy", "Got a new job", "Feeling excited and grateful", "With friends", date);
 
         // Check that all details are set correctly.
-        Assert.assertEquals("Happy", event.mood);
-        Assert.assertEquals("Got a new job", event.trigger);
-        Assert.assertEquals("Feeling excited and grateful", event.description);
-        Assert.assertEquals("With friends", event.socialSituation);
-        Assert.assertNotNull("ID should not be null", event.id);
-        Assert.assertTrue("Date should be > 0", event.date > 0);
+        Assert.assertEquals("Happy", event.getMood());
+        Assert.assertEquals("Got a new job", event.getTrigger());
+        Assert.assertEquals("Feeling excited and grateful", event.getDescription());
+        Assert.assertEquals("With friends", event.getSocialSituation());
+        Assert.assertEquals(date, event.getDate());
     }
 
     /**
@@ -97,16 +97,16 @@ public class MoodSyncTest {
      */
     @Test
     public void testEditMoodEvent() {
-        MoodEvent event = new MoodEvent("Sad", "Lost my keys", "Worried about not finding them", "Alone");
+        MoodEvent event = new MoodEvent("Sad", "Lost my keys", "Worried about not finding them", "Alone", System.currentTimeMillis());
 
         // Simulate editing the event.
-        event.mood = "Angry";
-        event.description = "Now I'm really frustrated";
-        event.trigger = "House still locked";
+        event.setMood("Angry");
+        event.setDescription("Now I'm really frustrated");
+        event.setTrigger("House still locked");
 
-        Assert.assertEquals("Angry", event.mood);
-        Assert.assertEquals("Now I'm really frustrated", event.description);
-        Assert.assertEquals("House still locked", event.trigger);
+        Assert.assertEquals("Angry", event.getMood());
+        Assert.assertEquals("Now I'm really frustrated", event.getDescription());
+        Assert.assertEquals("House still locked", event.getTrigger());
     }
 
     /**
@@ -117,8 +117,8 @@ public class MoodSyncTest {
     public void testDeleteMoodEvent() {
         // Simulate having a local mood history list.
         List<MoodEvent> moodHistory = new ArrayList<>();
-        MoodEvent event1 = new MoodEvent("Sad", "Trigger1", "Description1", "None");
-        MoodEvent event2 = new MoodEvent("Happy", "Trigger2", "Description2", "Friends");
+        MoodEvent event1 = new MoodEvent("Sad", "Trigger1", "Description1", "None", System.currentTimeMillis());
+        MoodEvent event2 = new MoodEvent("Happy", "Trigger2", "Description2", "Friends", System.currentTimeMillis());
 
         moodHistory.add(event1);
         moodHistory.add(event2);
@@ -139,14 +139,14 @@ public class MoodSyncTest {
      */
     @Test
     public void testAddMoodEvent() {
-        MoodEvent newEvent = new MoodEvent("Confused", null, null, null);
+        MoodEvent newEvent = new MoodEvent("Confused", null, null, null, System.currentTimeMillis());
 
         // Check required and optional fields.
-        Assert.assertEquals("Confused", newEvent.mood);
-        Assert.assertNull("Trigger can be null", newEvent.trigger);
-        Assert.assertNull("Description can be null", newEvent.description);
-        Assert.assertNull("SocialSituation can be null", newEvent.socialSituation);
-        Assert.assertTrue("The date/time should be auto-set", newEvent.date > 0);
+        Assert.assertEquals("Confused", newEvent.getMood());
+        Assert.assertNull("Trigger can be null", newEvent.getTrigger());
+        Assert.assertNull("Description can be null", newEvent.getDescription());
+        Assert.assertNull("SocialSituation can be null", newEvent.getSocialSituation());
+        Assert.assertTrue("The date/time should be auto-set", newEvent.getDate() > 0);
 
         // Simulate adding to mood history.
         List<MoodEvent> moodHistory = new ArrayList<>();
