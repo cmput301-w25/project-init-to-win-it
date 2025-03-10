@@ -106,7 +106,7 @@ public class AddMoodInstrumentedTest {
         onView(withId(R.id.triggerInput))
                 .perform(typeText("test trigger"), closeSoftKeyboard());
         onView(withId(R.id.createmood)).perform(click());
-        SystemClock.sleep(3000);
+
         // Step 5: Confirm that the success dialog is displayed
         onView(withText("Your mood has been successfully uploaded."))
                 .check(matches(isDisplayed()));
