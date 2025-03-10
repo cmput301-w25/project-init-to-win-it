@@ -17,13 +17,13 @@ This Android application enables users to post, track, and share their moods. De
 
 ## Key Features
 
-Mood Event Tracking: Easily create and manage mood entries that include date/time, emotional state, and optional details like triggers and social context. This logging system allows users to maintain a record of their emotional well-being.
+**Mood Event Tracking**: Easily create and manage mood entries that include date/time, emotional state, and optional details like triggers and social context. This logging system allows users to maintain a record of their emotional well-being.
 
-Follow & Share: Connect with others by requesting permission to follow their recent mood events. Keep track of how friends or peers are feeling. 
+**Follow & Share**: Connect with others by requesting permission to follow their recent mood events. Keep track of how friends or peers are feeling. 
 
-Location & Map Views: Optionally attach a location to each mood entry, and visualize mood events on an integrated map. This feature helps users understand where certain emotional states occur.
+**Location & Map Views**: Optionally attach a location to each mood entry, and visualize mood events on an integrated map. This feature helps users understand where certain emotional states occur.
 
-Offline Mode: Users can add, edit, or delete mood events while offline. Any changes will automatically synchronize once an internet connection is restored.
+**Offline Mode**: Users can add, edit, or delete mood events while offline. Any changes will automatically synchronize once an internet connection is restored.
 
 ## Setup Instructions
 
