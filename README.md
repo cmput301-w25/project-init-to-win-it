@@ -17,17 +17,17 @@ This Android application enables users to post, track, and share their moods. De
 
 ## Key Features
 
-**Mood Event Tracking**: Easily create and manage mood entries that include date/time, emotional state, and optional details like triggers and social context. This logging system allows users to maintain a record of their emotional well-being.
+Mood Event Tracking: Easily create and manage mood entries that include date/time, emotional state, and optional details like triggers and social context. This logging system allows users to maintain a record of their emotional well-being.
 
-**Follow & Share**: Connect with others by requesting permission to follow their recent mood events. Keep track of how friends or peers are feeling. 
+Follow & Share: Connect with others by requesting permission to follow their recent mood events. Keep track of how friends or peers are feeling. 
 
-**Location & Map Views**: Optionally attach a location to each mood entry, and visualize mood events on an integrated map. This feature helps users understand where certain emotional states occur.
+Location & Map Views: Optionally attach a location to each mood entry, and visualize mood events on an integrated map. This feature helps users understand where certain emotional states occur.
 
-**Offline Mode**: Users can add, edit, or delete mood events while offline. Any changes will automatically synchronize once an internet connection is restored.
+Offline Mode: Users can add, edit, or delete mood events while offline. Any changes will automatically synchronize once an internet connection is restored.
 
 ## Setup Instructions
 
-1. Clone the Repository
+1. Clone the Repository ( git clone https://github.com/cmput301-w25/project-init-to-win-it/)
 2. Open the Project in Android Studio
 3. Run the Application
 
@@ -38,4 +38,4 @@ This Android application enables users to post, track, and share their moods. De
 - UI Mockups:
         - Storyboard - https://github.com/user-attachments/files/19078542/StoryBoard-compressed.pdf
         - Mockup - https://github.com/user-attachments/files/19078582/Mockup-compressed_1.pdf
-- [UML]
+- UML: https://github.com/cmput301-w25/project-init-to-win-it/wiki/UML
