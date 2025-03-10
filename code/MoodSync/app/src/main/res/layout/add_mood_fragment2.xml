@@ -63,15 +63,15 @@
         android:layout_width="match_parent"
         android:layout_height="120dp"
         android:layout_below="@+id/triggerLabel"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="23dp"
         android:background="@drawable/edit_text_background"
+        android:elevation="4dp"
         android:gravity="top|start"
         android:hint="Enter trigger"
         android:padding="16dp"
         android:textColor="@color/secondary_text_color"
         android:textColorHint="@color/hint_text_color"
-        android:textSize="16sp"
-        android:elevation="4dp" />
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/socialSituationLabel"
