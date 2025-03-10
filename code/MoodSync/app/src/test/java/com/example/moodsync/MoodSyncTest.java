@@ -81,13 +81,14 @@ public class MoodSyncTest {
     @Test
     public void testViewMoodEventDetails() {
         long date = System.currentTimeMillis();
-        MoodEvent event = new MoodEvent("Happy", "Got a new job", "Feeling excited and grateful", "With friends", date);
+        MoodEvent event = new MoodEvent("Happy", "Got a new job", "Feeling excited and grateful", "With friends", date,"https://image-url");
 
         // Check that all details are set correctly.
         Assert.assertEquals("Happy", event.getMood());
         Assert.assertEquals("Got a new job", event.getTrigger());
         Assert.assertEquals("Feeling excited and grateful", event.getDescription());
         Assert.assertEquals("With friends", event.getSocialSituation());
+        Assert.assertEquals("https://image-url", event.getImageUrl());
         Assert.assertEquals(date, event.getDate());
     }
 
@@ -97,7 +98,7 @@ public class MoodSyncTest {
      */
     @Test
     public void testEditMoodEvent() {
-        MoodEvent event = new MoodEvent("Sad", "Lost my keys", "Worried about not finding them", "Alone", System.currentTimeMillis());
+        MoodEvent event = new MoodEvent("Sad", "Lost my keys", "Worried about not finding them", "Alone", System.currentTimeMillis(),"https://image-url");
 
         // Simulate editing the event.
         event.setMood("Angry");
@@ -117,8 +118,8 @@ public class MoodSyncTest {
     public void testDeleteMoodEvent() {
         // Simulate having a local mood history list.
         List<MoodEvent> moodHistory = new ArrayList<>();
-        MoodEvent event1 = new MoodEvent("Sad", "Trigger1", "Description1", "None", System.currentTimeMillis());
-        MoodEvent event2 = new MoodEvent("Happy", "Trigger2", "Description2", "Friends", System.currentTimeMillis());
+        MoodEvent event1 = new MoodEvent("Sad", "Trigger1", "Description1", "None", System.currentTimeMillis(),"https://image-url");
+        MoodEvent event2 = new MoodEvent("Happy", "Trigger2", "Description2", "Friends", System.currentTimeMillis(),"https://image-url");
 
         moodHistory.add(event1);
         moodHistory.add(event2);
@@ -139,13 +140,14 @@ public class MoodSyncTest {
      */
     @Test
     public void testAddMoodEvent() {
-        MoodEvent newEvent = new MoodEvent("Confused", null, null, null, System.currentTimeMillis());
+        MoodEvent newEvent = new MoodEvent("Confused", null, null, null, System.currentTimeMillis(),null);
 
         // Check required and optional fields.
         Assert.assertEquals("Confused", newEvent.getMood());
         Assert.assertNull("Trigger can be null", newEvent.getTrigger());
         Assert.assertNull("Description can be null", newEvent.getDescription());
         Assert.assertNull("SocialSituation can be null", newEvent.getSocialSituation());
+        Assert.assertNull("Image URL can be null", newEvent.getImageUrl());
         Assert.assertTrue("The date/time should be auto-set", newEvent.getDate() > 0);
 
         // Simulate adding to mood history.

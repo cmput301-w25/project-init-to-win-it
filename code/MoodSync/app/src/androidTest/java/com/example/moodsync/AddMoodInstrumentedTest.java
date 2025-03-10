@@ -68,12 +68,8 @@ public class AddMoodInstrumentedTest {
                 "Baseline Trigger",
                 "Seeded baseline event",
                 "With friends",
-<<<<<<< Updated upstream
-                String.valueOf(System.currentTimeMillis())
-=======
                 System.currentTimeMillis(),
-                ":https://firebasestorage.googleapis.com/v0/b/inittowinit-1188f.firebasestorage.app/o/mood_images%2F2e4ac5e4-d7dd-4938-993b-3381a5db80ae?alt=media&token=37c3a433-5ac9-476c-be17-3cabb64f684e"
->>>>>>> Stashed changes
+                "https://image-url"
         );
         moodsRef.add(seed);
     }
@@ -88,30 +84,32 @@ public class AddMoodInstrumentedTest {
      */
     @Test
     public void testAddMoodEventViaUI() {
+        // Step 1: From the first fragment, press "Get Started"
         onView(withId(R.id.button)).perform(click());
-
+        // Wait a little to account for the navigation delay
         SystemClock.sleep(3000);
 
+        // Step 2: Now on home_page_fragment (“SecondFragment”), tap the Add Mood button
         onView(withId(R.id.add_circle_button)).perform(click());
+
+        // Step 3: Select a mood
         onView(withId(R.id.main_card)).perform(click());
         onView(withText("Happy")).perform(click());
-<<<<<<< Updated upstream
-        SystemClock.sleep(500);
-=======
-        SystemClock.sleep(3000);
 
-        // Step 3: Fill out the first Add Mood screen
->>>>>>> Stashed changes
+        // Step 3: Add a description
         onView(withId(R.id.edit_description))
                 .perform(typeText("test mood event"), closeSoftKeyboard());
         onView(withId(R.id.next)).perform(click());
-        SystemClock.sleep(3000);
+
+        // Step 4: Fill out the second Add Mood screen
         onView(withId(R.id.triggerInput))
                 .perform(typeText("test trigger"), closeSoftKeyboard());
         onView(withId(R.id.createmood)).perform(click());
-        SystemClock.sleep(5000);
+
+        // Step 5: Confirm that the success dialog is displayed
         onView(withText("Your mood has been successfully uploaded."))
                 .check(matches(isDisplayed()));
+        // Wait a little to allow the success dialog to disappear
         SystemClock.sleep(3000);
     }
 
@@ -127,19 +125,27 @@ public class AddMoodInstrumentedTest {
      */
     @Test
     public void testInvalidDescriptionPreventsNext() {
+        // 1) From the first fragment, press "Get Started"
         onView(withId(R.id.button)).perform(click());
+        // Wait a little to account for the navigation delay
         SystemClock.sleep(3000);
 
+        // 2) Now in SecondFragment, tap the Add Mood button
         onView(withId(R.id.add_circle_button)).perform(click());
+
+        // 3) Select a mood
         onView(withId(R.id.main_card)).perform(click());
         onView(withText("Happy")).perform(click());
-        SystemClock.sleep(3000);
 
+        // 4) Enter a >20 char & >3 words description to trigger the validation error
         onView(withId(R.id.edit_description))
                 .perform(typeText("a really long description"), closeSoftKeyboard());
 
+        // 5) Press next; the app should NOT proceed due to invalid input
         onView(withId(R.id.next)).perform(click());
 
+        // 6) Verify that we did NOT navigate to the second page
+        //    by checking that the second screen’s 'triggerInput' does not exist
         onView(withId(R.id.triggerInput))
                 .check(doesNotExist());
     }

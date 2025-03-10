@@ -58,19 +58,15 @@ public class HomePageInstrumentedTest {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference moodsRef = db.collection("mood_events");
 
-        MoodEvent seed = new MoodEvent(
+        MoodEvent seededEvent = new MoodEvent(
                 "Happy",
-                "Baseline Trigger",
-                "Seeded baseline event",
+                "Got a new job",
+                "Feeling excited and grateful",
                 "With friends",
-<<<<<<< Updated upstream
-                String.valueOf(System.currentTimeMillis())
-=======
                 System.currentTimeMillis(),
-                ":https://firebasestorage.googleapis.com/v0/b/inittowinit-1188f.firebasestorage.app/o/mood_images%2F2e4ac5e4-d7dd-4938-993b-3381a5db80ae?alt=media&token=37c3a433-5ac9-476c-be17-3cabb64f684e"
->>>>>>> Stashed changes
+                "https://image-url"
         );
-
+        moodsRef.add(seededEvent);
     }
 
     /**
