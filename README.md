@@ -36,5 +36,4 @@
 - [Wiki Link]
 - [Scrum Board]
 - [UI Mockups]
-- [UML]: 
-          https://github.com/cmput301-w25/project-init-to-win-it/wiki/UML
+- UML: https://github.com/cmput301-w25/project-init-to-win-it/wiki/UML
