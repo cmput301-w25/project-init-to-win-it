@@ -74,7 +74,7 @@ dependencies {
 
 
 tasks.withType<Javadoc> {
-    exclude("**/module-info.java")
+    exclude("/module-info.java")
     options.encoding = "UTF-8"
 
     // Properly set failOnError
@@ -85,8 +85,3 @@ tasks.withType<Javadoc> {
     // Use the setFailOnError method directly on the task
     setFailOnError(false)
 }
-
-
-
-
-

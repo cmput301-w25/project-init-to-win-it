@@ -4,6 +4,10 @@ import static android.app.Activity.RESULT_OK;
 import static android.text.method.Touch.scrollTo;
 
 import android.content.Intent;
+<<<<<<< Updated upstream
+=======
+import android.os.SystemClock;
+>>>>>>> Stashed changes
 import android.util.Log;
 import android.widget.TextView;
 
@@ -107,6 +111,9 @@ public class SecondTestSet {
 
         onView(withId(R.id.add_circle_button)).check(matches(isDisplayed()));
         onView(withId(R.id.add_circle_button)).perform(click());
+        onView(withId(R.id.main_card)).perform(click());
+        onView(withText("Happy")).perform(click());
+        SystemClock.sleep(3000);
         try {
             Thread.sleep(3000); // Avoid using Thread.sleep() if possible
         } catch (InterruptedException e) {
@@ -166,6 +173,12 @@ public class SecondTestSet {
             Log.e("InterruptedException", "Thread was interrupted");
         }
         onView(withId(R.id.add_circle_button)).perform(click());
+<<<<<<< Updated upstream
+=======
+        onView(withId(R.id.main_card)).perform(click());
+        onView(withText("Happy")).perform(click());
+        SystemClock.sleep(3000);
+>>>>>>> Stashed changes
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -200,6 +213,15 @@ public class SecondTestSet {
             Log.e("InterruptedException", "Thread was interrupted");
         }
         onView(withId(R.id.add_circle_button)).perform(click());
+<<<<<<< Updated upstream
+=======
+        onView(withId(R.id.main_card)).perform(click());
+        onView(withText("Happy")).perform(click());
+        SystemClock.sleep(3000);
+        onView(withId(R.id.main_card)).perform(click());
+        onView(withText("Happy")).perform(click());
+        SystemClock.sleep(3000);
+>>>>>>> Stashed changes
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -239,6 +261,12 @@ public class SecondTestSet {
             Log.e("InterruptedException", "Thread was interrupted");
         }
         onView(withId(R.id.add_circle_button)).perform(click());
+<<<<<<< Updated upstream
+=======
+        onView(withId(R.id.main_card)).perform(click());
+        onView(withText("Happy")).perform(click());
+        SystemClock.sleep(3000);
+>>>>>>> Stashed changes
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -273,6 +301,7 @@ public class SecondTestSet {
         onView(withId(R.id.ss4)).perform(click());
         onView(withId(R.id.ss4)).check(matches(isDisplayed()));
     }
+<<<<<<< Updated upstream
 //    @Test
 //    public void US040401(){
 //        try {
@@ -384,6 +413,8 @@ public class SecondTestSet {
 
 
 
+=======
+>>>>>>> Stashed changes
 
     @After
     public void tearDown() {

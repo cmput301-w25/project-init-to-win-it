@@ -68,7 +68,12 @@ public class AddMoodInstrumentedTest {
                 "Baseline Trigger",
                 "Seeded baseline event",
                 "With friends",
+<<<<<<< Updated upstream
                 String.valueOf(System.currentTimeMillis())
+=======
+                System.currentTimeMillis(),
+                ":https://firebasestorage.googleapis.com/v0/b/inittowinit-1188f.firebasestorage.app/o/mood_images%2F2e4ac5e4-d7dd-4938-993b-3381a5db80ae?alt=media&token=37c3a433-5ac9-476c-be17-3cabb64f684e"
+>>>>>>> Stashed changes
         );
         moodsRef.add(seed);
     }
@@ -90,7 +95,13 @@ public class AddMoodInstrumentedTest {
         onView(withId(R.id.add_circle_button)).perform(click());
         onView(withId(R.id.main_card)).perform(click());
         onView(withText("Happy")).perform(click());
+<<<<<<< Updated upstream
         SystemClock.sleep(500);
+=======
+        SystemClock.sleep(3000);
+
+        // Step 3: Fill out the first Add Mood screen
+>>>>>>> Stashed changes
         onView(withId(R.id.edit_description))
                 .perform(typeText("test mood event"), closeSoftKeyboard());
         onView(withId(R.id.next)).perform(click());
@@ -120,6 +131,9 @@ public class AddMoodInstrumentedTest {
         SystemClock.sleep(3000);
 
         onView(withId(R.id.add_circle_button)).perform(click());
+        onView(withId(R.id.main_card)).perform(click());
+        onView(withText("Happy")).perform(click());
+        SystemClock.sleep(3000);
 
         onView(withId(R.id.edit_description))
                 .perform(typeText("a really long description"), closeSoftKeyboard());
