@@ -38,4 +38,4 @@ Offline Mode: Users can add, edit, or delete mood events while offline. Any chan
 - UI Mockups:
         - Storyboard - https://github.com/user-attachments/files/19078542/StoryBoard-compressed.pdf
         - Mockup - https://github.com/user-attachments/files/19078582/Mockup-compressed_1.pdf
-- [UML]
+- UML: https://github.com/cmput301-w25/project-init-to-win-it/wiki/UML
