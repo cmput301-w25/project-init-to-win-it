@@ -71,6 +71,7 @@ public class MoodHistoryInstrumentedTest {
 
     @Test
     public void testDeleteMoodInHistory() {
+        SystemClock.sleep(3000);
         // 1) From the first fragment, press "Get Started"
         onView(withId(R.id.button)).perform(click());
         // Wait a little to account for the navigation delay
@@ -85,12 +86,13 @@ public class MoodHistoryInstrumentedTest {
 
         // 4) Press "Delete" next to "Happy"
         onView(withId(R.id.delete_button)).perform(click());
-
+        SystemClock.sleep(3000);
         // 5) A delete confirmation dialog appears. Press "Delete"
-        onView(withId(R.id.delete_button)).perform(click());
-
+        onView(withText("Delete")).perform(click());
+        SystemClock.sleep(3000);
         // 6) Now confirm that "Happy" no longer appears in the list
         onView(withText("Happy")).check(doesNotExist());
+        SystemClock.sleep(3000);
     }
 
     /**

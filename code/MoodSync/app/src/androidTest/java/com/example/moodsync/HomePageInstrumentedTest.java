@@ -75,6 +75,7 @@ public class HomePageInstrumentedTest {
      */
     @Test
     public void testDetailsButtonShowsMoodDetails() {
+        SystemClock.sleep(3000);
         // 1) From the first fragment, press "Get Started"
         onView(withId(R.id.button)).perform(click());
         // Wait a little to account for the navigation delay

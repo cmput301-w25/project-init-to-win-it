@@ -84,6 +84,7 @@ public class AddMoodInstrumentedTest {
      */
     @Test
     public void testAddMoodEventViaUI() {
+        SystemClock.sleep(3000);
         // Step 1: From the first fragment, press "Get Started"
         onView(withId(R.id.button)).perform(click());
         // Wait a little to account for the navigation delay
@@ -105,7 +106,7 @@ public class AddMoodInstrumentedTest {
         onView(withId(R.id.triggerInput))
                 .perform(typeText("test trigger"), closeSoftKeyboard());
         onView(withId(R.id.createmood)).perform(click());
-
+        SystemClock.sleep(3000);
         // Step 5: Confirm that the success dialog is displayed
         onView(withText("Your mood has been successfully uploaded."))
                 .check(matches(isDisplayed()));
