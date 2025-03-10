@@ -63,7 +63,8 @@ public class MoodHistoryInstrumentedTest {
                 "Test Trigger",
                 "We'll delete this one",
                 "None",
-                System.currentTimeMillis()
+                System.currentTimeMillis(),
+                "https://image-url"
         );
         moodsRef.add(seed);
     }

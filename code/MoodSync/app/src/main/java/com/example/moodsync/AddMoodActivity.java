@@ -184,6 +184,17 @@ public class AddMoodActivity extends Fragment {
         }
     }
 
+    void initMoodGradients() {
+        moodGradients.put("Happy", R.drawable.happy_gradient);
+        moodGradients.put("Sad", R.drawable.sad_gradient);
+        moodGradients.put("Angry", R.drawable.angry_gradient);
+        moodGradients.put("Confused", R.drawable.confused_gradient);
+        moodGradients.put("Surprised", R.drawable.surprised_gradient);
+        moodGradients.put("Ashamed", R.drawable.ashamed_gradient);
+        moodGradients.put("Scared", R.drawable.scared_gradient);
+        moodGradients.put("Disgusted", R.drawable.disgusted_gradient);
+    }
+
     /**
      * Sets up the first layout of the fragment.
      *

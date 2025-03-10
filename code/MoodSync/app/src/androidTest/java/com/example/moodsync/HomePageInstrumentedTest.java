@@ -63,7 +63,8 @@ public class HomePageInstrumentedTest {
                 "Got a new job",
                 "Feeling excited and grateful",
                 "With friends",
-                System.currentTimeMillis()
+                System.currentTimeMillis(),
+                "https://image-url"
         );
         moodsRef.add(seededEvent);
     }

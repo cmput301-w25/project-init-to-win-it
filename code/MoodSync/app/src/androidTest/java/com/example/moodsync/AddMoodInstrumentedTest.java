@@ -68,7 +68,8 @@ public class AddMoodInstrumentedTest {
                 "Baseline Trigger",
                 "Seeded baseline event",
                 "With friends",
-                System.currentTimeMillis()
+                System.currentTimeMillis(),
+                "https://image-url"
         );
         moodsRef.add(seed);
     }
@@ -91,7 +92,11 @@ public class AddMoodInstrumentedTest {
         // Step 2: Now on home_page_fragment (“SecondFragment”), tap the Add Mood button
         onView(withId(R.id.add_circle_button)).perform(click());
 
-        // Step 3: Fill out the first Add Mood screen
+        // Step 3: Select a mood
+        onView(withId(R.id.main_card)).perform(click());
+        onView(withText("Happy")).perform(click());
+
+        // Step 3: Add a description
         onView(withId(R.id.edit_description))
                 .perform(typeText("test mood event"), closeSoftKeyboard());
         onView(withId(R.id.next)).perform(click());
