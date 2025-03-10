@@ -1,6 +1,6 @@
 package com.example.moodsync;
 
-import android.app.Activity;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,24 +13,21 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.FrameLayout;
+
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
+
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.graphics.Bitmap;
-import android.util.Log;
-
 import java.util.concurrent.CompletableFuture;
 
-//import com.bumptech.glide.Glide;
+
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+
 
 public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCardViewHolder> {
 

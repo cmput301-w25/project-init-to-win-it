@@ -60,6 +60,14 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.google.firebase.storage)
 
+    implementation(files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.1")
+
+    implementation ("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
 }
 
 
@@ -75,7 +83,6 @@ tasks.withType<Javadoc> {
     // Use the setFailOnError method directly on the task
     setFailOnError(false)
 }
-
 
 
 
