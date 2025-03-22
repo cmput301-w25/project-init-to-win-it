@@ -245,17 +245,6 @@
                 android:text="@string/add_from_photos"
                 android:textColor="@color/secondary_text_color"
                 android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/upto_12mb"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/add_photos"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="4dp"
-                android:text="@string/up_to_12mb"
-                android:textColor="@color/hint_text_color"
-                android:textSize="14sp" />
         </RelativeLayout>
 
         <!-- Next Button -->
