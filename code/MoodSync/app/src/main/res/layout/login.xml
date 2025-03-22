@@ -9,7 +9,7 @@
     android:gravity="center"
     tools:context=".MainActivity"
     android:padding="30dp"
-    android:background="@drawable/login_background">
+    android:background="#F7F7F7">
 
 
     <com.google.android.material.card.MaterialCardView
@@ -48,6 +48,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:hint="      username">
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/usernameInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="#203434"/>
@@ -67,6 +68,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:hint="      password">
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/passwordInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
@@ -83,11 +85,12 @@
                 android:textSize="14sp"/>
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/signupButton"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:textColor="@color/white"
                 android:backgroundTint="#203434"
-                android:text="login"
+                android:text="Sign Up"
                 android:textSize="16sp"
                 app:cornerRadius="12dp"
                 android:clickable="true"
@@ -100,7 +103,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Don't have an account? Sign Up"
+        android:text="Don't have an account? Leave."
         android:textColor="#908574"
         android:textSize="16sp" />
 

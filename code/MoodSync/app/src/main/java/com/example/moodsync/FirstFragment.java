@@ -62,7 +62,7 @@ public class FirstFragment extends Fragment {
                             .withEndAction(() -> {
                                 if (!isAdded()) return;
                                 NavHostFragment.findNavController(FirstFragment.this)
-                                        .navigate(R.id.action_FirstFragment_to_SecondFragment);
+                                        .navigate(R.id.action_FirstFragment_to_RegisterFragment);
                             });
                 }));
     }
