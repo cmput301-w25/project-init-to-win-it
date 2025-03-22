@@ -15,7 +15,10 @@
         <color name="hint_text_color">#757575</color>
         <color name="cancel_button_color">#F44336</color>
         <color name="spinner_dropdown_background">#FFFFFF</color>
-
+        <color name="oxford_blue">#203434</color>
+        <color name="beige_light">#E8DED1</color>
+        <color name="beige_medium">#D1C0A8</color>
+        <color name="beige_dark">#C8AD7E</color>
 
 
 </resources>
