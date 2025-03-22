@@ -15,7 +15,46 @@
         android:text="Your Mood History"
         android:textColor="#D7D2CC"
         android:textSize="40sp"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/filterFunction"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/filterFunction"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView"
+        app:layout_constraintBottom_toTopOf="@id/moodRecyclerView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        >
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/filterButton"
+            android:layout_width="98dp"
+            android:layout_height="52dp"
+            android:backgroundTint="@color/button_normal"
+            android:elevation="4dp"
+            app:icon="@drawable/icon_filter_list"
+            app:iconGravity="textStart"
+            android:paddingHorizontal="16dp"
+            android:text="Filter"
+            android:textColor="@color/black" />
+
+        <Spinner
+            android:id="@+id/filterSpinner"
+            android:layout_width="262dp"
+            android:layout_height="48dp"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="20dp"
+            android:visibility="invisible"
+            android:background="@drawable/spinner_rounded_border"
+            android:fontFamily="serif-monospace"
+            android:paddingStart="10dp" />
+
+
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/moodRecyclerView"
@@ -24,7 +63,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@id/addButton"
-        app:layout_constraintTop_toBottomOf="@id/titleTextView" />
+        app:layout_constraintTop_toBottomOf="@id/filterFunction" />
 
     <!-- changed the addbutton id to backbutton OOPS CHANGED IT BACK-->
 

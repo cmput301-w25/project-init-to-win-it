@@ -6,6 +6,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -18,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Date;
@@ -31,6 +35,14 @@ public class MoodHistoryFragment extends Fragment {
     private FirebaseFirestore db;
     private static final String TAG = "MoodHistoryFragment";
 
+    //Variables used for Filter
+    Button filterButton;
+
+    Spinner filterSpinner;
+    ArrayAdapter<String> filterSpinnerAdapter;
+    List<String> filterSpinnerData;
+
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = MoodHistoryFragmentBinding.inflate(inflater, container, false);
@@ -39,6 +51,35 @@ public class MoodHistoryFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        //Set up filterFunction
+        filterButton = view.findViewById(R.id.filterButton);
+        filterSpinner = view.findViewById(R.id.filterSpinner);
+        filterSpinner.setEnabled(false);
+
+        //Adding data to Spinner
+        filterSpinnerData = Arrays.asList("Choose Option", "Most Recent Week", "Emotional State", "Keyword");
+        filterSpinnerAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, filterSpinnerData);
+        filterSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        filterSpinner.setAdapter(filterSpinnerAdapter);
+
+
+        //Set up
+        filterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Managing visibility of spinner
+                if (filterSpinner.getVisibility() == View.VISIBLE) {
+                    filterSpinner.setVisibility(View.INVISIBLE);
+                    filterSpinner.setEnabled(false);
+                } else {
+                    filterSpinner.setVisibility(View.VISIBLE);
+                    filterSpinner.setEnabled(true);
+                }
+            }
+        });
+
+        //Detecting which option in Spinner used:
 
         // Set up RecyclerView
         binding.moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
