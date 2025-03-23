@@ -2,6 +2,9 @@ package com.example.moodsync;
 
 import static android.app.Activity.RESULT_OK;
 
+import static com.example.moodsync.BitmapUtils.compressImageFromUri;
+import com.example.moodsync.OnImageUploadedListener;
+
 import android.animation.ObjectAnimator;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -11,6 +14,7 @@ import android.graphics.Color;
 import android.graphics.ColorMatrix;
 
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -568,15 +572,20 @@ public class AddMoodActivity extends Fragment {
      */
     private Bitmap getBitmapFromUri(Uri uri) {
         try {
-            return MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), uri);
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), uri);
+            bitmap = rotateBitmap(bitmap, 90);
+            return bitmap;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-
-
+    public static Bitmap rotateBitmap(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+    }
     /**
      * Sets up the second layout for the AddMoodActivity.
      * Initializes UI elements and sets listeners for interactions such as creating mood events
@@ -694,40 +703,6 @@ public class AddMoodActivity extends Fragment {
         scaleY.start();
 
         button.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
-    }
-    /**
-     * Displays a success dialog and attempts to save the mood event to Firestore.
-     * If the save is successful, a success UI is displayed; if it fails, an error message is shown.
-     */
-    private void showSuccessDialog() {
-        String socialSituation = selectedSocialSituationButton != null ?
-                selectedSocialSituationButton.getText().toString() : "None";
-
-        EditText ReasonInput = binding2.ReasonInput;
-        String Reason = ReasonInput.getText().toString();
-        long currentTimestamp = System.currentTimeMillis();
-        MoodEvent moodEvent = new MoodEvent(
-                this.selectedMood,
-                Reason,
-                this.moodDescription,
-                socialSituation,
-                currentTimestamp,
-                imageUrl
-        );
-
-
-
-        Log.d("FIRESTORE", "Attempting to save: " + moodEvent.toString());
-
-        moodEventsRef.add(moodEvent)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d("FIRESTORE", "Save successful with ID: " + documentReference.getId());
-                    showSuccessDialogUI();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("FIRESTORE", "Save failed", e);
-                    showErrorToast(e);
-                });
     }
     /**
      * Custom InputFilter for restricting the number of words and characters in a text field.
