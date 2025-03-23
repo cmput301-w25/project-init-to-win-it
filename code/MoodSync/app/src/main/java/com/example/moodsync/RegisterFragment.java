@@ -56,24 +56,25 @@ public class RegisterFragment extends Fragment {
             String password2 = passwordInput2.getText().toString().trim();
 
             if (fullname.isEmpty()) {
-                fullnameInput.setError("Fullname is required");
+                Toast.makeText(getContext(), "Fullname is required", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (username.isEmpty()) {
-                usernameInput.setError("Username is required");
+                Toast.makeText(getContext(), "Username is required", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (password.isEmpty()) {
-                passwordInput.setError("Password is required");
+                Toast.makeText(getContext(), "Password is required", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (!password.equals(password2)) {
-                passwordInput.setError("Passwords do not match. Please try again");
+                Toast.makeText(getContext(), "Passwords do not match. Please try again", Toast.LENGTH_SHORT).show();
                 return;
             }
+
 
             // Create user data map
             Map<String, Object> userData = new HashMap<>();
