@@ -2,6 +2,7 @@ package com.example.moodsync;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,13 +16,18 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RegisterFragment extends Fragment {
@@ -32,6 +38,8 @@ public class RegisterFragment extends Fragment {
     private MaterialButton signupButton;
 
     private FirebaseFirestore db;
+
+    public static LocalStorage globalStorage;
 
     @Nullable
     @Override
@@ -113,5 +121,24 @@ public class RegisterFragment extends Fragment {
                         }
                     });
         });
+        List<Map<String, Object>> usersData = new ArrayList<>();
+
+        db.collection("users")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Map<String, Object> userData = document.getData();
+                                globalStorage.UserList.add(userData);
+                                Log.d("User Data", document.getId() + " => " + userData);
+                            }
+                        } else {
+                            Log.d("User Data", "Error fetching users: " + task.getException().getMessage());
+                        }
+                    }
+                });
+
         return view;
     }}
