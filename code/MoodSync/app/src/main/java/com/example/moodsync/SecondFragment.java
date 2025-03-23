@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.moodsync.databinding.HomePageFragmentBinding;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -64,6 +65,7 @@ public class SecondFragment extends Fragment {
             Toast.makeText(getContext(), "Selected: " + selectedUsername, Toast.LENGTH_SHORT).show();
             searchResultsListView.setVisibility(View.INVISIBLE);
             searchBar.setText("");
+            navigateToUserProfile(selectedUsername);
         });
 
         // text change listener for the search bar
@@ -77,8 +79,7 @@ public class SecondFragment extends Fragment {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 searchText = charSequence.toString();
                 if (!searchText.isEmpty()) {
-                    ArrayList<User> searchResult = Search(searchText);
-                    updateSearchResults(searchResult);
+                    searchFirestore(searchText);
                     // set visibility and add extra translation downwards
                     searchResultsListView.setVisibility(View.VISIBLE);
                     searchResultsListView.setTranslationY(dpToPx(80)); // push down extra 70dp
@@ -98,18 +99,52 @@ public class SecondFragment extends Fragment {
         return view;
     }
 
-    private void updateSearchResults(ArrayList<User> searchResult) {
-        ArrayList<String> usernames = new ArrayList<>();
-        for (User user : searchResult) {
-            usernames.add(user.getUsername());
-        }
+    private void searchFirestore(String searchText) {
+        db.collection("users")
+                .whereGreaterThanOrEqualTo("userName", searchText)
+                .whereLessThanOrEqualTo("userName", searchText + "\uf8ff")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        ArrayList<String> usernames = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            usernames.add(document.getString("userName"));
+                        }
+                        updateSearchResults(usernames);
+                    } else {
+                        Log.e("Firestore", "Error searching users", task.getException());
+                    }
+                });
+    }
+
+    private void navigateToUserProfile(String selectedUsername) {
+        db.collection("users")
+                .whereEqualTo("userName", selectedUsername)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                        String userId = document.getId();
+
+                        Bundle args = new Bundle();
+                        args.putString("selectedUserId", userId);
+
+                        NavHostFragment.findNavController(SecondFragment.this)
+                                .navigate(R.id.action_SecondFragment_to_userProfileFragment, args);
+                    } else {
+                        Toast.makeText(getContext(), "User not found", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void updateSearchResults(ArrayList<String> usernames) {
         searchResultsAdapter.clear();
         searchResultsAdapter.addAll(usernames);
         searchResultsAdapter.notifyDataSetChanged();
 
         // set height based on number of results (limit to max 5 visible items)
         int itemHeight = 100; // approx height per item in dp, tweak if needed
-        int maxItems = Math.min(searchResult.size(), 5);
+        int maxItems = Math.min(usernames.size(), 5);
         int totalHeight = dpToPx(maxItems * itemHeight);
 
         ViewGroup.LayoutParams layoutParams = searchResultsListView.getLayoutParams();
@@ -146,7 +181,7 @@ public class SecondFragment extends Fragment {
 
         binding.profilePicContainer.setOnClickListener(v ->
                 NavHostFragment.findNavController(SecondFragment.this)
-                        .navigate(R.id.action_SecondFragment_to_userProfileFragment)
+                        .navigate(R.id.action_SecondFragment_to_editProfileFragment)
         );
 
         fetchMoodEvents();

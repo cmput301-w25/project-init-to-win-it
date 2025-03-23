@@ -327,7 +327,7 @@ public class EditMoodActivity extends Fragment {
 
 
 
-        EditText triggerInput = binding2.triggerInput;
+        EditText triggerInput = binding2.ReasonInput;
         triggerInput.setText(moodEventToEdit.getTrigger());
 
         String socialSituation = moodEventToEdit.getSocialSituation();
@@ -373,7 +373,7 @@ public class EditMoodActivity extends Fragment {
         });
 
 
-        binding2.backbutton.setOnClickListener(v -> NavHostFragment.findNavController(EditMoodActivity.this)
+        binding2.backButton.setOnClickListener(v -> NavHostFragment.findNavController(EditMoodActivity.this)
                 .navigateUp());
 
         binding2.ss1.setOnClickListener(v -> selectSocialSituation(binding2.ss1));
