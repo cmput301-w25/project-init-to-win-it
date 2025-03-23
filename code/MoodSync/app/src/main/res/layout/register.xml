@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_login"
-    tools:context=".RegisterActivity">
+    tools:context=".RegisterFragment">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -48,6 +48,7 @@
                 app:startIconTint="#FFFFFF">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/fullnameInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="#FFFFFF" />
@@ -58,7 +59,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:hint="        Email"
+                android:hint="        Username"
                 android:textColorHint="#E0FFFFFF"
                 app:boxStrokeColor="#FFFFFF"
                 app:endIconMode="clear_text"
@@ -68,6 +69,7 @@
                 app:startIconTint="#FFFFFF">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/usernameInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
@@ -89,6 +91,7 @@
                 app:startIconTint="#FFFFFF">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/passwordInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
@@ -110,6 +113,7 @@
                 app:startIconTint="#FFFFFF">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/passwordInput2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
@@ -117,6 +121,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/signupButton"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="24dp"
@@ -133,7 +138,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp"
-                android:text="Already have an account? Sign In"
+                android:text="Already have an account? Log in"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp" />
 

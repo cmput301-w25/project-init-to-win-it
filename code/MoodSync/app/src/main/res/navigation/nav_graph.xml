@@ -11,10 +11,21 @@
         android:label="@string/first_fragment_label"
         tools:layout="@layout/get_started_fragment">
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
+            android:id="@+id/action_FirstFragment_to_RegisterFragment"
+            app:destination="@id/RegisterFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/RegisterFragment"
+        android:name="com.example.moodsync.RegisterFragment"
+        android:label="Register"
+        tools:layout="@layout/login">
+        <action
+            android:id="@+id/action_RegisterFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
     </fragment>
 
+    <!-- Second Fragment -->
     <fragment
         android:id="@+id/SecondFragment"
         android:name="com.example.moodsync.SecondFragment"
@@ -33,6 +44,25 @@
             android:id="@+id/action_SecondFragment_to_editMoodActivityFragment"
             app:destination="@id/editMoodActivityFragment" />
     </fragment>
+
+<!--    <fragment-->
+<!--        android:id="@+id/SecondFragment"-->
+<!--        android:name="com.example.moodsync.SecondFragment"-->
+<!--        android:label="@string/second_fragment_label"-->
+<!--        tools:layout="@layout/home_page_fragment">-->
+<!--        <action-->
+<!--            android:id="@+id/action_SecondFragment_to_FirstFragment"-->
+<!--            app:destination="@id/FirstFragment" />-->
+<!--        <action-->
+<!--            android:id="@+id/action_SecondFragment_to_addMoodActivityFragment"-->
+<!--            app:destination="@id/addMoodActivityFragment" />-->
+<!--        <action-->
+<!--            android:id="@+id/action_SecondFragment_to_moodHistoryFragment"-->
+<!--            app:destination="@id/moodHistoryFragment" />-->
+<!--        <action-->
+<!--            android:id="@+id/action_SecondFragment_to_editMoodActivityFragment"-->
+<!--            app:destination="@id/editMoodActivityFragment" />-->
+<!--    </fragment>-->
 
     <fragment
         android:id="@+id/addMoodActivityFragment"
