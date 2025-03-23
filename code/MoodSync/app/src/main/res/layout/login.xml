@@ -29,7 +29,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                android:text="Welcome Back"
+                android:text="Welcome Back!"
                 android:textColor="#FFFFFF"
                 android:textSize="24sp"
                 android:textStyle="bold" />
@@ -48,6 +48,7 @@
                 app:startIconTint="#FFFFFF">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/usernameLogin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="#FFFFFF" />
@@ -68,6 +69,7 @@
                 app:startIconTint="#FFFFFF">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/passwordLogin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
@@ -84,6 +86,7 @@
                 android:textSize="14sp" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/loginButton"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="24dp"
@@ -96,6 +99,7 @@
                 app:cornerRadius="12dp" />
 
             <TextView
+                android:id="@+id/go_to_signup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
