@@ -2,9 +2,6 @@ package com.example.moodsync;
 
 import static android.app.Activity.RESULT_OK;
 
-import static com.example.moodsync.BitmapUtils.compressImageFromUri;
-import com.example.moodsync.OnImageUploadedListener;
-
 import android.animation.ObjectAnimator;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -14,7 +11,6 @@ import android.graphics.Color;
 import android.graphics.ColorMatrix;
 
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -141,6 +137,7 @@ public class AddMoodActivity extends Fragment {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int PICK_IMAGE_REQUEST = 2;
     private Map<String, Integer> moodGradients = new HashMap<>();
+    private boolean isPublic = false; // Default to private
 
     /**
      * Creates the view for the fragment.
@@ -365,6 +362,79 @@ public class AddMoodActivity extends Fragment {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
+    // Step 1: Blur the bitmap using RenderScript.
+    private Bitmap blurBitmap(Context context, Bitmap image) {
+        // Adjust the scale and blur radius as needed.
+        final float BITMAP_SCALE = 0.5f; // Downscale for faster processing and more blur.
+        final float BLUR_RADIUS = 10.0f; // Maximum is around 25f.
+
+        int width = Math.round(image.getWidth() * BITMAP_SCALE);
+        int height = Math.round(image.getHeight() * BITMAP_SCALE);
+        Bitmap inputBitmap = Bitmap.createScaledBitmap(image, width, height, false);
+        Bitmap outputBitmap = Bitmap.createBitmap(inputBitmap);
+
+        RenderScript rs = RenderScript.create(context);
+        ScriptIntrinsicBlur intrinsicBlur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+        Allocation tmpIn = Allocation.createFromBitmap(rs, inputBitmap);
+        Allocation tmpOut = Allocation.createFromBitmap(rs, outputBitmap);
+        intrinsicBlur.setRadius(BLUR_RADIUS);
+        intrinsicBlur.setInput(tmpIn);
+        intrinsicBlur.forEach(tmpOut);
+        tmpOut.copyTo(outputBitmap);
+
+        rs.destroy();
+        return outputBitmap;
+    }
+
+
+    private File compressImageFromUri(Context context, Uri photoUri) {
+        try {
+            // Convert Uri to Bitmap
+            Bitmap originalBitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), photoUri);
+
+            // Apply blur to reduce details (you can adjust parameters for desired blur strength)
+            Bitmap blurredBitmap = blurBitmap(context, originalBitmap);
+
+            // Create a temporary file
+            File compressedFile = new File(context.getCacheDir(), "compressed_image.jpg");
+            FileOutputStream outputStream;
+
+            int quality = 100;
+            int maxSizeKB = 64;
+            int flag = 1;
+            ByteArrayOutputStream byteArrayOutputStream;
+
+            do {
+                // Reset the stream
+                byteArrayOutputStream = new ByteArrayOutputStream();
+
+                // Compress the blurred bitmap instead of the original
+                blurredBitmap.compress(Bitmap.CompressFormat.JPEG, quality, byteArrayOutputStream);
+
+                // Reduce quality if file size exceeds limit
+                quality -= 5;
+                // Stop if quality goes too low
+                if (quality <= 5) {
+                    quality = 1;
+                    flag = 0;
+                }
+            } while ((byteArrayOutputStream.toByteArray().length / 1024 > maxSizeKB) && flag == 1);
+
+            // Write final compressed data to file
+            outputStream = new FileOutputStream(compressedFile);
+            outputStream.write(byteArrayOutputStream.toByteArray());
+            outputStream.flush();
+            outputStream.close();
+
+            return compressedFile; // Return the final compressed image file
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
     /**
      * Uploads an image to Firebase Storage.
      *
@@ -396,67 +466,78 @@ public class AddMoodActivity extends Fragment {
         });
     }
 
+    /*
+     * Handles the result of an activity, typically used for image selection or capture.
+     *
+     * @param  The request code passed to startActivityForResult(), which identifies the activity.
+     * @param resultCode The result code returned by the child activity through setResult().
+     * @param data An Intent containing the result data, or null if no data is returned.
+     */
+    interface OnImageUploadedListener {
+        void onImageUploaded(String imageUrl);
+        void onUploadFailed(Exception e);
+    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
             long size = checkImageSize(photoUri);
-                uploadImageToFirebase(photoUri, new OnImageUploadedListener() {
+            uploadImageToFirebase(photoUri, new OnImageUploadedListener() {
 
-                    @Override
-                    public void onImageUploaded(String imageUrl) {
-                        View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
-                        rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
-                        TextView text = binding1.getRoot().findViewById(R.id.add_photos);
-                        text.setText("");
-                        text = binding1.getRoot().findViewById(R.id.upto_12mb);
-                        text.setText("");
-                        ImageView image = binding1.getRoot().findViewById(R.id.photos);
+                @Override
+                public void onImageUploaded(String imageUrl) {
+                    View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
+                    rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
+                    TextView text = binding1.getRoot().findViewById(R.id.add_photos);
+                    text.setText("");
+                    text = binding1.getRoot().findViewById(R.id.upto_12mb);
+                    text.setText("");
+                    ImageView image = binding1.getRoot().findViewById(R.id.photos);
 
-                        GradientDrawable drawable = new GradientDrawable();
-                        drawable.setCornerRadius(20); // Set the corner radius in pixels
-                        drawable.setColor(Color.TRANSPARENT);
+                    GradientDrawable drawable = new GradientDrawable();
+                    drawable.setCornerRadius(20); // Set the corner radius in pixels
+                    drawable.setColor(Color.TRANSPARENT);
 
-                        image.setBackground(drawable);
-                        image.setClipToOutline(true); // Round thhe corners
-                        imageAddedFlag = 1;
-                    }
-                    @Override
-                    public void onUploadFailed(Exception e) {
-                    }
-                });
+                    image.setBackground(drawable);
+                    image.setClipToOutline(true); // Round thhe corners
+                    imageAddedFlag = 1;
+                }
+                @Override
+                public void onUploadFailed(Exception e) {
+                }
+            });
 
         } else if (resultCode == RESULT_OK && requestCode == PICK_IMAGE_REQUEST && data != null) {
             Uri selectedImageUri = data.getData();
             long size = checkImageSize(selectedImageUri);
 
-                Log.d("FIREBASEEEE", "Changed BG");
-                uploadImageToFirebase(selectedImageUri, new OnImageUploadedListener() {
+            Log.d("FIREBASEEEE", "Changed BG");
+            uploadImageToFirebase(selectedImageUri, new OnImageUploadedListener() {
 
-                    @Override
-                    public void onImageUploaded(String imageUrl) {
-                        View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
-                        rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(selectedImageUri)));
-                        rectangle2.setClipToOutline(true); // Round thhe corners
+                @Override
+                public void onImageUploaded(String imageUrl) {
+                    View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
+                    rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(selectedImageUri)));
+                    rectangle2.setClipToOutline(true); // Round thhe corners
 
-                        TextView text = binding1.getRoot().findViewById(R.id.add_photos);
-                        text.setText("");
-                        text = binding1.getRoot().findViewById(R.id.upto_12mb);
-                        text.setText("");
+                    TextView text = binding1.getRoot().findViewById(R.id.add_photos);
+                    text.setText("");
+                    text = binding1.getRoot().findViewById(R.id.upto_12mb);
+                    text.setText("");
 
-                        ImageView image = binding1.getRoot().findViewById(R.id.photos);
-                        image.setAlpha(0);
-                        GradientDrawable drawable = new GradientDrawable();
-                        drawable.setCornerRadius(20); // Set the corner radius in pixels
-                        drawable.setAlpha(0);
+                    ImageView image = binding1.getRoot().findViewById(R.id.photos);
+                    image.setAlpha(0);
+                    GradientDrawable drawable = new GradientDrawable();
+                    drawable.setCornerRadius(20); // Set the corner radius in pixels
+                    drawable.setAlpha(0);
 
 
 
-                    }
-                    @Override
-                    public void onUploadFailed(Exception e) {
-                    }
-                });
+                }
+                @Override
+                public void onUploadFailed(Exception e) {
+                }
+            });
         }
     }
 
@@ -465,6 +546,20 @@ public class AddMoodActivity extends Fragment {
      *
      * @param imageUri The URI of the image to upload. This could be a local file URI or a content URI.
      */
+    private void uploadImageToFirebase(Uri imageUri) {
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference()
+                .child("mood_images/" + UUID.randomUUID().toString());
+
+        storageRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        Log.d("Firebase", "Image uploaded successfully. URL: " + uri.toString());
+                        photoUri = null; // Reset photoUri to avoid local display
+                    });
+                })
+                .addOnFailureListener(e -> showErrorToast(e));
+    }
+
     /**
      * Retrieves a Bitmap object from the provided URI.
      *
@@ -473,20 +568,15 @@ public class AddMoodActivity extends Fragment {
      */
     private Bitmap getBitmapFromUri(Uri uri) {
         try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), uri);
-            bitmap = rotateBitmap(bitmap, 90);
-            return bitmap;
+            return MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), uri);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public static Bitmap rotateBitmap(Bitmap source, float angle) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
-    }
+
+
     /**
      * Sets up the second layout for the AddMoodActivity.
      * Initializes UI elements and sets listeners for interactions such as creating mood events
@@ -494,6 +584,20 @@ public class AddMoodActivity extends Fragment {
      */
     private void setupSecondLayout() {
         Log.d("LIFECYCLE", "setupSecondLayout called");
+        Button publicButton = binding2.publicButton;
+        Button privateButton = binding2.privateButton;
+
+        publicButton.setOnClickListener(v -> {
+            animateButtonSelection(publicButton);
+            animateButtonDeselection(privateButton);
+            isPublic = true;
+        });
+
+        privateButton.setOnClickListener(v -> {
+            animateButtonSelection(privateButton);
+            animateButtonDeselection(publicButton);
+            isPublic = false;
+        });
 
         if (getArguments() != null) {
             this.selectedMood = getArguments().getString("selectedMood", "");
@@ -514,16 +618,14 @@ public class AddMoodActivity extends Fragment {
                         selectedSocialSituationButton.getText().toString() : "None";
 
                 long currentTimestamp = System.currentTimeMillis();
-                Log.d("Firebase", "Final imageUrl: " + imageUrl);
-
-
                 MoodEvent moodEvent = new MoodEvent(
                         this.selectedMood,
                         Reason,
                         this.moodDescription,
                         socialSituation,
                         currentTimestamp,
-                        imageUrl
+                        imageUrl,
+                        isPublic
                 );
 
                 saveMoodEventToFirestore(moodEvent);
@@ -594,6 +696,40 @@ public class AddMoodActivity extends Fragment {
         button.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
     }
     /**
+     * Displays a success dialog and attempts to save the mood event to Firestore.
+     * If the save is successful, a success UI is displayed; if it fails, an error message is shown.
+     */
+    private void showSuccessDialog() {
+        String socialSituation = selectedSocialSituationButton != null ?
+                selectedSocialSituationButton.getText().toString() : "None";
+
+        EditText ReasonInput = binding2.ReasonInput;
+        String Reason = ReasonInput.getText().toString();
+        long currentTimestamp = System.currentTimeMillis();
+        MoodEvent moodEvent = new MoodEvent(
+                this.selectedMood,
+                Reason,
+                this.moodDescription,
+                socialSituation,
+                currentTimestamp,
+                imageUrl
+        );
+
+
+
+        Log.d("FIRESTORE", "Attempting to save: " + moodEvent.toString());
+
+        moodEventsRef.add(moodEvent)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d("FIRESTORE", "Save successful with ID: " + documentReference.getId());
+                    showSuccessDialogUI();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FIRESTORE", "Save failed", e);
+                    showErrorToast(e);
+                });
+    }
+    /**
      * Custom InputFilter for restricting the number of words and characters in a text field.
      * The filter ensures that the text input does not exceed the specified word and character limits.
      */
@@ -636,6 +772,32 @@ public class AddMoodActivity extends Fragment {
     }
 
     /**
+     * Refreshes the list of mood events from Firestore and updates the local list.
+     * This method retrieves all the mood events from Firestore and adds them to the list.
+     */
+    private void refreshMoodEventsList() {
+        moodEventsRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<MoodEvent> moodEventsList = new ArrayList<>();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                    moodEventsList.add(moodEvent);
+                }
+
+            } else {
+                Log.e("FIRESTORE", "Error getting documents: ", task.getException());
+            }
+        });
+    }
+
+
+
+    /**
+     * Saves a mood event to Firestore.
+     *
+     * @param moodEvent The mood event to be saved in Firestore.
+     */
+    /**
      * Saves a mood event to Firestore.
      *
      * @param moodEvent The mood event to be saved in Firestore.
@@ -644,6 +806,57 @@ public class AddMoodActivity extends Fragment {
         moodEventsRef.add(moodEvent)
                 .addOnSuccessListener(aVoid -> showSuccessDialogUI())
                 .addOnFailureListener(e -> showErrorToast(e));
+    }
+
+
+
+
+    /**
+     * Updates an existing mood event in Firestore based on the date.
+     *
+     * @param moodEvent The mood event to be updated.
+     */
+    private void updateMoodEvent(MoodEvent moodEvent) {
+        moodEventsRef.whereEqualTo("date", moodEvent.getDate()).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            moodEventsRef.document(document.getId()).set(moodEvent)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("FIRESTORE", "Mood event updated successfully!");
+                                        refreshMoodEventsList();
+                                    })
+                                    .addOnFailureListener(e -> Log.e("FIRESTORE", "Update failed", e));
+                        }
+                    } else {
+                        Log.e("FIRESTORE", "Mood event not found in Firestore");
+                    }
+                });
+    }
+
+
+
+    /**
+     * Deletes a mood event from Firestore based on the date.
+     *
+     * @param moodEvent The mood event to be deleted.
+     */
+    private void deleteMoodEvent(MoodEvent moodEvent) {
+        moodEventsRef.whereEqualTo("date", moodEvent.getDate()).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            moodEventsRef.document(document.getId()).delete()
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("FIRESTORE", "Mood event deleted successfully");
+                                        refreshMoodEventsList();
+                                    })
+                                    .addOnFailureListener(e -> Log.e("FIRESTORE", "Failed to delete mood event", e));
+                        }
+                    } else {
+                        Log.e("FIRESTORE", "Mood event not found for deletion");
+                    }
+                });
     }
 
     /**
@@ -789,6 +1002,30 @@ public class AddMoodActivity extends Fragment {
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_default);
                 editDescription.setTextColor(Color.parseColor("#204343"));
         }
+    }
+
+    /**
+     * Performs a Firestore write to save the mood event.
+     * Logs the result of the operation for debugging purposes.
+     *
+     * @param moodEvent The mood event to be written to Firestore.
+     */
+    private void debugFirestoreWrite(MoodEvent moodEvent) {
+        // init the firestore db, bro, don't be a chutiya and skip this
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // try to add the mood event doc, sending that shit out
+        db.collection("mood_events").add(moodEvent)
+                .addOnSuccessListener(documentReference -> {
+                    // success, motherfucker! we got a doc id here, log that shit
+                    Log.d("DEBUG", "doc added with id: " + documentReference.getId());
+                    Toast.makeText(getContext(), "success! mood event added, bro!", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    // shit, write failed! log the error so we know what the fuck happened
+                    Log.e("DEBUG", "failed to add mood event: ", e);
+                    Toast.makeText(getContext(), "fuck! write failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
     }
 
     /**

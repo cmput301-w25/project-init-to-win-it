@@ -173,7 +173,45 @@
     </LinearLayout>
 
 
+    <!-- Move this Privacy LinearLayout here, below the four buttons -->
+    <LinearLayout
+        android:id="@+id/privacyLinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bottomButtonRow"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/publicButton"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:text="Public"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="#9ca49c"
+            app:cornerRadius="12dp"
+            app:elevation="4dp"
+            app:rippleColor="#FFFFFF" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/privateButton"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="Private"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="#9ca49c"
+            app:cornerRadius="12dp"
+            app:elevation="4dp"
+            app:rippleColor="#FFFFFF" />
+    </LinearLayout>
 
 
     <LinearLayout

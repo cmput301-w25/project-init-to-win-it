@@ -91,6 +91,7 @@ public class EditMoodActivity extends Fragment {
     private CollectionReference moodEventsRef;
     private MoodEvent moodEventToEdit;
 
+    private boolean isPublic = false; // Default to private
     /**
      * Creates the view for the fragment.
      *
@@ -295,12 +296,36 @@ public class EditMoodActivity extends Fragment {
      * and handling the creation or update of a mood event.
      */
     private void setupSecondLayout() {
+        Button publicButton = binding2.publicButton;
+        Button privateButton = binding2.privateButton;
+
+        publicButton.setOnClickListener(v -> {
+            animateButtonSelection(publicButton);
+            animateButtonDeselection(privateButton);
+            isPublic = true;
+        });
+
+        privateButton.setOnClickListener(v -> {
+            animateButtonSelection(privateButton);
+            animateButtonDeselection(publicButton);
+            isPublic = false;
+        });
+
+        if (isPublic) {
+            animateButtonSelection(publicButton);
+        } else {
+            animateButtonSelection(privateButton);
+        }
+
+
         Log.d("LIFECYCLE", "setupSecondLayout called");
         if (getArguments() != null) {
             this.selectedMood = getArguments().getString("selectedMood", "");
             this.moodDescription = getArguments().getString("description", "");
             moodEventToEdit = getArguments().getParcelable("moodEvent"); // Get moodEvent from parameters
         }
+
+
 
         EditText triggerInput = binding2.triggerInput;
         triggerInput.setText(moodEventToEdit.getTrigger());
@@ -332,7 +357,8 @@ public class EditMoodActivity extends Fragment {
                     this.moodDescription,
                     socialSituation,
                     currentTimestamp, // Pass the timestamp to the MoodEvent
-                    imageUrl
+                    imageUrl,
+                    isPublic
             );
 
 
