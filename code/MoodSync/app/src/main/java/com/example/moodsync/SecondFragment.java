@@ -1,14 +1,12 @@
-package com.example.moodsync;
+    package com.example.moodsync;
 
-    import android.os.Bundle;
-    import android.text.Editable;
+import android.os.Bundle;
+import android.text.Editable;
     import android.text.TextWatcher;
     import android.util.Log;
-    import android.view.LayoutInflater;
-    import android.view.View;
-    import android.view.ViewGroup;
-    import android.widget.Button;
-    import android.widget.Toast;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
     import androidx.annotation.NonNull;
     import androidx.fragment.app.Fragment;
@@ -16,29 +14,29 @@ package com.example.moodsync;
     import androidx.recyclerview.widget.LinearLayoutManager;
     import androidx.recyclerview.widget.RecyclerView;
 
-    import com.example.moodsync.databinding.HomePageFragmentBinding;
-    import com.google.android.material.textfield.TextInputEditText;
+import com.example.moodsync.databinding.HomePageFragmentBinding;
+import com.google.android.material.textfield.TextInputEditText;
     import com.google.firebase.firestore.FirebaseFirestore;
-    import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-    import java.lang.reflect.Array;
+import java.lang.reflect.Array;
     import java.util.ArrayList;
     import java.util.List;
 
     public class SecondFragment extends Fragment {
 
-        private HomePageFragmentBinding binding;
-        private RecyclerView moodRecyclerView;
-        private MoodCardAdapter moodCardAdapter;
-        private FirebaseFirestore db;
+    private HomePageFragmentBinding binding;
+    private RecyclerView moodRecyclerView;
+    private MoodCardAdapter moodCardAdapter;
+    private FirebaseFirestore db;
         private TextInputEditText searchBar;
         private String searchText = "";
         public LocalStorage globalStorage = LocalStorage.getInstance();
 
-        @Override
-        public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            binding = HomePageFragmentBinding.inflate(inflater, container, false);
-            View view = binding.getRoot();
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = HomePageFragmentBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
 
             searchBar = view.findViewById(R.id.search_bar);
 
@@ -67,9 +65,9 @@ package com.example.moodsync;
             return searchText;
         }
 
-        @Override
-        public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-            super.onViewCreated(view, savedInstanceState);
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
 
             // Initialize Firestore
@@ -98,14 +96,14 @@ package com.example.moodsync;
             fetchMoodEvents(); // Fetch mood events from Firestore
         }
 
-        private void setupRecyclerView() {
-            moodRecyclerView = binding.moodRecyclerView;
-            moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-            moodCardAdapter = new MoodCardAdapter(new ArrayList<>()); // Start with an empty list
-            moodRecyclerView.setAdapter(moodCardAdapter);
-        }
+    private void setupRecyclerView() {
+        moodRecyclerView = binding.moodRecyclerView;
+        moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        moodCardAdapter = new MoodCardAdapter(new ArrayList<>()); // Start with an empty list
+        moodRecyclerView.setAdapter(moodCardAdapter);
+    }
 
-        //When search is clicked
+    //When search is clicked
     private void fetchMoodEvents() {
         db.collection("mood_events")
                 .whereEqualTo("public", true) // Filter for public mood events

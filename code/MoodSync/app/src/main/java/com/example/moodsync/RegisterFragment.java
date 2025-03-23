@@ -105,6 +105,7 @@ public class RegisterFragment extends Fragment {
                                 db.collection("users").document(username)
                                         .set(userData)
                                         .addOnSuccessListener(aVoid -> {
+                                            ((MyApplication) getActivity().getApplication()).setLoggedInUsername(username);
                                             Toast.makeText(getContext(), "User registered successfully!", Toast.LENGTH_SHORT).show();
 
                                             // Navigate to SecondFragment after successful registration

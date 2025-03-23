@@ -184,9 +184,9 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         if (dialog.getWindow() != null) {
             dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
             WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
-            layoutParams.gravity = Gravity.BOTTOM;  // This part is fine
+            layoutParams.gravity = Gravity.BOTTOM;
             layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT; // **ADD THIS LINE**
+            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
             dialog.getWindow().setAttributes(layoutParams);
             dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         }

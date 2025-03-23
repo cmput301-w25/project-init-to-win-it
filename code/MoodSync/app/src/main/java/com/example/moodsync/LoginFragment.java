@@ -44,6 +44,7 @@ public class LoginFragment extends Fragment {
         loginButton = view.findViewById(R.id.loginButton);
         goToRegister = view.findViewById(R.id.go_to_signup);
 
+
         goToRegister.setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(view);
             navController.navigate(R.id.action_LoginFragment_to_RegisterFragment);
@@ -82,6 +83,7 @@ public class LoginFragment extends Fragment {
                         }
 
                         if (userFound) {
+                            ((MyApplication) getActivity().getApplication()).setLoggedInUsername(username);
                             Toast.makeText(getContext(), "Login successful", Toast.LENGTH_SHORT).show();
                             // Navigate to SecondFragment
                             NavHostFragment.findNavController(LoginFragment.this)

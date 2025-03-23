@@ -1,5 +1,6 @@
 package com.example.moodsync;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -36,7 +37,7 @@ public class MoodEvent implements Parcelable {
         // Default constructor required for Firebase
     }
 
-    public MoodEvent(String mood, String trigger, String description, String socialSituation, long date, String imageUrl, boolean isPublic) {
+    public MoodEvent(String mood, String trigger, String description, String socialSituation, long date, String imageUrl, boolean isPublic, String id) {
         this.mood = mood;
         this.trigger = trigger;
         this.description = description;
@@ -44,6 +45,7 @@ public class MoodEvent implements Parcelable {
         this.date=date;
         this.imageUrl = imageUrl;
         this.isPublic = isPublic;
+        this.id = id;
     }
     protected MoodEvent(Parcel in) {
         mood = in.readString();
