@@ -13,19 +13,39 @@
         <action
             android:id="@+id/action_FirstFragment_to_RegisterFragment"
             app:destination="@id/RegisterFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_LoginFragment"
+            app:destination="@id/LoginFragment" />
     </fragment>
 
     <fragment
         android:id="@+id/RegisterFragment"
         android:name="com.example.moodsync.RegisterFragment"
         android:label="Register"
-        tools:layout="@layout/login">
+        tools:layout="@layout/register">
         <action
             android:id="@+id/action_RegisterFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_RegisterFragment_to_LoginFragment"
+            app:destination="@id/LoginFragment" />
     </fragment>
 
-    <!-- Second Fragment -->
+
+    <fragment
+        android:id="@+id/LoginFragment"
+        android:name="com.example.moodsync.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/login">
+        <action
+            android:id="@+id/action_LoginFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_LoginFragment_to_RegisterFragment"
+            app:destination="@id/RegisterFragment" />
+    </fragment>
+
+
     <fragment
         android:id="@+id/SecondFragment"
         android:name="com.example.moodsync.SecondFragment"
@@ -43,26 +63,12 @@
         <action
             android:id="@+id/action_SecondFragment_to_editMoodActivityFragment"
             app:destination="@id/editMoodActivityFragment" />
+        <action
+            android:id="@+id/action_SecondFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
+
     </fragment>
 
-<!--    <fragment-->
-<!--        android:id="@+id/SecondFragment"-->
-<!--        android:name="com.example.moodsync.SecondFragment"-->
-<!--        android:label="@string/second_fragment_label"-->
-<!--        tools:layout="@layout/home_page_fragment">-->
-<!--        <action-->
-<!--            android:id="@+id/action_SecondFragment_to_FirstFragment"-->
-<!--            app:destination="@id/FirstFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_SecondFragment_to_addMoodActivityFragment"-->
-<!--            app:destination="@id/addMoodActivityFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_SecondFragment_to_moodHistoryFragment"-->
-<!--            app:destination="@id/moodHistoryFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_SecondFragment_to_editMoodActivityFragment"-->
-<!--            app:destination="@id/editMoodActivityFragment" />-->
-<!--    </fragment>-->
 
     <fragment
         android:id="@+id/addMoodActivityFragment"
@@ -125,5 +131,15 @@
             android:id="@+id/action_editMoodActivityFragment2_to_moodHistoryFragment"
             app:destination="@id/moodHistoryFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/userProfileFragment"
+        android:name="com.example.moodsync.EditProfileFragment"
+        android:label="User Profile"
+        tools:layout="@layout/edit_profile_fragment">
+        <action
+            android:id="@+id/action_userProfileFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+    </fragment>
+
 
 </navigation>
