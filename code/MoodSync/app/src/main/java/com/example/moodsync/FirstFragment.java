@@ -65,6 +65,22 @@ public class FirstFragment extends Fragment {
                                         .navigate(R.id.action_FirstFragment_to_RegisterFragment);
                             });
                 }));
+        binding.loginButton.setOnClickListener(v -> v.animate()
+                .scaleX(0.95f)
+                .scaleY(0.95f)
+                .setDuration(100)
+                .withEndAction(() -> {
+                    if (binding == null) return;
+                    v.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(100)
+                            .withEndAction(() -> {
+                                if (!isAdded()) return;
+                                NavHostFragment.findNavController(FirstFragment.this)
+                                        .navigate(R.id.action_FirstFragment_to_LoginFragment);
+                            });
+                }));
     }
 
     /**
@@ -88,6 +104,9 @@ public class FirstFragment extends Fragment {
 
         binding.button.setAlpha(0f);
         binding.button.setTranslationY(50f);
+
+        binding.loginButton.setAlpha(0f);
+        binding.loginButton.setTranslationY(50f);
 
         // its a full sequence with animations
         binding.centeredImage.animate()
@@ -121,6 +140,12 @@ public class FirstFragment extends Fragment {
 
         // button anim
         binding.button.animate()
+                .alpha(1f)
+                .translationY(0)
+                .setDuration(800)
+                .setStartDelay(800);
+
+        binding.loginButton.animate()
                 .alpha(1f)
                 .translationY(0)
                 .setDuration(800)

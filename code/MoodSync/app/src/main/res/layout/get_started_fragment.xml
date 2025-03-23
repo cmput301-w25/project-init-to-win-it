@@ -56,6 +56,22 @@
             android:textAppearance="@style/share_your_" />
 
         <Button
+            android:id="@+id/loginButton"
+            android:layout_width="224dp"
+            android:layout_height="56dp"
+            android:layout_below="@id/share_your_"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="122dp"
+            android:layout_marginTop="60dp"
+            android:layout_marginEnd="128dp"
+            android:text="Login"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            app:backgroundTint="#9ca49c"
+            android:background="@drawable/rounded_text" />
+
+        <Button
             android:id="@+id/button"
             android:layout_width="224dp"
             android:layout_height="56dp"
@@ -65,7 +81,7 @@
             android:layout_marginStart="122dp"
             android:layout_marginTop="130dp"
             android:layout_marginEnd="128dp"
-            android:text="Get Started"
+            android:text="Register"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             app:backgroundTint="#9ca49c"

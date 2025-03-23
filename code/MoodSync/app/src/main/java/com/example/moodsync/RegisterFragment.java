@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ import androidx.navigation.Navigation;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RegisterFragment extends Fragment {
+    private TextView goToLogin;
 
     private TextInputEditText fullnameInput, usernameInput, passwordInput, passwordInput2;
     private CheckBox promiseCheckbox;
@@ -33,22 +36,23 @@ public class RegisterFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.register, container, false);
 
-        // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
-        // Link UI components by their ID
-        // In onCreateView method
-        fullnameInput= view.findViewById(R.id.fullnameInput);
+        fullnameInput = view.findViewById(R.id.fullnameInput);
         usernameInput = view.findViewById(R.id.usernameInput);
         passwordInput = view.findViewById(R.id.passwordInput);
         passwordInput2 = view.findViewById(R.id.passwordInput2);
         signupButton = view.findViewById(R.id.signupButton);
+        goToLogin = view.findViewById(R.id.go_to_login);
+
+        goToLogin.setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(view);
+            navController.navigate(R.id.action_RegisterFragment_to_LoginFragment);
+        });
 
 
-        // Set up click listener for the signup button
         signupButton.setOnClickListener(v -> {
             String fullname = fullnameInput.getText().toString().trim();
             String username = usernameInput.getText().toString().trim();
@@ -76,27 +80,38 @@ public class RegisterFragment extends Fragment {
             }
 
 
-            // Create user data map
-            Map<String, Object> userData = new HashMap<>();
-            userData.put("fullName", fullname);
-            userData.put("userName", username);
-            userData.put("password", password);
-            userData.put("followerList", new ArrayList<String>());
-            userData.put("followingList", new ArrayList<String>());
-            userData.put("commentList", new ArrayList<Integer>());
-
-            // Save data to Firestore with username as document ID
             db.collection("users").document(username)
-                    .set(userData)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(getContext(), "User registered successfully!", Toast.LENGTH_SHORT).show();
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                Toast.makeText(getContext(), "This username is taken. Try another one", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // If username is available, proceed with registration
+                                Map<String, Object> userData = new HashMap<>();
+                                userData.put("fullName", fullname);
+                                userData.put("userName", username);
+                                userData.put("password", password);
+                                userData.put("followerList", new ArrayList<String>());
+                                userData.put("followingList", new ArrayList<String>());
+                                userData.put("commentList", new ArrayList<Integer>());
 
-                        // Navigate to SecondFragment after successful registration
-                        NavController navController = Navigation.findNavController(view);
-                        navController.navigate(R.id.action_RegisterFragment_to_SecondFragment);
-                    })
-                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Error registering user: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                                db.collection("users").document(username)
+                                        .set(userData)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(getContext(), "User registered successfully!", Toast.LENGTH_SHORT).show();
+
+                                            // Navigate to SecondFragment after successful registration
+                                            NavController navController = Navigation.findNavController(view);
+                                            navController.navigate(R.id.action_RegisterFragment_to_SecondFragment);
+                                        })
+                                        .addOnFailureListener(e -> Toast.makeText(getContext(), "Error registering user: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                            }
+                        } else {
+                            Toast.makeText(getContext(), "Error checking username: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
         });
-
         return view;
     }}
