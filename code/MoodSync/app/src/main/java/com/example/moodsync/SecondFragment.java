@@ -51,6 +51,10 @@ public class SecondFragment extends Fragment {
                 NavHostFragment.findNavController(SecondFragment.this)
                         .navigate(R.id.action_SecondFragment_to_moodHistoryFragment)
         );
+        binding.profilePicContainer.setOnClickListener(v ->
+                NavHostFragment.findNavController(SecondFragment.this)
+                        .navigate(R.id.action_SecondFragment_to_userProfileFragment)
+        );
 
         fetchMoodEvents(); // Fetch mood events from Firestore
     }
