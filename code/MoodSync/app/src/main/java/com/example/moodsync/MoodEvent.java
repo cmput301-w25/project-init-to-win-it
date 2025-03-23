@@ -1,5 +1,8 @@
 package com.example.moodsync;
 
+import static android.app.PendingIntent.getActivity;
+
+import android.app.Activity;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -28,19 +31,27 @@ public class MoodEvent implements Parcelable {
     private String photoPath;
     private String id;
 
+    private String userId = ((MyApplication)
+            getActivity().getApplication()).getLoggedInUsername();
+
+    private Activity getActivity() {
+        return null;
+    }
+
     // Constructors, getters, and setters
 
     public MoodEvent() {
         // Default constructor required for Firebase
     }
 
-    public MoodEvent(String mood, String trigger, String description, String socialSituation, String imageUrl) {
+    public MoodEvent(String mood, String trigger, String description, String socialSituation, String imageUrl, String userId) {
         this.mood = mood;
         this.trigger = trigger;
         this.description = description;
         this.socialSituation = socialSituation;
-        this.date=date;
+        this.date = date;
         this.imageUrl = imageUrl;
+        this.userId = userId;
     }
     protected MoodEvent(Parcel in) {
         mood = in.readString();
@@ -52,6 +63,7 @@ public class MoodEvent implements Parcelable {
         location = in.readString();
         photoPath = in.readString();
         id = in.readString();
+        userId = in.readString();
     }
 
     public static final Creator<MoodEvent> CREATOR = new Creator<MoodEvent>() {
@@ -66,13 +78,14 @@ public class MoodEvent implements Parcelable {
         }
     };
 
-    public MoodEvent(String selectedMood, String trigger, String moodDescription, String socialSituation, long currentTimestamp,String imageeUrl) {
+    public MoodEvent(String selectedMood, String trigger, String moodDescription, String socialSituation, long currentTimestamp,String imageeUrl, String userId) {
         this.mood = selectedMood;
         this.trigger = trigger;
         this.description = moodDescription;
         this.socialSituation = socialSituation;
         this.date=currentTimestamp;
         this.imageUrl = imageeUrl;
+        this.userId = userId;
     }
 
     @Override
@@ -91,6 +104,7 @@ public class MoodEvent implements Parcelable {
         dest.writeString(location);
         dest.writeString(photoPath);
         dest.writeString(id);
+        dest.writeString(userId);
     }
 
     public String getMood() {
