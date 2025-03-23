@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class RegisterFragment extends Fragment {
 
-    private TextInputEditText usernameInput, passwordInput;
+    private TextInputEditText fullnameInput, usernameInput, passwordInput, passwordInput2;
     private CheckBox promiseCheckbox;
     private MaterialButton signupButton;
 
@@ -34,22 +34,31 @@ public class RegisterFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.login, container, false);
+        View view = inflater.inflate(R.layout.register, container, false);
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
         // Link UI components by their ID
         // In onCreateView method
+        fullnameInput= view.findViewById(R.id.fullnameInput);
         usernameInput = view.findViewById(R.id.usernameInput);
         passwordInput = view.findViewById(R.id.passwordInput);
+        passwordInput2 = view.findViewById(R.id.passwordInput2);
         signupButton = view.findViewById(R.id.signupButton);
 
 
         // Set up click listener for the signup button
         signupButton.setOnClickListener(v -> {
+            String fullname = fullnameInput.getText().toString().trim();
             String username = usernameInput.getText().toString().trim();
             String password = passwordInput.getText().toString().trim();
+            String password2 = passwordInput2.getText().toString().trim();
+
+            if (fullname.isEmpty()) {
+                fullnameInput.setError("Fullname is required");
+                return;
+            }
 
             if (username.isEmpty()) {
                 usernameInput.setError("Username is required");
@@ -61,8 +70,14 @@ public class RegisterFragment extends Fragment {
                 return;
             }
 
+            if (!password.equals(password2)) {
+                passwordInput.setError("Passwords do not match. Please try again");
+                return;
+            }
+
             // Create user data map
             Map<String, Object> userData = new HashMap<>();
+            userData.put("fullName", fullname);
             userData.put("userName", username);
             userData.put("password", password);
             userData.put("followerList", new ArrayList<String>());

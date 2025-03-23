@@ -48,7 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/cancel"
         android:layout_marginTop="70dp"
-        android:text="What was the trigger for this mood?"
+        android:text="What was the reason for this mood?"
         android:textStyle="bold"
         android:textAppearance="@style/cancel"
         android:textSize="18sp" />
@@ -61,7 +61,7 @@
         android:layout_marginTop="29dp"
         android:background="@drawable/edit_text_background"
         android:gravity="top|start"
-        android:hint="Enter trigger"
+        android:hint="Enter reason"
         android:padding="16dp"
         android:textColor="@color/secondary_text_color"
         android:textColorHint="@color/hint_text_color"
