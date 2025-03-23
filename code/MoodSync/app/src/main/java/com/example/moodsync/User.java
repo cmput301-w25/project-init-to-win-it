@@ -7,8 +7,41 @@ public class User {
     public String name;
     public String userName;
     public String pass;
+
+    public void setFollowerList(ArrayList<String> followerList) {
+        this.followerList = followerList;
+    }
+
     public ArrayList<String> followerList;
     public ArrayList<String> followingList;
+
+    public void setFollowingList(ArrayList<String> followingList) {
+        this.followingList = followingList;
+    }
+
+    public void setCommentList(ArrayList<Integer> commentList) {
+        this.commentList = commentList;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String bio;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String id;
 
     // All the comments that
     public ArrayList<Integer> commentList;

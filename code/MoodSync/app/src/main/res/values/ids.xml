@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="action_FirstFragment_to_LoginFragment" type="id" />
+    <item name="LoginFragment" type="id" />
+    <item name="action_RegisterFragment_to_LoginFragment" type="id" />
+    <item name="action_LoginFragment_to_SecondFragment" type="id" />
+    <item name="action_LoginFragment_to_RegisterFragment" type="id" />
+    <item name="action_SecondFragment_to_userProfileFragment" type="id" />
+    <item name="userProfileFragment" type="id" />
+    <item name="action_userProfileFragment_to_SecondFragment" type="id" />
+</resources>
