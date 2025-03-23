@@ -350,6 +350,8 @@ public class EditMoodActivity extends Fragment {
             String socialSituation1 = (selectedSocialSituationButton != null) ?
                     selectedSocialSituationButton.getText().toString() : "None";
 
+            String username = ((MyApplication) requireActivity().getApplication()).getLoggedInUsername();
+
             long currentTimestamp = System.currentTimeMillis();
             MoodEvent moodEvent = new MoodEvent(
                     this.selectedMood,
@@ -358,7 +360,8 @@ public class EditMoodActivity extends Fragment {
                     socialSituation,
                     currentTimestamp, // Pass the timestamp to the MoodEvent
                     imageUrl,
-                    isPublic
+                    isPublic,
+                    username
             );
 
 

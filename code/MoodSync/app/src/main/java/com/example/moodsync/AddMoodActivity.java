@@ -125,9 +125,12 @@ public class AddMoodActivity extends Fragment {
     private Uri photoUri;
     static String imageUrl;
 
+
     private ImageView happyImage, sadImage, angryImage, confusedImage, surprisedImage, ashamedImage, scaredImage, disgustedImage;
     private ImageView lastSelectedImageView = null;
     private Button selectedSocialSituationButton = null;
+
+    private String username;
 
     private static final int ANIMATION_DURATION = 300; // Animation duration in milliseconds
 
@@ -166,7 +169,9 @@ public class AddMoodActivity extends Fragment {
             return binding1.getRoot();
         }
 
+
     }
+
 
     /**
      * Called immediately after onCreateView(LayoutInflater, ViewGroup, Bundle) has returned, but before any saved state has been restored in to the view.
@@ -177,6 +182,10 @@ public class AddMoodActivity extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        username = ((MyApplication) requireActivity().getApplication()).getLoggedInUsername();
+        Log.d("addmoodusername", "Logged-in username: " + username);
+
         moodGradients.put("Happy", R.drawable.happy_gradient);
         moodGradients.put("Sad", R.drawable.sad_gradient);
         moodGradients.put("Angry", R.drawable.angry_gradient);
@@ -617,6 +626,7 @@ public class AddMoodActivity extends Fragment {
                 String socialSituation = (selectedSocialSituationButton != null) ?
                         selectedSocialSituationButton.getText().toString() : "None";
 
+
                 long currentTimestamp = System.currentTimeMillis();
                 MoodEvent moodEvent = new MoodEvent(
                         this.selectedMood,
@@ -625,7 +635,8 @@ public class AddMoodActivity extends Fragment {
                         socialSituation,
                         currentTimestamp,
                         imageUrl,
-                        isPublic
+                        isPublic,
+                        username
                 );
 
                 saveMoodEventToFirestore(moodEvent);
@@ -703,6 +714,8 @@ public class AddMoodActivity extends Fragment {
         String socialSituation = selectedSocialSituationButton != null ?
                 selectedSocialSituationButton.getText().toString() : "None";
 
+        String username = ((MyApplication) requireActivity().getApplication()).getLoggedInUsername();
+
         EditText ReasonInput = binding2.ReasonInput;
         String Reason = ReasonInput.getText().toString();
         long currentTimestamp = System.currentTimeMillis();
@@ -712,7 +725,9 @@ public class AddMoodActivity extends Fragment {
                 this.moodDescription,
                 socialSituation,
                 currentTimestamp,
-                imageUrl
+                imageUrl,
+                isPublic,
+                username
         );
 
 
