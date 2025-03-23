@@ -1,7 +1,7 @@
 package com.example.moodsync;
 
 import android.os.Bundle;
-import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,13 +15,18 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RegisterFragment extends Fragment {
@@ -38,6 +43,7 @@ public class RegisterFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.register, container, false);
 
+        LocalStorage globalStorage = LocalStorage.getInstance();
         db = FirebaseFirestore.getInstance();
 
         fullnameInput = view.findViewById(R.id.fullnameInput);
@@ -51,7 +57,6 @@ public class RegisterFragment extends Fragment {
             NavController navController = Navigation.findNavController(view);
             navController.navigate(R.id.action_RegisterFragment_to_LoginFragment);
         });
-
 
         signupButton.setOnClickListener(v -> {
             String fullname = fullnameInput.getText().toString().trim();
@@ -114,5 +119,32 @@ public class RegisterFragment extends Fragment {
                         }
                     });
         });
+        List<Map<String, Object>> usersData = new ArrayList<>();
+
+        db.collection("users")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                User tempUser = new User();
+                                tempUser.setId(document.getId());
+                                tempUser.setName((String) document.get("fullName"));
+                                tempUser.setPass((String) document.get("password"));
+                                tempUser.setUsername((String) document.get("userName"));
+                                tempUser.setFollowerList((ArrayList<String>) document.get("followerList"));
+                                tempUser.setFollowingList((ArrayList<String>) document.get("followingList"));
+                                tempUser.setCommentList((ArrayList<Integer>) document.get("commentList"));
+
+                                globalStorage.getUserList().add(tempUser);
+                                Log.d("User Data", document.getId() + " => " + tempUser);
+                            }
+                        } else {
+                            Log.d("User Data", "Error fetching users: " + task.getException().getMessage());
+                        }
+                    }
+                });
+
         return view;
     }}
