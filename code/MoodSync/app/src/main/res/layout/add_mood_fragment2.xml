@@ -46,12 +46,12 @@
         android:elevation="4dp" />
 
     <TextView
-        android:id="@+id/triggerLabel"
+        android:id="@+id/ReasonLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/cancel"
         android:layout_marginTop="70dp"
-        android:text="What was the reason for this mood?"
+        android:text="What was the Reason for this mood?"
         android:textStyle="bold"
         android:textAppearance="@style/cancel"
         android:textSize="22sp"
@@ -59,15 +59,15 @@
         android:letterSpacing="0.02" />
 
     <EditText
-        android:id="@+id/triggerInput"
+        android:id="@+id/ReasonInput"
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:layout_below="@+id/triggerLabel"
+        android:layout_below="@+id/ReasonLabel"
         android:layout_marginTop="23dp"
         android:background="@drawable/edit_text_background"
         android:elevation="4dp"
         android:gravity="top|start"
-        android:hint="Enter reason"
+        android:hint="Enter Reason"
         android:padding="16dp"
         android:textColor="@color/secondary_text_color"
         android:textColorHint="@color/hint_text_color"
@@ -77,7 +77,7 @@
         android:id="@+id/socialSituationLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/triggerInput"
+        android:layout_below="@id/ReasonInput"
         android:layout_marginTop="32dp"
         android:text="Social Situation"
         android:textStyle="bold"
