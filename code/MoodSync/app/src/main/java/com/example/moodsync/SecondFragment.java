@@ -63,21 +63,25 @@ public class SecondFragment extends Fragment {
     }
 
     private void fetchMoodEvents() {
-        db.collection("mood_events").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                List<MoodEvent> moodEvents = new ArrayList<>();
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    // Convert Firestore document to MoodEvent object
-                    MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                    moodEvents.add(moodEvent);
-                }
-                // Update RecyclerView with fetched data
-                moodCardAdapter.updateMoodEvents(moodEvents);
-            } else {
-                Log.e("Firestore", "Error fetching data", task.getException());
-            }
-        });
+        db.collection("mood_events")
+                .whereEqualTo("public", true) // Filter for public mood events
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<MoodEvent> moodEvents = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            // Convert Firestore document to MoodEvent object
+                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                            moodEvents.add(moodEvent);
+                        }
+                        // Update RecyclerView with fetched data
+                        moodCardAdapter.updateMoodEvents(moodEvents);
+                    } else {
+                        Log.e("Firestore", "Error fetching data", task.getException());
+                    }
+                });
     }
+
 
     @Override
     public void onDestroyView() {

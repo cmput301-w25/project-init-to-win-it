@@ -137,6 +137,7 @@ public class AddMoodActivity extends Fragment {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int PICK_IMAGE_REQUEST = 2;
     private Map<String, Integer> moodGradients = new HashMap<>();
+    private boolean isPublic = false; // Default to private
 
     /**
      * Creates the view for the fragment.
@@ -481,62 +482,62 @@ public class AddMoodActivity extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
             long size = checkImageSize(photoUri);
-                uploadImageToFirebase(photoUri, new OnImageUploadedListener() {
+            uploadImageToFirebase(photoUri, new OnImageUploadedListener() {
 
-                    @Override
-                    public void onImageUploaded(String imageUrl) {
-                        View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
-                        rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
-                        TextView text = binding1.getRoot().findViewById(R.id.add_photos);
-                        text.setText("");
-                        text = binding1.getRoot().findViewById(R.id.upto_12mb);
-                        text.setText("");
-                        ImageView image = binding1.getRoot().findViewById(R.id.photos);
+                @Override
+                public void onImageUploaded(String imageUrl) {
+                    View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
+                    rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
+                    TextView text = binding1.getRoot().findViewById(R.id.add_photos);
+                    text.setText("");
+                    text = binding1.getRoot().findViewById(R.id.upto_12mb);
+                    text.setText("");
+                    ImageView image = binding1.getRoot().findViewById(R.id.photos);
 
-                        GradientDrawable drawable = new GradientDrawable();
-                        drawable.setCornerRadius(20); // Set the corner radius in pixels
-                        drawable.setColor(Color.TRANSPARENT);
+                    GradientDrawable drawable = new GradientDrawable();
+                    drawable.setCornerRadius(20); // Set the corner radius in pixels
+                    drawable.setColor(Color.TRANSPARENT);
 
-                        image.setBackground(drawable);
-                        image.setClipToOutline(true); // Round thhe corners
-                        imageAddedFlag = 1;
-                    }
-                    @Override
-                    public void onUploadFailed(Exception e) {
-                    }
-                });
+                    image.setBackground(drawable);
+                    image.setClipToOutline(true); // Round thhe corners
+                    imageAddedFlag = 1;
+                }
+                @Override
+                public void onUploadFailed(Exception e) {
+                }
+            });
 
         } else if (resultCode == RESULT_OK && requestCode == PICK_IMAGE_REQUEST && data != null) {
             Uri selectedImageUri = data.getData();
             long size = checkImageSize(selectedImageUri);
 
-                Log.d("FIREBASEEEE", "Changed BG");
-                uploadImageToFirebase(selectedImageUri, new OnImageUploadedListener() {
+            Log.d("FIREBASEEEE", "Changed BG");
+            uploadImageToFirebase(selectedImageUri, new OnImageUploadedListener() {
 
-                    @Override
-                    public void onImageUploaded(String imageUrl) {
-                        View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
-                        rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(selectedImageUri)));
-                        rectangle2.setClipToOutline(true); // Round thhe corners
+                @Override
+                public void onImageUploaded(String imageUrl) {
+                    View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
+                    rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(selectedImageUri)));
+                    rectangle2.setClipToOutline(true); // Round thhe corners
 
-                        TextView text = binding1.getRoot().findViewById(R.id.add_photos);
-                        text.setText("");
-                        text = binding1.getRoot().findViewById(R.id.upto_12mb);
-                        text.setText("");
+                    TextView text = binding1.getRoot().findViewById(R.id.add_photos);
+                    text.setText("");
+                    text = binding1.getRoot().findViewById(R.id.upto_12mb);
+                    text.setText("");
 
-                        ImageView image = binding1.getRoot().findViewById(R.id.photos);
-                        image.setAlpha(0);
-                        GradientDrawable drawable = new GradientDrawable();
-                        drawable.setCornerRadius(20); // Set the corner radius in pixels
-                        drawable.setAlpha(0);
+                    ImageView image = binding1.getRoot().findViewById(R.id.photos);
+                    image.setAlpha(0);
+                    GradientDrawable drawable = new GradientDrawable();
+                    drawable.setCornerRadius(20); // Set the corner radius in pixels
+                    drawable.setAlpha(0);
 
 
 
-                    }
-                    @Override
-                    public void onUploadFailed(Exception e) {
-                    }
-                });
+                }
+                @Override
+                public void onUploadFailed(Exception e) {
+                }
+            });
         }
     }
 
@@ -583,6 +584,20 @@ public class AddMoodActivity extends Fragment {
      */
     private void setupSecondLayout() {
         Log.d("LIFECYCLE", "setupSecondLayout called");
+        Button publicButton = binding2.publicButton;
+        Button privateButton = binding2.privateButton;
+
+        publicButton.setOnClickListener(v -> {
+            animateButtonSelection(publicButton);
+            animateButtonDeselection(privateButton);
+            isPublic = true;
+        });
+
+        privateButton.setOnClickListener(v -> {
+            animateButtonSelection(privateButton);
+            animateButtonDeselection(publicButton);
+            isPublic = false;
+        });
 
         if (getArguments() != null) {
             this.selectedMood = getArguments().getString("selectedMood", "");
@@ -603,16 +618,14 @@ public class AddMoodActivity extends Fragment {
                         selectedSocialSituationButton.getText().toString() : "None";
 
                 long currentTimestamp = System.currentTimeMillis();
-                Log.d("Firebase", "Final imageUrl: " + imageUrl);
-
-
                 MoodEvent moodEvent = new MoodEvent(
                         this.selectedMood,
                         Reason,
                         this.moodDescription,
                         socialSituation,
                         currentTimestamp,
-                        imageUrl
+                        imageUrl,
+                        isPublic
                 );
 
                 saveMoodEventToFirestore(moodEvent);
@@ -784,11 +797,17 @@ public class AddMoodActivity extends Fragment {
      *
      * @param moodEvent The mood event to be saved in Firestore.
      */
+    /**
+     * Saves a mood event to Firestore.
+     *
+     * @param moodEvent The mood event to be saved in Firestore.
+     */
     private void saveMoodEventToFirestore(MoodEvent moodEvent) {
         moodEventsRef.add(moodEvent)
                 .addOnSuccessListener(aVoid -> showSuccessDialogUI())
                 .addOnFailureListener(e -> showErrorToast(e));
     }
+
 
 
 
