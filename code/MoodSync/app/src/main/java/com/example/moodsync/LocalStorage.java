@@ -5,14 +5,6 @@ import java.util.ArrayList;
 public class LocalStorage {
     private static LocalStorage instance;
 
-    public static String getCurrentUserId() {
-        return currentUserId;
-    }
-
-    public static void setCurrentUserId(String currentUserId) {
-        LocalStorage.currentUserId = currentUserId;
-    }
-
     private static String currentUserId;
 
     private ArrayList<User> UserList = new ArrayList<User>();
@@ -26,12 +18,23 @@ public class LocalStorage {
         Comments = new ArrayList<>();
     }
 
+    public  String getCurrentUserId() {
+        return currentUserId;
+    }
+
+    public void setCurrentUserId(String currentUserId) {
+        LocalStorage.currentUserId = currentUserId;
+    }
+
     // Public method to get the singleton instance
     public static synchronized LocalStorage getInstance() {
         if (instance == null) {
             instance = new LocalStorage();
         }
         return instance;
+    }
+    public User getCurrentUser(){
+        return findUser(currentUserId);
     }
 
     public ArrayList<String> getComments() {
@@ -56,5 +59,24 @@ public class LocalStorage {
 
     public void addUser(User user) {
         this.UserList.add(user);
+    }
+    public boolean checkIfUserExists(User user){
+        for (int i=0;i<UserList.size();i++){
+            if (UserList.get(i).getUserName().equals(user.getUserName())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public User findUser(String uname){
+        for (int i=0;i<UserList.size();i++){
+            if (UserList.get(i).getUserName().equals(uname)){
+                return UserList.get(i);
+            }
+        }
+        User smn = new User();
+        smn.setUserName("");
+        return smn;
     }
 }

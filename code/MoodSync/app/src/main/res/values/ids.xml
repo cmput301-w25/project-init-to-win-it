@@ -8,4 +8,5 @@
     <item name="action_SecondFragment_to_userProfileFragment" type="id" />
     <item name="userProfileFragment" type="id" />
     <item name="action_userProfileFragment_to_SecondFragment" type="id" />
+    <item name="goToEditProfileFragment" type="id" />
 </resources>

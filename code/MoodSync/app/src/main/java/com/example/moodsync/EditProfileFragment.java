@@ -24,6 +24,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
@@ -57,7 +59,6 @@ public class EditProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.edit_profile_fragment, container, false);
 
-        // init firestore and views, ya know, basic shit
         FirebaseApp.initializeApp(requireContext());
         db = FirebaseFirestore.getInstance();
 
@@ -74,12 +75,19 @@ public class EditProfileFragment extends Fragment {
         followingCountTextView = view.findViewById(R.id.following_count);
         likesCountTextView = view.findViewById(R.id.likes_count);
 
-        // load user and photos, no bullshit
+
         loadUserData();
         loadPhotosListView();
 
         profileImageEdit.setOnClickListener(v -> changeProfileImage());
-        editProfileButton.setOnClickListener(v -> saveProfile());
+        editProfileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                NavController navController = Navigation.findNavController(view);
+                navController.navigate(R.id.action_editProfileFragment_to_editProfileActivity);
+            }
+        });
+
         backButton.setOnClickListener(v -> requireActivity().onBackPressed());
 
         return view;
@@ -306,7 +314,6 @@ public class EditProfileFragment extends Fragment {
         String location = locationTextView.getText().toString().trim();
         String bio = bioTextView.getText().toString().trim();
 
-        // basic validation, don't be a dumbass
         if (name.isEmpty() || username.isEmpty()) {
             Toast.makeText(requireContext(), "Name and username cannot be empty", Toast.LENGTH_SHORT).show();
             return;

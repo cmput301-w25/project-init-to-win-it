@@ -98,6 +98,9 @@ public class RegisterFragment extends Fragment {
                                 userData.put("fullName", fullname);
                                 userData.put("userName", username);
                                 userData.put("password", password);
+                                userData.put("bio", "");
+                                userData.put("location", "");
+                                userData.put("pfpUrl", "");
                                 userData.put("followerList", new ArrayList<String>());
                                 userData.put("followingList", new ArrayList<String>());
                                 userData.put("commentList", new ArrayList<Integer>());
@@ -119,7 +122,6 @@ public class RegisterFragment extends Fragment {
                         }
                     });
         });
-        List<Map<String, Object>> usersData = new ArrayList<>();
 
         db.collection("users")
                 .get()
@@ -133,11 +135,18 @@ public class RegisterFragment extends Fragment {
                                 tempUser.setName((String) document.get("fullName"));
                                 tempUser.setPass((String) document.get("password"));
                                 tempUser.setUsername((String) document.get("userName"));
+                                tempUser.setPfpUrl((String) document.get("pfpUrl"));
+                                tempUser.setLocation((String) document.get("location"));
+                                tempUser.setBio((String) document.get("bio"));
                                 tempUser.setFollowerList((ArrayList<String>) document.get("followerList"));
                                 tempUser.setFollowingList((ArrayList<String>) document.get("followingList"));
                                 tempUser.setCommentList((ArrayList<Integer>) document.get("commentList"));
 
-                                globalStorage.getUserList().add(tempUser);
+                                // If doesn't exist, then add
+                                if (!globalStorage.checkIfUserExists(tempUser)){
+                                    globalStorage.getUserList().add(tempUser);
+                                    Log.d("Not added User Data", document.getId() + " => " + tempUser);
+                                }
                                 Log.d("User Data", document.getId() + " => " + tempUser);
                             }
                         } else {

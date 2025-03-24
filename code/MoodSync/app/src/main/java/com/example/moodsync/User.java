@@ -8,12 +8,49 @@ public class User {
     public String userName;
     public String pass;
 
+    public String id;
+    public String pfpUrl;
+    public String location;
+    public String bio;
+    public ArrayList<String> followerList;
+    public ArrayList<String> followingList;
+
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+
+
+    public String getPfpUrl() {
+        return pfpUrl;
+    }
+
+    public void setPfpUrl(String pfpUrl) {
+        this.pfpUrl = pfpUrl;
+    }
+
+
+
     public void setFollowerList(ArrayList<String> followerList) {
         this.followerList = followerList;
     }
 
-    public ArrayList<String> followerList;
-    public ArrayList<String> followingList;
+
 
     public void setFollowingList(ArrayList<String> followingList) {
         this.followingList = followingList;
@@ -31,7 +68,6 @@ public class User {
         this.bio = bio;
     }
 
-    public String bio;
 
     public String getId() {
         return id;
@@ -41,7 +77,6 @@ public class User {
         this.id = id;
     }
 
-    public String id;
 
     // All the comments that
     public ArrayList<Integer> commentList;
@@ -79,6 +114,5 @@ public class User {
     public void addCList(Integer cId){
         this.commentList.add(cId);
     }
-
 
 }
