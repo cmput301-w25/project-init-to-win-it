@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -26,6 +27,9 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,13 +46,21 @@ public class EditProfileFragment extends Fragment {
     private ImageView backButton;
     private MaterialButton editProfileButton;
     private GridView photosListView;
+    private TextView followersCountTextView;
+    private TextView followingCountTextView;
+    private TextView likesCountTextView;
+
+    private FirebaseFirestore db;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.edit_profile_fragment, container, false);
 
-        // Initialize views
+        // init firestore and views, ya know, basic shit
+        FirebaseApp.initializeApp(requireContext());
+        db = FirebaseFirestore.getInstance();
+
         profileImageEdit = view.findViewById(R.id.profile_image_edit);
         nameTextView = view.findViewById(R.id.nameofuser);
         usernameTextView = view.findViewById(R.id.usernameofuser);
@@ -58,45 +70,87 @@ public class EditProfileFragment extends Fragment {
         editProfileButton = view.findViewById(R.id.edit_profile_button);
         photosListView = view.findViewById(R.id.photos_listview);
 
-        // Load dummy data
-        loadDummyData();
+        followersCountTextView = view.findViewById(R.id.followers_count);
+        followingCountTextView = view.findViewById(R.id.following_count);
+        likesCountTextView = view.findViewById(R.id.likes_count);
 
-        // Load photos in the ListView
+        // load user and photos, no bullshit
+        loadUserData();
         loadPhotosListView();
 
-        // Set click listeners
         profileImageEdit.setOnClickListener(v -> changeProfileImage());
-
         editProfileButton.setOnClickListener(v -> saveProfile());
-
         backButton.setOnClickListener(v -> requireActivity().onBackPressed());
 
         return view;
     }
 
-    private void loadDummyData() {
-        // Set default profile image from drawable
-        profileImageEdit.setImageResource(R.drawable.arijitsingh);
+    private void loadUserData() {
+        // get logged in username from our MyApplication class
+        MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
+        String loggedInUsername = myApp.getLoggedInUsername();
 
-        // Set dummy text data
+        if (loggedInUsername == null || loggedInUsername.isEmpty()) {
+            loadDummyData();
+            return;
+        }
+
+        // query firestore for the user data
+        db.collection("users")
+                .whereEqualTo("userName", loggedInUsername)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                        String fullName = document.getString("fullName");
+                        String username = document.getString("userName");
+                        List<String> followerList = (List<String>) document.get("followerList");
+                        List<String> followingList = (List<String>) document.get("followingList");
+
+                        nameTextView.setText(fullName);
+                        usernameTextView.setText("@" + username);
+
+                        followersCountTextView.setText(followerList != null ? String.valueOf(followerList.size()) : "0");
+                        followingCountTextView.setText(followingList != null ? String.valueOf(followingList.size()) : "0");
+
+                        locationTextView.setText(document.getString("location") != null ?
+                                document.getString("location") : "Location not set");
+
+                        bioTextView.setText(document.getString("bio") != null ?
+                                document.getString("bio") : "No bio available");
+
+                        profileImageEdit.setImageResource(R.drawable.arijitsingh);
+
+                    } else {
+                        loadDummyData();
+                        Log.e("EditProfileFragment", "Error getting user data: ", task.getException());
+                    }
+                });
+    }
+
+    private void loadDummyData() {
+        // dummy shit for profile pic and texts
+        profileImageEdit.setImageResource(R.drawable.arijitsingh);
         nameTextView.setText("John Doe");
         usernameTextView.setText("@" + "johndoe");
         locationTextView.setText("New York, USA");
         bioTextView.setText("Photographer | Travel Enthusiast | Coffee Lover\nCapturing moments and sharing stories through my lens. Always on the lookout for the next adventure.");
+
+        if (followersCountTextView != null) followersCountTextView.setText("0");
+        if (followingCountTextView != null) followingCountTextView.setText("0");
+        if (likesCountTextView != null) likesCountTextView.setText("0");
     }
 
     private void loadPhotosListView() {
-        // Create a list of sample photos using arijitsingh drawable
         List<Map<String, Object>> photosList = new ArrayList<>();
 
-        // Add multiple entries to simulate a photo gallery
+        // add sample photos, just for show
         for (int i = 0; i < 6; i++) {
             Map<String, Object> photo = new HashMap<>();
             photo.put("image", R.drawable.arijitsingh);
             photosList.add(photo);
         }
 
-        // Create an adapter for the ListView
         SimpleAdapter adapter = new SimpleAdapter(
                 requireContext(),
                 photosList,
@@ -105,15 +159,12 @@ public class EditProfileFragment extends Fragment {
                 new int[]{R.id.photo_image}
         );
 
-        // Set the adapter to the ListView
         photosListView.setAdapter(adapter);
 
-        // Add hover animation to grid items
         photosListView.setOnItemClickListener((parent, view, position, id) -> {
             showPostDetailDialog();
         });
 
-        // Add touch listeners for hover effect
         photosListView.setOnTouchListener((v, event) -> {
             if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                 int position = photosListView.pointToPosition((int) event.getX(), (int) event.getY());
@@ -141,52 +192,45 @@ public class EditProfileFragment extends Fragment {
     }
 
     private void animateHoverUp(View view) {
-        // Elevate view
-        ObjectAnimator upAnimator = ObjectAnimator.ofFloat(view, "translationZ", 0f, 8f);
+        // animate the view like it's on a sugar rush
+        ObjectAnimator upAnimator = ObjectAnimator.ofFloat(view, "translationZ", 0f, 8f); // init elevation
         upAnimator.setDuration(150);
         upAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
 
-        // Move slightly upward
-        ObjectAnimator moveAnimator = ObjectAnimator.ofFloat(view, "translationY", 0f, -8f);
+        ObjectAnimator moveAnimator = ObjectAnimator.ofFloat(view, "translationY", 0f, -8f); // move it up a bit
         moveAnimator.setDuration(150);
         moveAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
 
         upAnimator.start();
         moveAnimator.start();
 
-        // Add listener to reset after animation
         view.postDelayed(() -> {
-            ObjectAnimator downAnimator = ObjectAnimator.ofFloat(view, "translationZ", 8f, 0f);
+            ObjectAnimator downAnimator = ObjectAnimator.ofFloat(view, "translationZ", 8f, 0f); // bring it back down
             downAnimator.setDuration(150);
             downAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
 
-            ObjectAnimator resetMoveAnimator = ObjectAnimator.ofFloat(view, "translationY", -8f, 0f);
+            ObjectAnimator resetMoveAnimator = ObjectAnimator.ofFloat(view, "translationY", -8f, 0f); // reset position
             resetMoveAnimator.setDuration(150);
             resetMoveAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
 
             downAnimator.start();
             resetMoveAnimator.start();
-        }, 500); // Reset after 0.5 seconds
+        }, 500);
     }
 
     private void showPostDetailDialog() {
-        // Create dialog
         Dialog dialog = new Dialog(requireContext());
-
-        // Request feature must be called before setting content view
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.post_detail_dialog);
 
-        // Set window attributes for bottom animation
         WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
         layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-        layoutParams.width = (int)(getResources().getDisplayMetrics().widthPixels * 1.0); // 95% of screen width
+        layoutParams.width = (int)(getResources().getDisplayMetrics().widthPixels * 1.0);
         layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
         dialog.getWindow().setAttributes(layoutParams);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
 
-        // Initialize views from the dialog layout
         ShapeableImageView profileImage = dialog.findViewById(R.id.profile_image_edit);
         TextView nameText = dialog.findViewById(R.id.name);
         TextView timeStampText = dialog.findViewById(R.id.time_stamp);
@@ -197,7 +241,6 @@ public class EditProfileFragment extends Fragment {
         TextView likeCount = dialog.findViewById(R.id.like_count);
         TextView commentCount = dialog.findViewById(R.id.comment_count);
 
-        // Set data
         profileImage.setImageResource(R.drawable.arijitsingh);
         nameText.setText(nameTextView.getText().toString());
         timeStampText.setText("2 hours ago");
@@ -208,7 +251,6 @@ public class EditProfileFragment extends Fragment {
         likeCount.setText("24");
         commentCount.setText("8");
 
-        // Set click listeners for dialog buttons
         MaterialButton detailsButton = dialog.findViewById(R.id.details_button);
         detailsButton.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "Details clicked", Toast.LENGTH_SHORT).show();
@@ -236,45 +278,82 @@ public class EditProfileFragment extends Fragment {
             Toast.makeText(requireContext(), "Bookmarked!", Toast.LENGTH_SHORT).show();
         });
 
-        // Show dialog
         dialog.show();
     }
 
     private void changeProfileImage() {
-        // Just toggle between two drawable images for demonstration
+        // toggle profile image for demo, shit simple
         if (profileImageEdit.getTag() != null && (boolean) profileImageEdit.getTag()) {
             profileImageEdit.setImageResource(R.drawable.arijitsingh);
             profileImageEdit.setTag(false);
         } else {
-            // Using the same drawable since we only have arijitsingh
             profileImageEdit.setImageResource(R.drawable.arijitsingh);
             profileImageEdit.setTag(true);
         }
 
         Toast.makeText(requireContext(), "Profile image updated", Toast.LENGTH_SHORT).show();
-
-        // Refresh the photos list to show the change
         loadPhotosListView();
     }
 
     private void saveProfile() {
-        // Get text from fields
+        // get and trim the input fields, no bullshit
         String name = nameTextView.getText().toString().trim();
         String username = usernameTextView.getText().toString().trim();
+        // if the username starts with @, chop it off
+        if (username.startsWith("@")) {
+            username = username.substring(1);
+        }
         String location = locationTextView.getText().toString().trim();
         String bio = bioTextView.getText().toString().trim();
 
-        // Validate inputs (basic validation)
+        // basic validation, don't be a dumbass
         if (name.isEmpty() || username.isEmpty()) {
             Toast.makeText(requireContext(), "Name and username cannot be empty", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // In a real app, you would save this data to a database or preferences
-        // For this dummy implementation, just show a success message
-        Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
+        // get logged in username from our app context
+        MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
+        String loggedInUsername = myApp.getLoggedInUsername();
 
-        // Navigate back
-        requireActivity().onBackPressed();
+        // create a new final variable for username to satisfy lambda capture rules
+        final String finalUsername = username;
+
+        if (loggedInUsername != null && !loggedInUsername.isEmpty()) {
+            db.collection("users")
+                    .whereEqualTo("userName", loggedInUsername)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                            String docId = task.getResult().getDocuments().get(0).getId();
+                            Map<String, Object> updates = new HashMap<>();
+                            updates.put("fullName", name);
+                            updates.put("userName", finalUsername);
+                            updates.put("location", location);
+                            updates.put("bio", bio);
+
+                            db.collection("users").document(docId)
+                                    .update(updates)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
+
+                                        // update the logged in username if it changed
+                                        if (!finalUsername.equals(loggedInUsername)) {
+                                            myApp.setLoggedInUsername(finalUsername);
+                                        }
+
+                                        requireActivity().onBackPressed();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(requireContext(), "Failed to update profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
+                        } else {
+                            Toast.makeText(requireContext(), "User not found", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } else {
+            Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
+            requireActivity().onBackPressed();
+        }
     }
 }

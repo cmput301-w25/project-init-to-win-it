@@ -26,23 +26,25 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:startIconDrawable="@drawable/ic_search_black_24dp"
+            app:endIconDrawable="@drawable/ic_search_black_24dp"
             app:boxBackgroundColor="#D7D2CC"
             app:boxCornerRadiusTopStart="20dp"
             app:boxCornerRadiusTopEnd="20dp"
             app:boxCornerRadiusBottomStart="20dp"
             app:boxCornerRadiusBottomEnd="20dp">
 
+
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
                 android:id="@+id/search_bar"
+                android:layout_width="match_parent"
                 android:layout_height="53dp"
-                android:hint="      Search"
+                android:hint="Search"
                 android:imeOptions="actionSearch"
                 android:inputType="text"
+                android:paddingStart="16dp"
+                android:paddingLeft="16dp"
                 android:textColor="#000000"
-                android:textColorHint="#66000000"
-                tools:ignore="DuplicateIds" />
+                android:textColorHint="#66000000" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

@@ -643,7 +643,7 @@ public class AddMoodActivity extends Fragment {
             });
         }
 
-        binding2.backbutton.setOnClickListener(v -> NavHostFragment.findNavController(AddMoodActivity.this)
+        binding2.backButton.setOnClickListener(v -> NavHostFragment.findNavController(AddMoodActivity.this)
                 .navigateUp());
 
         binding2.ss1.setOnClickListener(v -> selectSocialSituation(binding2.ss1));
