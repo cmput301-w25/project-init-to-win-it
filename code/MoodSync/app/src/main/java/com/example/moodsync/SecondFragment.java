@@ -43,6 +43,12 @@ public class SecondFragment extends Fragment {
         binding = HomePageFragmentBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
 
+        binding.mapButton.setOnClickListener(v ->
+                NavHostFragment.findNavController(SecondFragment.this)
+                        .navigate(R.id.action_SecondFragment_to_mapsActivity)
+        );
+
+
         searchBar = view.findViewById(R.id.search_bar);
 
         // inflate the search results xml layout
@@ -228,4 +234,5 @@ public class SecondFragment extends Fragment {
         }
         return result;
     }
+
 }

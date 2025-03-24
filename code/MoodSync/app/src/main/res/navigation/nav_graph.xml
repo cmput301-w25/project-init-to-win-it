@@ -69,7 +69,16 @@
         <action
             android:id="@+id/action_SecondFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
+        <action
+            android:id="@+id/action_SecondFragment_to_mapsActivity"
+            app:destination="@id/mapsActivity" />
     </fragment>
+
+
+    <activity
+        android:id="@+id/mapsActivity"
+        android:name="com.example.moodsync.MapsActivity"
+        android:label="MapsActivity" />
 
 
     <fragment
@@ -176,5 +185,7 @@
                 android:id="@+id/action_editProfileFragment_to_editProfileActivity"
             app:destination="@id/editProfileActivity" />
     </fragment>
+
+
 
 </navigation>
