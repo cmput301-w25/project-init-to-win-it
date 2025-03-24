@@ -300,22 +300,12 @@ public class EditMoodActivity extends Fragment {
         Button privateButton = binding2.privateButton;
 
         publicButton.setOnClickListener(v -> {
-            animateButtonSelection(publicButton);
-            animateButtonDeselection(privateButton);
             isPublic = true;
         });
 
         privateButton.setOnClickListener(v -> {
-            animateButtonSelection(privateButton);
-            animateButtonDeselection(publicButton);
             isPublic = false;
         });
-
-        if (isPublic) {
-            animateButtonSelection(publicButton);
-        } else {
-            animateButtonSelection(privateButton);
-        }
 
 
         Log.d("LIFECYCLE", "setupSecondLayout called");

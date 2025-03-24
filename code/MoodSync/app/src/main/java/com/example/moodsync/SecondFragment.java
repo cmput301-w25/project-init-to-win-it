@@ -27,11 +27,15 @@ import com.example.moodsync.databinding.HomePageFragmentBinding;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SecondFragment extends Fragment {
 
@@ -238,20 +242,91 @@ public class SecondFragment extends Fragment {
         moodRecyclerView.setAdapter(moodCardAdapter);
     }
 
+    //added this method to disply 3 most recent moods of followees
+    private void filterToRecentMoods(List<MoodEvent> allMoodEvents) {
+        // Group mood events by user
+        Map<String, List<MoodEvent>> moodsByUser = new HashMap<>();
+
+        for (MoodEvent event : allMoodEvents) {
+            String userId = event.getId();
+            if (!moodsByUser.containsKey(userId)) {
+                moodsByUser.put(userId, new ArrayList<>());
+            }
+            moodsByUser.get(userId).add(event);
+        }
+
+        // Sort each user's moods by timestamp (descending) and keep only the 3 most recent
+        List<MoodEvent> filteredMoods = new ArrayList<>();
+        for (List<MoodEvent> userMoods : moodsByUser.values()) {
+            // Sort by timestamp in descending order (most recent first)
+            Collections.sort(userMoods, (mood1, mood2) ->
+                    Long.compare(mood2.getDate(), mood1.getDate()));
+
+            // Take only the first 3 (or fewer if the user has less than 3 moods)
+            int modsToTake = Math.min(3, userMoods.size());
+            filteredMoods.addAll(userMoods.subList(0, modsToTake));
+        }
+
+        // Sort all filtered moods by timestamp in descending order
+        Collections.sort(filteredMoods, (mood1, mood2) ->
+                Long.compare(mood2.getDate(), mood1.getDate()));
+
+        // Update the adapter with the filtered list
+        moodCardAdapter.updateMoodEvents(filteredMoods);
+        Log.d("MoodEvents", "Filtered to " + filteredMoods.size() + " recent mood events");
+    }
+
+
+    //    changed this to only display moods of followees
     private void fetchMoodEvents() {
-        db.collection("mood_events")
-                .whereEqualTo("public", true)
+        String currentUserId = globalStorage.getCurrentUserId();
+
+        // First, get all users that the current user follows
+        db.collection("pendingFollowerRequests")
+                .whereEqualTo("follower", currentUserId)
                 .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<MoodEvent> moodEvents = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                            moodEvents.add(moodEvent);
+                .addOnCompleteListener(followersTask -> {
+                    if (followersTask.isSuccessful()) {
+                        List<String> followingUsers = new ArrayList<>();
+
+                        // Extract all followee IDs
+                        for (QueryDocumentSnapshot document : followersTask.getResult()) {
+                            String followeeId = document.getString("followee");
+                            if (followeeId != null) {
+                                followingUsers.add(followeeId);
+                            }
                         }
-                        moodCardAdapter.updateMoodEvents(moodEvents);
+
+                        // Add current user to see their own posts too
+                        followingUsers.add(currentUserId);
+
+                        // If not following anyone, just show empty list
+                        if (followingUsers.isEmpty()) {
+                            moodCardAdapter.updateMoodEvents(new ArrayList<>());
+                            return;
+                        }
+
+                        // Query mood_events where user is in the list of followed users
+                        db.collection("mood_events")
+                                .whereIn("id", followingUsers)
+                                .whereEqualTo("public", true)
+                                .get()
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        List<MoodEvent> moodEvents = new ArrayList<>();
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                                            moodEvents.add(moodEvent);
+                                        }
+                                        filterToRecentMoods(moodEvents);
+                                    } else {
+                                        Log.e("Firestore", "Error fetching mood events", task.getException());
+                                        Toast.makeText(getContext(), "Failed to load mood events", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                     } else {
-                        Log.e("Firestore", "Error fetching data", task.getException());
+                        Log.e("Firestore", "Error fetching followers", followersTask.getException());
+                        Toast.makeText(getContext(), "Failed to load followers", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
