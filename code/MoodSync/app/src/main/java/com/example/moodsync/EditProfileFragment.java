@@ -1,6 +1,5 @@
 package com.example.moodsync;
 
-import android.animation.ObjectAnimator;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -8,16 +7,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.SimpleAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,13 +22,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,12 +46,14 @@ public class EditProfileFragment extends Fragment {
     private TextView bioTextView;
     private ImageView backButton;
     private MaterialButton editProfileButton;
-    private GridView photosListView;
+    private MaterialButton pendingRequestsButton;
     private TextView followersCountTextView;
     private TextView followingCountTextView;
     private TextView likesCountTextView;
 
     private FirebaseFirestore db;
+    private String loggedInUsername;
+    private List<Map<String, String>> pendingRequests = new ArrayList<>();
 
     @Nullable
     @Override
@@ -70,42 +70,36 @@ public class EditProfileFragment extends Fragment {
         bioTextView = view.findViewById(R.id.bioofuser);
         backButton = view.findViewById(R.id.back_button);
         editProfileButton = view.findViewById(R.id.edit_profile_button);
-        photosListView = view.findViewById(R.id.photos_listview);
-
+        pendingRequestsButton = view.findViewById(R.id.pending_requests_button);
         followersCountTextView = view.findViewById(R.id.followers_count);
         followingCountTextView = view.findViewById(R.id.following_count);
         likesCountTextView = view.findViewById(R.id.likes_count);
 
+        // Get logged in username
+        MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
+        loggedInUsername = myApp.getLoggedInUsername();
 
         loadUserData();
-        loadPhotosListView();
-
+        fetchPendingRequests();
 
         profileImageEdit.setOnClickListener(v -> changeProfileImage());
-        editProfileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                NavController navController = Navigation.findNavController(view);
-                navController.navigate(R.id.action_editProfileFragment_to_editProfileActivity);
-            }
+        editProfileButton.setOnClickListener(view1 -> {
+            NavController navController = Navigation.findNavController(view1);
+            navController.navigate(R.id.action_editProfileFragment_to_editProfileActivity);
         });
 
+        pendingRequestsButton.setOnClickListener(v -> showPendingRequestsDialog());
         backButton.setOnClickListener(v -> requireActivity().onBackPressed());
 
         return view;
     }
 
     private void loadUserData() {
-        // get logged in username from our MyApplication class
-        MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
-        String loggedInUsername = myApp.getLoggedInUsername();
-
         if (loggedInUsername == null || loggedInUsername.isEmpty()) {
             loadDummyData();
             return;
         }
 
-        // query firestore for the user data
         db.collection("users")
                 .whereEqualTo("userName", loggedInUsername)
                 .get()
@@ -120,8 +114,6 @@ public class EditProfileFragment extends Fragment {
 
                         nameTextView.setText(fullName);
                         usernameTextView.setText("@" + username);
-
-
                         followersCountTextView.setText(followerList != null ? String.valueOf(followerList.size()) : "0");
                         followingCountTextView.setText(followingList != null ? String.valueOf(followingList.size()) : "0");
 
@@ -134,7 +126,6 @@ public class EditProfileFragment extends Fragment {
                         Glide.with(this)
                                 .load(document.getString("profileImageUrl"))
                                 .circleCrop()
-                                .transform(new EditProfileActivity.RotateTransformation(90))
                                 .placeholder(R.drawable.ic_person_black_24dp)
                                 .into(profileImageEdit);
 
@@ -145,11 +136,180 @@ public class EditProfileFragment extends Fragment {
                 });
     }
 
+    private void fetchPendingRequests() {
+        if (loggedInUsername == null || loggedInUsername.isEmpty()) {
+            pendingRequestsButton.setText("0");
+            return;
+        }
+
+        pendingRequests.clear();
+        db.collection("pendingFollowerRequests")
+                .whereEqualTo("followee", loggedInUsername)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        int count = task.getResult().size();
+                        pendingRequestsButton.setText(String.valueOf(count));
+
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Map<String, String> request = new HashMap<>();
+                            request.put("id", document.getId());
+                            request.put("follower", document.getString("follower"));
+                            request.put("followee", document.getString("followee"));
+                            pendingRequests.add(request);
+                        }
+                    } else {
+                        Log.e("EditProfileFragment", "Error getting pending requests: ", task.getException());
+                        pendingRequestsButton.setText("0");
+                    }
+                });
+    }
+
+    private void showPendingRequestsDialog() {
+        if (pendingRequests.isEmpty()) {
+            Toast.makeText(requireContext(), "No pending follow requests", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Dialog dialog = new Dialog(requireContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_pending_requests);
+
+        WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
+        layoutParams.gravity = Gravity.CENTER;
+        layoutParams.width = (int)(getResources().getDisplayMetrics().widthPixels * 0.9);
+        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        dialog.getWindow().setAttributes(layoutParams);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        TextView requestCountText = dialog.findViewById(R.id.request_count_text);
+        RecyclerView requestsRecyclerView = dialog.findViewById(R.id.requests_recycler_view);
+        MaterialButton acceptAllButton = dialog.findViewById(R.id.accept_all_button);
+        MaterialButton declineAllButton = dialog.findViewById(R.id.decline_all_button);
+        ImageButton closeButton = dialog.findViewById(R.id.close_button);
+
+        requestCountText.setText("You have " + pendingRequests.size() + " pending follow requests");
+
+
+        requestsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        PendingRequestsAdapter adapter = new PendingRequestsAdapter(pendingRequests);
+        requestsRecyclerView.setAdapter(adapter);
+
+        acceptAllButton.setOnClickListener(v -> {
+            acceptAllRequests();
+            dialog.dismiss();
+        });
+
+        declineAllButton.setOnClickListener(v -> {
+            declineAllRequests();
+            dialog.dismiss();
+        });
+
+        closeButton.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+    private void acceptAllRequests() {
+        for (Map<String, String> request : pendingRequests) {
+            String requestId = request.get("id");
+            String follower = request.get("follower");
+
+            db.collection("users")
+                    .whereEqualTo("userName", loggedInUsername)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot userDoc = queryDocumentSnapshots.getDocuments().get(0);
+                            String userId = userDoc.getId();
+
+                            List<String> followerList = (List<String>) userDoc.get("followerList");
+                            if (followerList == null) {
+                                followerList = new ArrayList<>();
+                            }
+
+                            if (!followerList.contains(follower)) {
+                                followerList.add(follower);
+
+                                db.collection("users").document(userId)
+                                        .update("followerList", followerList)
+                                        .addOnSuccessListener(aVoid -> {
+                                            // Delete the request
+                                            db.collection("pendingFollowerRequests").document(requestId)
+                                                    .delete()
+                                                    .addOnSuccessListener(aVoid1 -> {
+                                                        Log.d("EditProfileFragment", "Request accepted and deleted");
+                                                    })
+                                                    .addOnFailureListener(e -> {
+                                                        Log.e("EditProfileFragment", "Error deleting request", e);
+                                                    });
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e("EditProfileFragment", "Error updating follower list", e);
+                                        });
+                            }
+                        }
+                    });
+
+            // Update follower's following list
+            db.collection("users")
+                    .whereEqualTo("userName", follower)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot followerDoc = queryDocumentSnapshots.getDocuments().get(0);
+                            String followerId = followerDoc.getId();
+
+                            List<String> followingList = (List<String>) followerDoc.get("followingList");
+                            if (followingList == null) {
+                                followingList = new ArrayList<>();
+                            }
+
+                            if (!followingList.contains(loggedInUsername)) {
+                                followingList.add(loggedInUsername);
+
+                                db.collection("users").document(followerId)
+                                        .update("followingList", followingList)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Log.d("EditProfileFragment", "Follower's following list updated");
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e("EditProfileFragment", "Error updating follower's following list", e);
+                                        });
+                            }
+                        }
+                    });
+        }
+
+        Toast.makeText(requireContext(), "All requests accepted", Toast.LENGTH_SHORT).show();
+        pendingRequests.clear();
+        pendingRequestsButton.setText("0");
+        loadUserData();
+    }
+
+    private void declineAllRequests() {
+        for (Map<String, String> request : pendingRequests) {
+            String requestId = request.get("id");
+
+            db.collection("pendingFollowerRequests").document(requestId)
+                    .delete()
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d("EditProfileFragment", "Request declined and deleted");
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("EditProfileFragment", "Error deleting request", e);
+                    });
+        }
+
+        Toast.makeText(requireContext(), "All requests declined", Toast.LENGTH_SHORT).show();
+        pendingRequests.clear();
+        pendingRequestsButton.setText("0");
+    }
+
     private void loadDummyData() {
-        // dummy shit for profile pic and texts
         profileImageEdit.setImageResource(R.drawable.arijitsingh);
         nameTextView.setText("John Doe");
-        usernameTextView.setText("@" + "johndoe");
+        usernameTextView.setText("@johndoe");
         locationTextView.setText("New York, USA");
         bioTextView.setText("Photographer | Travel Enthusiast | Coffee Lover\nCapturing moments and sharing stories through my lens. Always on the lookout for the next adventure.");
 
@@ -158,148 +318,7 @@ public class EditProfileFragment extends Fragment {
         if (likesCountTextView != null) likesCountTextView.setText("0");
     }
 
-    private void loadPhotosListView() {
-        List<Map<String, Object>> photosList = new ArrayList<>();
-
-        // add sample photos, just for show
-        for (int i = 0; i < 6; i++) {
-            Map<String, Object> photo = new HashMap<>();
-            photo.put("image", R.drawable.arijitsingh);
-            photosList.add(photo);
-        }
-
-        SimpleAdapter adapter = new SimpleAdapter(
-                requireContext(),
-                photosList,
-                R.layout.photo_item,
-                new String[]{"image"},
-                new int[]{R.id.photo_image}
-        );
-
-        photosListView.setAdapter(adapter);
-
-        photosListView.setOnItemClickListener((parent, view, position, id) -> {
-            showPostDetailDialog();
-        });
-
-        photosListView.setOnTouchListener((v, event) -> {
-            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                int position = photosListView.pointToPosition((int) event.getX(), (int) event.getY());
-                if (position >= 0) {
-                    View itemView = getViewByPosition(position, photosListView);
-                    if (itemView != null) {
-                        animateHoverUp(itemView);
-                    }
-                }
-            }
-            return false;
-        });
-    }
-
-    private View getViewByPosition(int position, GridView gridView) {
-        final int firstListItemPosition = gridView.getFirstVisiblePosition();
-        final int lastListItemPosition = firstListItemPosition + gridView.getChildCount() - 1;
-
-        if (position < firstListItemPosition || position > lastListItemPosition) {
-            return null;
-        } else {
-            final int childIndex = position - firstListItemPosition;
-            return gridView.getChildAt(childIndex);
-        }
-    }
-
-    private void animateHoverUp(View view) {
-        // animate the view like it's on a sugar rush
-        ObjectAnimator upAnimator = ObjectAnimator.ofFloat(view, "translationZ", 0f, 8f); // init elevation
-        upAnimator.setDuration(150);
-        upAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-
-        ObjectAnimator moveAnimator = ObjectAnimator.ofFloat(view, "translationY", 0f, -8f); // move it up a bit
-        moveAnimator.setDuration(150);
-        moveAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-
-        upAnimator.start();
-        moveAnimator.start();
-
-        view.postDelayed(() -> {
-            ObjectAnimator downAnimator = ObjectAnimator.ofFloat(view, "translationZ", 8f, 0f); // bring it back down
-            downAnimator.setDuration(150);
-            downAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-
-            ObjectAnimator resetMoveAnimator = ObjectAnimator.ofFloat(view, "translationY", -8f, 0f); // reset position
-            resetMoveAnimator.setDuration(150);
-            resetMoveAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-
-            downAnimator.start();
-            resetMoveAnimator.start();
-        }, 500);
-    }
-
-    private void showPostDetailDialog() {
-        Dialog dialog = new Dialog(requireContext());
-        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.post_detail_dialog);
-
-        WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
-        layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-        layoutParams.width = (int)(getResources().getDisplayMetrics().widthPixels * 1.0);
-        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        dialog.getWindow().setAttributes(layoutParams);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-
-        ShapeableImageView profileImage = dialog.findViewById(R.id.profile_image_edit);
-        TextView nameText = dialog.findViewById(R.id.name);
-        TextView timeStampText = dialog.findViewById(R.id.time_stamp);
-        TextView moodTextView = dialog.findViewById(R.id.mood_text_view);
-        ImageView postImage = dialog.findViewById(R.id.post_image);
-        TextView statusText = dialog.findViewById(R.id.status);
-        TextView triggerTextView = dialog.findViewById(R.id.trigger_text_view);
-        TextView likeCount = dialog.findViewById(R.id.like_count);
-        TextView commentCount = dialog.findViewById(R.id.comment_count);
-
-        profileImage.setImageResource(R.drawable.arijitsingh);
-        nameText.setText(nameTextView.getText().toString());
-        timeStampText.setText("2 hours ago");
-        moodTextView.setText("Happy");
-        postImage.setImageResource(R.drawable.arijitsingh);
-        statusText.setText("This is a sample post caption that describes how I'm feeling today. #MoodSync");
-        triggerTextView.setText("None");
-        likeCount.setText("24");
-        commentCount.setText("8");
-
-        MaterialButton detailsButton = dialog.findViewById(R.id.details_button);
-        detailsButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Details clicked", Toast.LENGTH_SHORT).show();
-        });
-
-        ImageButton likeButton = dialog.findViewById(R.id.like_button);
-        likeButton.setOnClickListener(v -> {
-            int currentLikes = Integer.parseInt(likeCount.getText().toString());
-            likeCount.setText(String.valueOf(currentLikes + 1));
-            Toast.makeText(requireContext(), "Liked!", Toast.LENGTH_SHORT).show();
-        });
-
-        ImageButton commentButton = dialog.findViewById(R.id.comment_button);
-        commentButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Comment clicked", Toast.LENGTH_SHORT).show();
-        });
-
-        ImageButton shareButton = dialog.findViewById(R.id.share_button);
-        shareButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Share clicked", Toast.LENGTH_SHORT).show();
-        });
-
-        ImageButton bookmarkButton = dialog.findViewById(R.id.bookmark_button);
-        bookmarkButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Bookmarked!", Toast.LENGTH_SHORT).show();
-        });
-
-        dialog.show();
-    }
-
     private void changeProfileImage() {
-        // toggle profile image for demo, shit simple
         if (profileImageEdit.getTag() != null && (boolean) profileImageEdit.getTag()) {
             profileImageEdit.setImageResource(R.drawable.arijitsingh);
             profileImageEdit.setTag(false);
@@ -309,67 +328,179 @@ public class EditProfileFragment extends Fragment {
         }
 
         Toast.makeText(requireContext(), "Profile image updated", Toast.LENGTH_SHORT).show();
-        loadPhotosListView();
     }
 
-    private void saveProfile() {
-        // get and trim the input fields, no bullshit
-        String name = nameTextView.getText().toString().trim();
-        String username = usernameTextView.getText().toString().trim();
-        // if the username starts with @, chop it off
-        if (username.startsWith("@")) {
-            username = username.substring(1);
-        }
-        String location = locationTextView.getText().toString().trim();
-        String bio = bioTextView.getText().toString().trim();
+    private class PendingRequestsAdapter extends RecyclerView.Adapter<PendingRequestsAdapter.ViewHolder> {
+        private List<Map<String, String>> requests;
 
-        if (name.isEmpty() || username.isEmpty()) {
-            Toast.makeText(requireContext(), "Name and username cannot be empty", Toast.LENGTH_SHORT).show();
-            return;
+        public PendingRequestsAdapter(List<Map<String, String>> requests) {
+            this.requests = requests;
         }
 
-        // get logged in username from our app context
-        MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
-        String loggedInUsername = myApp.getLoggedInUsername();
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_pending_request, parent, false);
+            return new ViewHolder(view);
+        }
 
-        // create a new final variable for username to satisfy lambda capture rules
-        final String finalUsername = username;
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            Map<String, String> request = requests.get(position);
+            String follower = request.get("follower");
 
-        if (loggedInUsername != null && !loggedInUsername.isEmpty()) {
+            db.collection("users")
+                    .whereEqualTo("userName", follower)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot userDoc = queryDocumentSnapshots.getDocuments().get(0);
+                            String fullName = userDoc.getString("fullName");
+
+                            holder.userName.setText(fullName != null ? fullName : follower);
+                            holder.username.setText("@" + follower);
+
+                            String profileImageUrl = userDoc.getString("profileImageUrl");
+                            if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+                                Glide.with(holder.itemView.getContext())
+                                        .load(profileImageUrl)
+                                        .circleCrop()
+                                        .placeholder(R.drawable.ic_person_black_24dp)
+                                        .into(holder.userImage);
+                            } else {
+                                holder.userImage.setImageResource(R.drawable.ic_person_black_24dp);
+                            }
+                        } else {
+                            holder.userName.setText(follower);
+                            holder.username.setText("@" + follower);
+                            holder.userImage.setImageResource(R.drawable.ic_person_black_24dp);
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        holder.userName.setText(follower);
+                        holder.username.setText("@" + follower);
+                        holder.userImage.setImageResource(R.drawable.ic_person_black_24dp);
+                    });
+
+            holder.acceptButton.setOnClickListener(v -> {
+                acceptRequest(position);
+            });
+
+            holder.declineButton.setOnClickListener(v -> {
+                declineRequest(position);
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return requests.size();
+        }
+
+        private void acceptRequest(int position) {
+            Map<String, String> request = requests.get(position);
+            String requestId = request.get("id");
+            String follower = request.get("follower");
+
             db.collection("users")
                     .whereEqualTo("userName", loggedInUsername)
                     .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                            String docId = task.getResult().getDocuments().get(0).getId();
-                            Map<String, Object> updates = new HashMap<>();
-                            updates.put("fullName", name);
-                            updates.put("userName", finalUsername);
-                            updates.put("location", location);
-                            updates.put("bio", bio);
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot userDoc = queryDocumentSnapshots.getDocuments().get(0);
+                            String userId = userDoc.getId();
 
-                            db.collection("users").document(docId)
-                                    .update(updates)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                            List<String> followerList = (List<String>) userDoc.get("followerList");
+                            if (followerList == null) {
+                                followerList = new ArrayList<>();
+                            }
 
-                                        // update the logged in username if it changed
-                                        if (!finalUsername.equals(loggedInUsername)) {
-                                            myApp.setLoggedInUsername(finalUsername);
-                                        }
+                            if (!followerList.contains(follower)) {
+                                followerList.add(follower);
 
-                                        requireActivity().onBackPressed();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Toast.makeText(requireContext(), "Failed to update profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    });
-                        } else {
-                            Toast.makeText(requireContext(), "User not found", Toast.LENGTH_SHORT).show();
+                                db.collection("users").document(userId)
+                                        .update("followerList", followerList)
+                                        .addOnSuccessListener(aVoid -> {
+                                            // Delete the request
+                                            db.collection("pendingFollowerRequests").document(requestId)
+                                                    .delete()
+                                                    .addOnSuccessListener(aVoid1 -> {
+                                                        requests.remove(position);
+                                                        notifyItemRemoved(position);
+                                                        notifyItemRangeChanged(position, requests.size());
+                                                        pendingRequestsButton.setText(String.valueOf(requests.size()));
+                                                        Toast.makeText(requireContext(), "Request accepted", Toast.LENGTH_SHORT).show();
+                                                        loadUserData();
+                                                    })
+                                                    .addOnFailureListener(e -> {
+                                                        Log.e("EditProfileFragment", "Error deleting request", e);
+                                                    });
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e("EditProfileFragment", "Error updating follower list", e);
+                                        });
+                            }
                         }
                     });
-        } else {
-            Toast.makeText(requireContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
-            requireActivity().onBackPressed();
+            db.collection("users")
+                    .whereEqualTo("userName", follower)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot followerDoc = queryDocumentSnapshots.getDocuments().get(0);
+                            String followerId = followerDoc.getId();
+
+                            List<String> followingList = (List<String>) followerDoc.get("followingList");
+                            if (followingList == null) {
+                                followingList = new ArrayList<>();
+                            }
+
+                            if (!followingList.contains(loggedInUsername)) {
+                                followingList.add(loggedInUsername);
+
+                                db.collection("users").document(followerId)
+                                        .update("followingList", followingList)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Log.d("EditProfileFragment", "follower's following list updated, bro");
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e("EditProfileFragment", "error updating follower's following list", e);
+                                        });
+                            }
+                        }
+                    });
         }
-    }
-}
+        private void declineRequest(int position) {
+            Map<String, String> request = requests.get(position);
+            String requestId = request.get("id");
+
+            db.collection("pendingFollowerRequests").document(requestId)
+                    .delete()
+                    .addOnSuccessListener(aVoid -> {
+                        requests.remove(position);
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, requests.size());
+                        pendingRequestsButton.setText(String.valueOf(requests.size()));
+                        Toast.makeText(requireContext(), "Request declined", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("EditProfileFragment", "error deleting request", e);
+                    });
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            ImageView userImage;
+            TextView userName;
+            TextView username;
+            ImageButton acceptButton;
+            ImageButton declineButton;
+            LinearLayout buttonsLayout;
+
+            public ViewHolder(@NonNull View itemView) {
+                super(itemView);
+                userImage = itemView.findViewById(R.id.user_image);
+                userName = itemView.findViewById(R.id.user_name);
+                username = itemView.findViewById(R.id.username);
+                acceptButton = itemView.findViewById(R.id.accept_button);
+                declineButton = itemView.findViewById(R.id.decline_button);
+                buttonsLayout = itemView.findViewById(R.id.buttons_layout);}}}}

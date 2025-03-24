@@ -537,7 +537,7 @@ public class AddMoodActivity extends Fragment {
                     ImageView image = binding1.getRoot().findViewById(R.id.photos);
                     image.setAlpha(0);
                     GradientDrawable drawable = new GradientDrawable();
-                    drawable.setCornerRadius(20); // Set the corner radius in pixels
+                    drawable.setCornerRadius(50); // Set the corner radius in pixels
                     drawable.setAlpha(0);
 
 
@@ -549,7 +549,6 @@ public class AddMoodActivity extends Fragment {
             });
         }
     }
-
     /**
      * Uploads an image to Firebase Storage.
      *
@@ -568,7 +567,6 @@ public class AddMoodActivity extends Fragment {
                 })
                 .addOnFailureListener(e -> showErrorToast(e));
     }
-
     /**
      * Retrieves a Bitmap object from the provided URI.
      *
@@ -583,9 +581,6 @@ public class AddMoodActivity extends Fragment {
             return null;
         }
     }
-
-
-
     /**
      * Sets up the second layout for the AddMoodActivity.
      * Initializes UI elements and sets listeners for interactions such as creating mood events
@@ -800,14 +795,6 @@ public class AddMoodActivity extends Fragment {
             }
         });
     }
-
-
-
-    /**
-     * Saves a mood event to Firestore.
-     *
-     * @param moodEvent The mood event to be saved in Firestore.
-     */
     /**
      * Saves a mood event to Firestore.
      *
@@ -818,10 +805,6 @@ public class AddMoodActivity extends Fragment {
                 .addOnSuccessListener(aVoid -> showSuccessDialogUI())
                 .addOnFailureListener(e -> showErrorToast(e));
     }
-
-
-
-
     /**
      * Updates an existing mood event in Firestore based on the date.
      *
@@ -844,9 +827,6 @@ public class AddMoodActivity extends Fragment {
                     }
                 });
     }
-
-
-
     /**
      * Deletes a mood event from Firestore based on the date.
      *
@@ -869,7 +849,6 @@ public class AddMoodActivity extends Fragment {
                     }
                 });
     }
-
     /**
      * Displays a custom success dialog to the user and dismisses it after 2 seconds.
      * Upon dismissal, navigates to the second fragment.
@@ -892,9 +871,6 @@ public class AddMoodActivity extends Fragment {
                     .navigate(R.id.action_addMoodActivityFragment2_to_SecondFragment);
         }, 2000); // Dismiss after 2 seconds
     }
-
-
-
 
     /**
      * Displays a toast message when an error occurs while saving a mood event.
@@ -1022,18 +998,15 @@ public class AddMoodActivity extends Fragment {
      * @param moodEvent The mood event to be written to Firestore.
      */
     private void debugFirestoreWrite(MoodEvent moodEvent) {
-        // init the firestore db, bro, don't be a chutiya and skip this
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // try to add the mood event doc, sending that shit out
         db.collection("mood_events").add(moodEvent)
                 .addOnSuccessListener(documentReference -> {
-                    // success, motherfucker! we got a doc id here, log that shit
                     Log.d("DEBUG", "doc added with id: " + documentReference.getId());
                     Toast.makeText(getContext(), "success! mood event added, bro!", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
-                    // shit, write failed! log the error so we know what the fuck happened
                     Log.e("DEBUG", "failed to add mood event: ", e);
                     Toast.makeText(getContext(), "fuck! write failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
