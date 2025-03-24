@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -217,20 +218,42 @@ public class SecondFragment extends Fragment {
 
         setupRecyclerView();
 
-        binding.addCircleButton.setOnClickListener(v ->
-                NavHostFragment.findNavController(SecondFragment.this)
-                        .navigate(R.id.action_SecondFragment_to_addMoodActivityFragment)
-        );
+        binding.addCircleButton.setOnClickListener(v -> {
+            NavHostFragment.findNavController(SecondFragment.this)
+                    .navigate(R.id.action_SecondFragment_to_addMoodActivityFragment,
+                            null,
+                            new NavOptions.Builder()
+                                    .setEnterAnim(R.anim.slide_in_right)
+                                    .setExitAnim(R.anim.slide_out_left)
+                                    .setPopEnterAnim(R.anim.slide_in_left)
+                                    .setPopExitAnim(R.anim.slide_out_right)
+                                    .build());
+        });
 
-        binding.historyButton.setOnClickListener(v ->
-                NavHostFragment.findNavController(SecondFragment.this)
-                        .navigate(R.id.action_SecondFragment_to_moodHistoryFragment)
-        );
+        binding.historyButton.setOnClickListener(v -> {
+            NavHostFragment.findNavController(SecondFragment.this)
+                    .navigate(R.id.action_SecondFragment_to_moodHistoryFragment,
+                            null,
+                            new NavOptions.Builder()
+                                    .setEnterAnim(R.anim.slide_in_right)
+                                    .setExitAnim(R.anim.slide_out_left)
+                                    .setPopEnterAnim(R.anim.slide_in_left)
+                                    .setPopExitAnim(R.anim.slide_out_right)
+                                    .build());
+        });
 
-        binding.profilePicContainer.setOnClickListener(v ->
-                NavHostFragment.findNavController(SecondFragment.this)
-                        .navigate(R.id.action_SecondFragment_to_editProfileFragment)
-        );
+        binding.profilePicContainer.setOnClickListener(v -> {
+            NavHostFragment.findNavController(SecondFragment.this)
+                    .navigate(R.id.action_SecondFragment_to_editProfileFragment,
+                            null,
+                            new NavOptions.Builder()
+                                    .setEnterAnim(R.anim.slide_in_right)
+                                    .setExitAnim(R.anim.slide_out_left)
+                                    .setPopEnterAnim(R.anim.slide_in_left)
+                                    .setPopExitAnim(R.anim.slide_out_right)
+                                    .build());
+        });
+
 
         fetchMoodEvents();
     }
@@ -279,30 +302,52 @@ public class SecondFragment extends Fragment {
 
     //    changed this to only display moods of followees
     private void fetchMoodEvents() {
-        String currentUserId = globalStorage.getCurrentUserId();
+        // Get the logged in username from MyApplication
+        MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
+        String currentUsername = myApp.getLoggedInUsername();
 
-        // First, get all users that the current user follows
-        db.collection("pendingFollowerRequests")
-                .whereEqualTo("follower", currentUserId)
+        if (currentUsername == null || currentUsername.isEmpty()) {
+            Log.e("SecondFragment", "No logged in user found");
+            moodCardAdapter.updateMoodEvents(new ArrayList<>());
+            return;
+        }
+
+        // First, get the current user's document to access their followingList
+        db.collection("users")
+                .whereEqualTo("userName", currentUsername)
                 .get()
-                .addOnCompleteListener(followersTask -> {
-                    if (followersTask.isSuccessful()) {
-                        List<String> followingUsers = new ArrayList<>();
+                .addOnCompleteListener(userTask -> {
+                    if (userTask.isSuccessful() && !userTask.getResult().isEmpty()) {
+                        DocumentSnapshot userDoc = userTask.getResult().getDocuments().get(0);
+                        List<String> followingUsers = (List<String>) userDoc.get("followingList");
 
-                        // Extract all followee IDs
-                        for (QueryDocumentSnapshot document : followersTask.getResult()) {
-                            String followeeId = document.getString("followee");
-                            if (followeeId != null) {
-                                followingUsers.add(followeeId);
-                            }
+                        if (followingUsers == null) {
+                            followingUsers = new ArrayList<>();
                         }
 
                         // Add current user to see their own posts too
-                        followingUsers.add(currentUserId);
+                        if (!followingUsers.contains(currentUsername)) {
+                            followingUsers.add(currentUsername);
+                        }
 
-                        // If not following anyone, just show empty list
-                        if (followingUsers.isEmpty()) {
-                            moodCardAdapter.updateMoodEvents(new ArrayList<>());
+                        // If not following anyone (just self), show only own moods
+                        if (followingUsers.size() <= 1) {
+                            db.collection("mood_events")
+                                    .whereEqualTo("id", currentUsername)
+                                    .get()
+                                    .addOnCompleteListener(task -> {
+                                        if (task.isSuccessful()) {
+                                            List<MoodEvent> moodEvents = new ArrayList<>();
+                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                                                moodEvents.add(moodEvent);
+                                            }
+                                            filterToRecentMoods(moodEvents);
+                                        } else {
+                                            Log.e("Firestore", "Error fetching mood events", task.getException());
+                                            Toast.makeText(getContext(), "Failed to load mood events", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                             return;
                         }
 
@@ -325,11 +370,12 @@ public class SecondFragment extends Fragment {
                                     }
                                 });
                     } else {
-                        Log.e("Firestore", "Error fetching followers", followersTask.getException());
-                        Toast.makeText(getContext(), "Failed to load followers", Toast.LENGTH_SHORT).show();
+                        Log.e("Firestore", "Error fetching user data", userTask.getException());
+                        Toast.makeText(getContext(), "Failed to load user data", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
 
     @Override
     public void onDestroyView() {
