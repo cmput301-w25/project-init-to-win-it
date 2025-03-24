@@ -27,6 +27,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.FirebaseApp;
@@ -79,6 +80,7 @@ public class EditProfileFragment extends Fragment {
         loadUserData();
         loadPhotosListView();
 
+
         profileImageEdit.setOnClickListener(v -> changeProfileImage());
         editProfileButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,11 +114,13 @@ public class EditProfileFragment extends Fragment {
                         DocumentSnapshot document = task.getResult().getDocuments().get(0);
                         String fullName = document.getString("fullName");
                         String username = document.getString("userName");
+
                         List<String> followerList = (List<String>) document.get("followerList");
                         List<String> followingList = (List<String>) document.get("followingList");
 
                         nameTextView.setText(fullName);
                         usernameTextView.setText("@" + username);
+
 
                         followersCountTextView.setText(followerList != null ? String.valueOf(followerList.size()) : "0");
                         followingCountTextView.setText(followingList != null ? String.valueOf(followingList.size()) : "0");
@@ -127,7 +131,12 @@ public class EditProfileFragment extends Fragment {
                         bioTextView.setText(document.getString("bio") != null ?
                                 document.getString("bio") : "No bio available");
 
-                        profileImageEdit.setImageResource(R.drawable.arijitsingh);
+                        Glide.with(this)
+                                .load(document.getString("profileImageUrl"))
+                                .circleCrop()
+                                .transform(new EditProfileActivity.RotateTransformation(90))
+                                .placeholder(R.drawable.ic_person_black_24dp)
+                                .into(profileImageEdit);
 
                     } else {
                         loadDummyData();

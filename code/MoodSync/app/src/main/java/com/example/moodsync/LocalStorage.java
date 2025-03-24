@@ -1,5 +1,10 @@
 package com.example.moodsync;
 
+import android.util.Log;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.util.ArrayList;
 
 public class LocalStorage {
@@ -7,16 +12,31 @@ public class LocalStorage {
 
     private static String currentUserId;
 
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     private ArrayList<User> UserList = new ArrayList<User>();
     private ArrayList<MoodEvent> MoodList = new ArrayList<>();
     private ArrayList<String> Comments = new ArrayList<String>();
 
-    // Private constructor to prevent instantiation
     private LocalStorage() {
         UserList = new ArrayList<>();
         MoodList = new ArrayList<>();
         Comments = new ArrayList<>();
     }
+    public void updateUserList() {
+        db.collection("users")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        UserList.clear(); // Clear existing list
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            User user = document.toObject(User.class);
+                            UserList.add(user);
+                        }
+                    }
+                });
+    }
+
 
     public  String getCurrentUserId() {
         return currentUserId;

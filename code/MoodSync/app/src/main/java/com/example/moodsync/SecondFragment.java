@@ -1,5 +1,7 @@
 package com.example.moodsync;
 
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -8,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -17,12 +20,16 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
 import com.example.moodsync.databinding.HomePageFragmentBinding;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +40,7 @@ public class SecondFragment extends Fragment {
     private MoodCardAdapter moodCardAdapter;
     private FirebaseFirestore db;
     private TextInputEditText searchBar;
+    private ImageView pfp;
     private String searchText = "";
     public LocalStorage globalStorage = LocalStorage.getInstance();
     private ListView searchResultsListView;
@@ -50,6 +58,8 @@ public class SecondFragment extends Fragment {
 
 
         searchBar = view.findViewById(R.id.search_bar);
+        pfp = view.findViewById(R.id.profile_pic);
+        fetchProfileImageUrl(globalStorage.getCurrentUserId());
 
         // inflate the search results xml layout
         View searchResultsView = inflater.inflate(R.layout.search_results, container, false);
@@ -101,8 +111,36 @@ public class SecondFragment extends Fragment {
                 // after text changed, just chill
             }
         });
+//        globalStorage.updateUserList();
 
         return view;
+    }
+
+
+    private void fetchProfileImageUrl(String userId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String imageUrl = documentSnapshot.getString("profileImageUrl");
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            loadProfileImage(imageUrl);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Error fetching profile image URL", e);
+                });
+    }
+
+    private void loadProfileImage(String imageUrl) {
+        Glide.with(this)
+                .load(imageUrl)
+                .circleCrop()
+                .transform(new EditProfileActivity.RotateTransformation(90))
+                .placeholder(R.drawable.ic_person_black_24dp)
+                .into(pfp);
     }
 
     private void searchFirestore(String searchText) {

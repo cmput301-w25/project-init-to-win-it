@@ -7,7 +7,7 @@ import com.google.firebase.FirebaseApp;
 
 public class MyApplication extends Application {
     private String loggedInUsername;
-    LocalStorage globalStorage = LocalStorage.getInstance();
+    LocalStorage globalStorage;
 
     public String getLoggedInUsername() {
         return loggedInUsername;
@@ -22,5 +22,6 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         FirebaseApp.initializeApp(this);
+        globalStorage = LocalStorage.getInstance();
     }
 }

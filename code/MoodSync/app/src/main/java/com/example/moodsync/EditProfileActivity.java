@@ -1,11 +1,14 @@
 package com.example.moodsync;
 
-import static com.example.moodsync.BitmapUtils.compressImageFromUri;
 import static android.app.Activity.RESULT_OK;
+
+import static com.example.moodsync.BitmapUtils.compressImageFromUri;
+
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,11 +28,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import android.graphics.Matrix;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -46,7 +49,7 @@ public class EditProfileActivity extends Fragment {
 
     private ImageView backButton, profileImageEdit;
     private EditText fullName, bio;
-    private Button confirmButton, backButtonMaterial; // MaterialButton can be cast to Button
+    private Button confirmButton, backButtonMaterial;
     private TextView editProfileTitle;
     static Uri photoUri;
     static String imageUrl;
@@ -66,26 +69,69 @@ public class EditProfileActivity extends Fragment {
         confirmButton = view.findViewById(R.id.confirmbutton);
         backButtonMaterial = view.findViewById(R.id.backbutton);
 
-        fullName.setHint(globalStorage.getCurrentUser().getName());
-        bio.setHint(globalStorage.getCurrentUser().getBio());
-
 
         backButton.setOnClickListener(v -> navigateBack());
         backButtonMaterial.setOnClickListener(v -> navigateBack());
         confirmButton.setOnClickListener(v -> saveChanges());
-        profileImageEdit.setOnClickListener(v -> {
-            showPhotoOptionsDialog();
+        profileImageEdit.setOnClickListener(v -> showPhotoOptionsDialog());
 
-        });
-
+        String userId = globalStorage.getCurrentUserId();
+        fetchProfileInformation(userId);
 
         return view;
     }
+
+    private void fetchProfileInformation(String userId) {
+        if (userId != null) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("users").document(userId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document != null && document.exists()) {
+                                String name = document.getString("fullName");
+                                String biography = document.getString("bio");
+                                String profileImageUrl = document.getString("profileImageUrl");
+
+                                // Update UI only if the fragment is still attached
+                                if (isAdded() && getActivity() != null) {
+                                    fullName.setText(name);
+                                    bio.setText(biography);
+
+                                    if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+                                        loadProfileImage(profileImageUrl);
+                                    }
+                                }
+                            } else {
+                                Log.d("Firestore", "No such document");
+                            }
+                        } else {
+                            Log.d("Firestore", "get failed with ", task.getException());
+                        }
+                    });
+        } else {
+            Log.e("Firestore", "User not authenticated");
+        }
+    }
+
 
     private void navigateBack() {
         // Navigate back or close the fragment
         requireActivity().onBackPressed();
     }
+
+    private void loadProfileImage(String imageUrl) {
+        if (isAdded() && getActivity() != null) {
+            Glide.with(requireContext())
+                    .load(imageUrl)
+                    .circleCrop()
+                    .transform(new RotateTransformation(90))
+                    .placeholder(R.drawable.ic_person_black_24dp)
+                    .into(profileImageEdit);
+        }
+    }
+
     private void showPhotoOptionsDialog() {
         String[] options = {"Add from Camera", "Add from Photos"};
         new AlertDialog.Builder(requireContext())
@@ -99,12 +145,15 @@ public class EditProfileActivity extends Fragment {
                 })
                 .show();
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK && data != null) {
             Uri imageUri = (requestCode == 1) ? photoUri : data.getData();
-            handleImageUpload(imageUri);
+            if (imageUri != null) {
+                handleImageUpload(imageUri);
+            }
         }
     }
 
@@ -122,7 +171,17 @@ public class EditProfileActivity extends Fragment {
             }
         });
     }
-    public class RotateTransformation extends BitmapTransformation {
+
+    private void updateImagePreview(Uri imageUri) {
+        if (isAdded() && getActivity() != null) {
+            Glide.with(requireContext())
+                    .load(imageUri)
+                    .transform(new RotateTransformation(90))
+                    .into(profileImageEdit);
+        }
+    }
+
+    public static class RotateTransformation extends BitmapTransformation {
         private float rotateRotationAngle = 0f;
 
         public RotateTransformation(float rotateRotationAngle) {
@@ -141,16 +200,6 @@ public class EditProfileActivity extends Fragment {
             messageDigest.update(("rotate" + rotateRotationAngle).getBytes());
         }
     }
-
-
-    private void updateImagePreview(Uri imageUri) {
-        Glide.with(this)
-                .load(imageUri)
-                .transform(new RotateTransformation(90))
-                .into(profileImageEdit);
-    }
-
-
 
     /**
      * Checks the size of an image.
@@ -172,6 +221,7 @@ public class EditProfileActivity extends Fragment {
         }
         return 0;
     }
+
     /**
      * Opens the camera to capture an image.
      */
@@ -207,6 +257,8 @@ public class EditProfileActivity extends Fragment {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, 2);
     }
+
+
     /**
      * Uploads an image to Firebase Storage.
      *
@@ -214,8 +266,8 @@ public class EditProfileActivity extends Fragment {
      * @param listener The listener to notify when the upload is complete.
      */
     private void uploadImageToFirebase(Uri imageUri, OnImageUploadedListener listener) {
-        File compressedFile = compressImageFromUri(this.getContext(), imageUri);
-        Log.d("COMPRESSION","REACHED HERE");
+        File compressedFile =  compressImageFromUri(this.getContext(), imageUri);
+        Log.d("COMPRESSION", "REACHED HERE");
         Uri compressedUri = Uri.fromFile(compressedFile);
         Log.d("COMRPESSION", String.valueOf(checkImageSize(compressedUri)));
         String path = "mood_images/" + UUID.randomUUID().toString();
@@ -239,9 +291,7 @@ public class EditProfileActivity extends Fragment {
         });
     }
 
-
     private void saveChanges() {
-        // Save changes logic (e.g., update database or show a success message)
         String name = fullName.getText().toString().trim();
         String biography = bio.getText().toString().trim();
 
@@ -249,22 +299,20 @@ public class EditProfileActivity extends Fragment {
             Toast.makeText(getContext(), "Please fill out all fields.", Toast.LENGTH_SHORT).show();
             return;
         }
-        // Get the current user's ID (assuming you have a way to retrieve it)
+
         String currentUserId = globalStorage.getCurrentUserId();
         if (currentUserId == null || currentUserId.isEmpty()) {
             Toast.makeText(getContext(), "Unable to retrieve current user ID", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Reference to the Firestore document for the user
         db.collection("users").document(currentUserId)
                 .update(
                         "fullName", name,
                         "bio", biography,
-                        "profileImageUrl",imageUrl
+                        "profileImageUrl", imageUrl
                 )
                 .addOnSuccessListener(aVoid -> {
-                    // Update successful
                     Toast.makeText(getContext(), "Changes saved to Firestore", Toast.LENGTH_SHORT).show();
                     navigateBack();
                 })
