@@ -785,6 +785,7 @@ public class AddMoodActivity extends Fragment {
                 List<MoodEvent> moodEventsList = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                    moodEvent.setDocumentId(document.getId());
                     moodEventsList.add(moodEvent);
                 }
 

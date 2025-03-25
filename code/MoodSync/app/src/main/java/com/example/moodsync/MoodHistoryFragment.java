@@ -74,6 +74,7 @@ public class MoodHistoryFragment extends Fragment {
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                            moodEvent.setDocumentId(document.getId()); // Store the document ID in MoodEvent
                             moodEvent.setId(document.getId()); // Store the document ID in MoodEvent
 
                             Bundle args = new Bundle();

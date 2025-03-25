@@ -353,6 +353,7 @@ public class SecondFragment extends Fragment {
                                             List<MoodEvent> moodEvents = new ArrayList<>();
                                             for (QueryDocumentSnapshot document : task.getResult()) {
                                                 MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                                                moodEvent.setDocumentId(document.getId());
                                                 moodEvents.add(moodEvent);
                                             }
                                             filterToRecentMoods(moodEvents);
@@ -374,6 +375,7 @@ public class SecondFragment extends Fragment {
                                         List<MoodEvent> moodEvents = new ArrayList<>();
                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                                            moodEvent.setDocumentId(document.getId());
                                             moodEvents.add(moodEvent);
                                         }
                                         filterToRecentMoods(moodEvents);
