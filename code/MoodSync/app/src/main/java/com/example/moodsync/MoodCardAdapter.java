@@ -127,9 +127,27 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         // Handle "View Details" button click
         holder.detailsButton.setOnClickListener(v -> showDetailsDialog(holder.itemView.getContext(), moodEvent));
 
+
+        // Set comment count
+        String docId = moodEvent.getDocumentId();
+        if (docId != null && !docId.isEmpty()) {
+            db.collection("mood_events")
+                    .document(docId)
+                    .collection("comments")
+                    .get()
+                    .addOnSuccessListener(snap -> {
+                        // Set the count based on how many comments are in this doc
+                        holder.commentCount.setText(String.valueOf(snap.size()));
+                    })
+                    .addOnFailureListener(e -> {
+                        // If something fails, just show 0 or do nothing
+                        holder.commentCount.setText("0");
+                    });
+        }
+
         // Handle "Comments" button click
         holder.commentButton.setOnClickListener(v -> {
-            showCommentsDialog(holder.itemView.getContext(), moodEvent);
+            showCommentsDialog(holder.itemView.getContext(), moodEvent, holder.commentCount);
         });
     }
 
@@ -300,7 +318,7 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         dialog.show();
     }
 
-    private void showCommentsDialog(Context context, MoodEvent moodEvent) {
+    private void showCommentsDialog(Context context, MoodEvent moodEvent, TextView commentCount) {
         // Inflate the layout
         View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_comments, null);
 
@@ -326,7 +344,7 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
             layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
             layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
             dialog.getWindow().setAttributes(layoutParams);
-            dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation; // if you have animations
+            dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         }
 
         // Load existing comments from Firestore
@@ -405,6 +423,16 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
                         if (lastPosition >= 0) {
                             commentRecyclerView.scrollToPosition(lastPosition);
                         }
+
+                        // Re-fetch the total count and update the TextView
+                        db.collection("mood_events")
+                                .document(moodDocId)
+                                .collection("comments")
+                                .get()
+                                .addOnSuccessListener(snap -> {
+                                    int newCount = snap.size();
+                                    commentCount.setText(String.valueOf(newCount));
+                                });
                     })
                     .addOnFailureListener(e -> {
                         Log.e("MoodCardAdapter", "Failed to post comment", e);
@@ -428,6 +456,7 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         Button detailsButton;
         ImageButton commentButton;
         LinearLayout moodBanner;
+        TextView commentCount;
 
         public MoodCardViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -441,6 +470,7 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
             moodEmoji = itemView.findViewById(R.id.mood_emoji);
             detailsButton = itemView.findViewById(R.id.details_button);
             commentButton = itemView.findViewById(R.id.comment_button);
+            commentCount = itemView.findViewById(R.id.comment_count);
             moodBanner = itemView.findViewById(R.id.mood_banner);
         }
     }
