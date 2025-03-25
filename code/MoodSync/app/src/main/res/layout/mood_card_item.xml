@@ -2,65 +2,68 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="12dp">
+    android:orientation="horizontal"
+    android:padding="16dp">
+
+    <!-- Emoji outside the card on the left - made bigger -->
+    <TextView
+        android:id="@+id/moodEmojiTextView"
+        android:layout_width="60dp"
+        android:layout_height="57dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="12dp"
+        android:background="@drawable/circle_background_2"
+        android:elevation="4dp"
+        android:gravity="center"
+        android:text="😊"
+        android:textSize="32sp" />
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
+        app:cardElevation="3dp"
         app:cardBackgroundColor="@android:color/white"
-        app:cardUseCompatPadding="true">
+        app:cardUseCompatPadding="false">
 
         <RelativeLayout
             android:id="@+id/mood_background"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="308dp"
+            android:layout_height="111dp"
             android:padding="16dp">
 
             <TextView
                 android:id="@+id/mood_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Mood"
-                android:textColor="#333333"
-                android:textSize="20sp"
                 android:fontFamily="sans-serif-medium"
+                android:text="Mood"
+                android:textColor="#262626"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/moodEmojiTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="12dp"
-                android:layout_toStartOf="@id/delete_button"
-                android:text="😊"
-                android:textSize="28sp" />
-
-            <com.google.android.material.button.MaterialButton
+            <ImageButton
                 android:id="@+id/delete_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_alignParentEnd="true"
-                app:cornerRadius="12dp"
-                android:minHeight="48dp"
-                android:backgroundTint="#F44336"
-                android:text="Delete"
-                android:textAllCaps="false"
-                android:textColor="@android:color/white" />
+                android:layout_alignParentTop="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Delete"
+                android:src="@drawable/ic_delete"
+                app:tint="#F44336" />
 
             <TextView
                 android:id="@+id/moodDescriptionTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="276dp"
+                android:layout_height="36dp"
                 android:layout_below="@id/mood_text_view"
                 android:layout_marginTop="12dp"
-                android:text="Description"
-                android:textColor="#555555"
                 android:fontFamily="sans-serif"
-                android:lineSpacingExtra="4dp"
+                android:lineSpacingExtra="6dp"
+                android:text="Description"
+                android:textColor="#262626"
                 android:textSize="16sp" />
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
