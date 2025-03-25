@@ -326,9 +326,9 @@ public class SecondFragment extends Fragment {
                         }
 
                         // Add current user to see their own posts too
-                        if (!followingUsers.contains(currentUsername)) {
-                            followingUsers.add(currentUsername);
-                        }
+//                        if (!followingUsers.contains(currentUsername)) {
+//                            followingUsers.add(currentUsername);
+//                        }
 
                         // If not following anyone (just self), show only own moods
                         if (followingUsers.size() <= 1) {
