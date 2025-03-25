@@ -499,7 +499,7 @@ public class AddMoodActivity extends Fragment {
                     rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
                     TextView text = binding1.getRoot().findViewById(R.id.add_photos);
                     text.setText("");
-                    text.setText("");
+
                     ImageView image = binding1.getRoot().findViewById(R.id.photos);
 
                     GradientDrawable drawable = new GradientDrawable();
@@ -530,13 +530,14 @@ public class AddMoodActivity extends Fragment {
 
                     TextView text = binding1.getRoot().findViewById(R.id.add_photos);
                     text.setText("");
-                    text.setText("");
+
 
                     ImageView image = binding1.getRoot().findViewById(R.id.photos);
                     image.setAlpha(0);
                     GradientDrawable drawable = new GradientDrawable();
                     drawable.setCornerRadius(50); // Set the corner radius in pixels
                     drawable.setAlpha(0);
+
 
 
                 }

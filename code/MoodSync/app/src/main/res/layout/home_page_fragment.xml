@@ -7,7 +7,6 @@
     android:background="#203434">
 
     <!-- Enhanced Search Bar with Profile Pic -->
-    <!-- Enhanced Search Bar with Profile Pic -->
     <androidx.cardview.widget.CardView
         android:id="@+id/search_bar_container"
         android:layout_width="0dp"
