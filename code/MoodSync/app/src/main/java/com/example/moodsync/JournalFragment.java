@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -13,6 +14,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.moodsync.MoodCardAdapter;
 import com.example.moodsync.MoodEvent;
 import com.example.moodsync.MyApplication;
@@ -31,20 +33,21 @@ public class JournalFragment extends Fragment {
     private MoodCardAdapter moodCardAdapter;
     private FirebaseFirestore db;
     private String currentUserId;
-
+    private ImageView pfp;
+    public LocalStorage globalStorage = LocalStorage.getInstance();
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = JournalFragmentBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-
-        journalRecyclerView = binding.journalRecyclerView;
+        pfp = binding.profilePic;
+        journalRecyclerView = binding.moodRecyclerView;
         journalRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // Get the current user ID
         MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
         currentUserId = myApp.getLoggedInUsername();
-
+        fetchProfileImageUrl(globalStorage.getCurrentUserId());
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
@@ -81,7 +84,30 @@ public class JournalFragment extends Fragment {
         moodCardAdapter = new MoodCardAdapter(moodEvents);
         journalRecyclerView.setAdapter(moodCardAdapter);
     }
+    private void fetchProfileImageUrl(String userId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String imageUrl = documentSnapshot.getString("profileImageUrl");
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            loadProfileImage(imageUrl);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Error fetching profile image URL", e);
+                });
+    }
 
+    private void loadProfileImage(String imageUrl) {
+        Glide.with(this)
+                .load(imageUrl)
+                .circleCrop()
+                .placeholder(R.drawable.ic_person_black_24dp)
+                .into(pfp);
+    }
     private void handleNavigationButtonClicked(View view) {
         view.findViewById(R.id.home_button).setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(v);
