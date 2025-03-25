@@ -499,8 +499,7 @@ public class AddMoodActivity extends Fragment {
                     rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
                     TextView text = binding1.getRoot().findViewById(R.id.add_photos);
                     text.setText("");
-                    text = binding1.getRoot().findViewById(R.id.upto_12mb);
-                    text.setText("");
+
                     ImageView image = binding1.getRoot().findViewById(R.id.photos);
 
                     GradientDrawable drawable = new GradientDrawable();
@@ -531,8 +530,7 @@ public class AddMoodActivity extends Fragment {
 
                     TextView text = binding1.getRoot().findViewById(R.id.add_photos);
                     text.setText("");
-                    text = binding1.getRoot().findViewById(R.id.upto_12mb);
-                    text.setText("");
+
 
                     ImageView image = binding1.getRoot().findViewById(R.id.photos);
                     image.setAlpha(0);

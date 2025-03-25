@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavOptions;
@@ -51,6 +52,7 @@ public class SecondFragment extends Fragment {
     private ListView searchResultsListView;
     private ArrayAdapter<String> searchResultsAdapter;
 
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = HomePageFragmentBinding.inflate(inflater, container, false);
@@ -60,7 +62,12 @@ public class SecondFragment extends Fragment {
                 NavHostFragment.findNavController(SecondFragment.this)
                         .navigate(R.id.action_SecondFragment_to_mapsActivity)
         );
-
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                handleBackPress();
+            }
+        });
 
         searchBar = view.findViewById(R.id.search_bar);
         pfp = view.findViewById(R.id.profile_pic);
@@ -119,6 +126,10 @@ public class SecondFragment extends Fragment {
 //        globalStorage.updateUserList();
 
         return view;
+    }
+
+    private void handleBackPress() {
+        // If anything is too be added do it here 
     }
 
 
@@ -205,6 +216,8 @@ public class SecondFragment extends Fragment {
         float density = getResources().getDisplayMetrics().density;
         return Math.round(dp * density);
     }
+
+
 
     public String getSearchText() {
         return searchText;
