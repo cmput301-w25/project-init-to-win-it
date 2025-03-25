@@ -1,5 +1,6 @@
 package com.example.moodsync;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -37,6 +38,8 @@ public class MoodHistoryFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = MoodHistoryFragmentBinding.inflate(inflater, container, false);
+        binding.historyButton.setTextColor(getResources().getColor(R.color.green));
+        binding.historyButton.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.green)));
         return binding.getRoot();
     }
 

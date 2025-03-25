@@ -1,5 +1,6 @@
 package com.example.moodsync;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -56,7 +57,8 @@ public class JournalFragment extends Fragment {
 
         // Handle navigation button clicks
         handleNavigationButtonClicked(view);
-
+        binding.diaryButton.setTextColor(getResources().getColor(R.color.green));
+        binding.diaryButton.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.green)));
         return view;
     }
 

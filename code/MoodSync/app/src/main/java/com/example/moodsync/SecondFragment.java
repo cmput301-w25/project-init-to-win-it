@@ -1,5 +1,6 @@
 package com.example.moodsync;
 
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.os.Bundle;
@@ -70,7 +71,8 @@ public class SecondFragment extends Fragment {
         searchBar = view.findViewById(R.id.search_bar);
         pfp = view.findViewById(R.id.profile_pic);
         fetchProfileImageUrl(globalStorage.getCurrentUserId());
-
+        binding.homeButton.setTextColor(getResources().getColor(R.color.green));
+        binding.homeButton.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.green)));
         // inflate the search results xml layout
         View searchResultsView = inflater.inflate(R.layout.search_results, container, false);
         searchResultsListView = searchResultsView.findViewById(R.id.search_results_listview);

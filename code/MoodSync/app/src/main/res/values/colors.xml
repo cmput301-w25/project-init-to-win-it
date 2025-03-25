@@ -19,6 +19,8 @@
         <color name="beige_light">#E8DED1</color>
         <color name="beige_medium">#D1C0A8</color>
         <color name="beige_dark">#C8AD7E</color>
+    <color name="green">#4AA74E</color>
+
 
 
 </resources>
