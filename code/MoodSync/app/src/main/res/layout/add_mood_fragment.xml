@@ -6,10 +6,20 @@
     android:layout_height="match_parent"
     android:background="#203434"
     tools:context=".AddMoodActivity">
+
     <RelativeLayout
         android:id="@+id/main_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
+        <!-- Step Indicator -->
+
+        <!-- Cancel Button -->
+
+        <!-- Pick Your Mood Title -->
+
+        <!-- Mood Spinner -->
+
         <TextView
             android:id="@+id/stepIndicator"
             android:layout_width="wrap_content"
