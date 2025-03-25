@@ -2,9 +2,12 @@ package com.example.moodsync;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -14,19 +17,26 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCardViewHolder> {
@@ -314,3 +324,78 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         }
     }
 }
+
+
+//private void fetchPendingRequests() {
+//    if (loggedInUsername == null || loggedInUsername.isEmpty()) {
+//        pendingRequestsButton.setText("0");
+//        return;
+//    }
+//
+//    pendingRequests.clear();
+//    db.collection("pendingFollowerRequests")
+//            .whereEqualTo("followee", loggedInUsername)
+//            .get()
+//            .addOnCompleteListener(task -> {
+//                if (task.isSuccessful()) {
+//                    int count = task.getResult().size();
+//                    pendingRequestsButton.setText(String.valueOf(count));
+//
+//                    for (QueryDocumentSnapshot document : task.getResult()) {
+//                        Map<String, String> request = new HashMap<>();
+//                        request.put("id", document.getId());
+//                        request.put("follower", document.getString("follower"));
+//                        request.put("followee", document.getString("followee"));
+//                        pendingRequests.add(request);
+//                    }
+//                } else {
+//                    Log.e("EditProfileFragment", "Error getting pending requests: ", task.getException());
+//                    pendingRequestsButton.setText("0");
+//                }
+//            });
+//}
+
+//private void showPendingRequestsDialog() {
+//    if (pendingRequests.isEmpty()) {
+//        Toast.makeText(requireContext(), "No pending follow requests", Toast.LENGTH_SHORT).show();
+//        return;
+//    }
+//
+//    Dialog dialog = new Dialog(requireContext());
+//    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+//    dialog.setContentView(R.layout.dialog_pending_requests);
+//
+//    WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
+//    layoutParams.gravity = Gravity.CENTER;
+//    layoutParams.width = (int)(getResources().getDisplayMetrics().widthPixels * 0.9);
+//    layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+//    dialog.getWindow().setAttributes(layoutParams);
+//    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//
+//    TextView requestCountText = dialog.findViewById(R.id.request_count_text);
+//    RecyclerView requestsRecyclerView = dialog.findViewById(R.id.requests_recycler_view);
+//    MaterialButton acceptAllButton = dialog.findViewById(R.id.accept_all_button);
+//    MaterialButton declineAllButton = dialog.findViewById(R.id.decline_all_button);
+//    ImageButton closeButton = dialog.findViewById(R.id.close_button);
+//
+//    requestCountText.setText("You have " + pendingRequests.size() + " pending follow requests");
+//
+//
+//    requestsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+//    PendingRequestsAdapter adapter = new PendingRequestsAdapter(pendingRequests);
+//    requestsRecyclerView.setAdapter(adapter);
+//
+//    acceptAllButton.setOnClickListener(v -> {
+//        acceptAllRequests();
+//        dialog.dismiss();
+//    });
+//
+//    declineAllButton.setOnClickListener(v -> {
+//        declineAllRequests();
+//        dialog.dismiss();
+//    });
+//
+//    closeButton.setOnClickListener(v -> dialog.dismiss());
+//
+//    dialog.show();
+//}

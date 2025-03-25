@@ -10,6 +10,16 @@ import java.util.ArrayList;
 public class LocalStorage {
     private static LocalStorage instance;
 
+    public String getSearchResult() {
+        return searchResult;
+    }
+
+    public void setSearchResult(String searchResult) {
+        this.searchResult = searchResult;
+    }
+
+    private String searchResult;
+
     private static String currentUserId;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
