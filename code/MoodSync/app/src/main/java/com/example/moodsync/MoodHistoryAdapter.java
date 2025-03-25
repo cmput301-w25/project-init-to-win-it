@@ -12,12 +12,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.MoodHistoryViewHolder> {
 
@@ -56,7 +58,26 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         holder.emojiTextView.setText(getEmojiForMood(currentItem.getMood()));
         holder.descriptionTextView.setText(currentItem.getDescription() != null ? currentItem.getDescription() : "No Description");
 
-        holder.moodBackground.setBackgroundColor(getMoodColor(currentItem.getMood()));
+        long timeElapsed = System.currentTimeMillis() - currentItem.getDate().getTime();
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeElapsed) % 60;
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeElapsed) % 60;
+        long hours = TimeUnit.MILLISECONDS.toHours(timeElapsed) % 24;
+        long days = TimeUnit.MILLISECONDS.toDays(timeElapsed);
+
+        String elapsedTime = String.format(" %d seconds ago", seconds);
+        if (days!=0){
+             elapsedTime = String.format("%d d %d h ago", days, hours, minutes, seconds);
+        }
+        else if(hours!=0){
+             elapsedTime = String.format("%d h %d minutes ago", hours, minutes, seconds);
+        }
+        else if(minutes!=0){
+             elapsedTime = String.format("%d minutes %d seconds ago", minutes, seconds);
+        }
+
+        holder.dateTextView.setText(elapsedTime);
+
+
 
         // i adjusted text colors based on background color for better readability
         adjustTextColors(holder, currentItem.getMood());
@@ -148,6 +169,7 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         MaterialButton deleteButton = dialogView.findViewById(R.id.delete_button);
 
 
+
         titleTextView.setText("Delete Mood");
         messageTextView.setText("Are you sure you want to delete this mood entry? This action cannot be undone.");
 
@@ -193,8 +215,10 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
     static class MoodHistoryViewHolder extends RecyclerView.ViewHolder {
         TextView moodTextView;
         TextView emojiTextView;
+        TextView dateTextView;
         TextView descriptionTextView;
-        MaterialButton deleteButton;
+        AppCompatImageButton deleteButton;
+
         RelativeLayout moodBackground;
 
         public MoodHistoryViewHolder(@NonNull View itemView) {
@@ -205,7 +229,9 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
             emojiTextView = itemView.findViewById(R.id.moodEmojiTextView);
             descriptionTextView = itemView.findViewById(R.id.moodDescriptionTextView);
             deleteButton = itemView.findViewById(R.id.delete_button);
-            moodBackground = itemView.findViewById(R.id.mood_background);
+            dateTextView = itemView.findViewById(R.id.date_text_view);
+
+
         }
     }
 }

@@ -93,6 +93,12 @@ public class SecondFragment extends Fragment {
             searchBar.setText("");
             navigateToUserProfile(selectedUsername);
         });
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                handleBackPress();
+            }
+        });
 
         // text change listener for the search bar
         searchBar.addTextChangedListener(new TextWatcher() {
@@ -152,7 +158,6 @@ public class SecondFragment extends Fragment {
         Glide.with(this)
                 .load(imageUrl)
                 .circleCrop()
-                .transform(new EditProfileActivity.RotateTransformation(90))
                 .placeholder(R.drawable.ic_person_black_24dp)
                 .into(pfp);
     }
