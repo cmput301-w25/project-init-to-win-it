@@ -111,4 +111,5 @@
         <item name="android:windowExitAnimation">@anim/slide_up</item>
     </style>
 
+
 </resources>

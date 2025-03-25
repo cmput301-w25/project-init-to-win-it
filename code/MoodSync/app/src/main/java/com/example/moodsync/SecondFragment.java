@@ -1,5 +1,6 @@
 package com.example.moodsync;
 
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.os.Bundle;
@@ -62,17 +63,16 @@ public class SecondFragment extends Fragment {
                 NavHostFragment.findNavController(SecondFragment.this)
                         .navigate(R.id.action_SecondFragment_to_mapsActivity)
         );
-        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                handleBackPress();
-            }
-        });
+
+        binding.diaryButton.setOnClickListener(v ->
+                NavHostFragment.findNavController(SecondFragment.this)
+                        .navigate(R.id.action_SecondFragment_to_JournalFragment));
 
         searchBar = view.findViewById(R.id.search_bar);
         pfp = view.findViewById(R.id.profile_pic);
         fetchProfileImageUrl(globalStorage.getCurrentUserId());
-
+        binding.homeButton.setTextColor(getResources().getColor(R.color.green));
+        binding.homeButton.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.green)));
         // inflate the search results xml layout
         View searchResultsView = inflater.inflate(R.layout.search_results, container, false);
         searchResultsListView = searchResultsView.findViewById(R.id.search_results_listview);
@@ -94,6 +94,12 @@ public class SecondFragment extends Fragment {
             searchResultsListView.setVisibility(View.INVISIBLE);
             searchBar.setText("");
             navigateToUserProfile(selectedUsername);
+        });
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                handleBackPress();
+            }
         });
 
         // text change listener for the search bar
@@ -154,7 +160,6 @@ public class SecondFragment extends Fragment {
         Glide.with(this)
                 .load(imageUrl)
                 .circleCrop()
-                .transform(new EditProfileActivity.RotateTransformation(90))
                 .placeholder(R.drawable.ic_person_black_24dp)
                 .into(pfp);
     }
@@ -355,6 +360,7 @@ public class SecondFragment extends Fragment {
                                             List<MoodEvent> moodEvents = new ArrayList<>();
                                             for (QueryDocumentSnapshot document : task.getResult()) {
                                                 MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                                                moodEvent.setDocumentId(document.getId());
                                                 moodEvents.add(moodEvent);
                                             }
                                             filterToRecentMoods(moodEvents);
@@ -376,6 +382,7 @@ public class SecondFragment extends Fragment {
                                         List<MoodEvent> moodEvents = new ArrayList<>();
                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                                            moodEvent.setDocumentId(document.getId());
                                             moodEvents.add(moodEvent);
                                         }
                                         filterToRecentMoods(moodEvents);

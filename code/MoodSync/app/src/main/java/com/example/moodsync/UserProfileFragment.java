@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -49,10 +51,12 @@ public class UserProfileFragment extends Fragment {
     private TextView nameTextView, usernameTextView, followersCountTextView, followingCountTextView;
     private String currentUserId;
     private String selectedUserId;
+    private ImageView profileImageView;
+    private View view;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.user_profile_fragment, container, false);
+        view = inflater.inflate(R.layout.user_profile_fragment, container, false);
 
         db = FirebaseFirestore.getInstance();
 
@@ -71,8 +75,6 @@ public class UserProfileFragment extends Fragment {
             loadUserProfile(selectedUserId);
         }
 
-//        fetchMoodEvents(true);
-
         followButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,181 +84,6 @@ public class UserProfileFragment extends Fragment {
 
         return view;
     }
-
-//    private void fetchMoodEvents(boolean isPublic) {
-//        // First, get the current user's document to access their followingList
-//        db.collection("users")
-//                .whereEqualTo("userName", currentUserId)
-//                .get()
-//                .addOnCompleteListener(userTask -> {
-//                    if (userTask.isSuccessful() && !userTask.getResult().isEmpty()) {
-//                        DocumentSnapshot userDoc = userTask.getResult().getDocuments().get(0);
-//                        List<String> followingUsers = (List<String>) userDoc.get("followingList");
-//
-//                        if (followingUsers == null) {
-//                            followingUsers = new ArrayList<>();
-//                        }
-//
-//                        // Query mood_events where user is in the list of followed users
-//                        db.collection("mood_events")
-//                                .whereIn("id", followingUsers)
-//                                .whereEqualTo("public", true)
-//                                .get()
-//                                .addOnCompleteListener(task -> {
-//                                    if (task.isSuccessful() && task.getResult() != null) {
-//                                        List<Map<String, Object>> moodList = new ArrayList<>();
-//
-//                                        for (QueryDocumentSnapshot document : task.getResult()) {
-//                                            Log.d("cunt1", "fetchMoodEvents: " + task.getResult());
-//                                            Map<String, Object> moodData = new HashMap<>();
-//                                            moodData.put("imageUrl", document.getString("imageUrl"));
-//                                            moodData.put("description", document.getString("description"));
-//                                            moodData.put("mood", document.getString("mood"));
-//
-//                                            Log.d("cunt", "fetchMoodEvents: " + document.getString("imageUrl"));
-//
-//                                            moodList.add(moodData);
-//                                        }
-//
-//                                        loadPhotosListView(moodList);
-//                                    }
-//                                });
-//                    }
-//                });
-//    }
-
-//    private void fetchMoodEvents(boolean isPublic) {
-//        // First, get the current user's document to access their followingList
-//        db.collection("users")
-//                .whereEqualTo("userName", currentUserId)
-//                .get()
-//                .addOnCompleteListener(userTask -> {
-//                    if (userTask.isSuccessful() && !userTask.getResult().isEmpty()) {
-//                        DocumentSnapshot userDoc = userTask.getResult().getDocuments().get(0);
-//                        List<String> followingUsers = (List<String>) userDoc.get("followingList");
-//
-//                        if (followingUsers == null) {
-//                            followingUsers = new ArrayList<>();
-//                        }
-//
-//                        // Check if selectedUserId is in the followingUsers list
-//                        if (followingUsers.contains(selectedUserId)) {
-//                            Log.d("chintu", "fetchMoodEvents: "+ selectedUserId);
-//                            // Query mood_events where id is selectedUserId
-//                            db.collection("mood_events")
-//                                    .whereEqualTo("id", selectedUserId)
-//                                    .whereEqualTo("public", isPublic)
-//                                    .get()
-//                                    .addOnCompleteListener(task -> {
-//                                        if (task.isSuccessful() && task.getResult() != null) {
-//                                            List<Map<String, Object>> moodList = new ArrayList<>();
-//
-//                                            for (QueryDocumentSnapshot document : task.getResult()) {
-//                                                Map<String, Object> moodData = new HashMap<>();
-//                                                moodData.put("imageUrl", document.getString("imageUrl"));
-//                                                moodData.put("description", document.getString("description"));
-//                                                moodData.put("mood", document.getString("mood"));
-//
-//                                                moodList.add(moodData);
-//                                            }
-//                                            Log.d("buntu", "fetchMoodEvents: "+moodList.get(0));
-//
-//                                            loadPhotosListView(moodList);
-//                                        }
-//                                    });
-//                        } else {
-//                            // If selectedUserId is not in followingUsers, don't display anything
-//                            loadPhotosListView(new ArrayList<>()); // Pass an empty list
-//                        }
-//                    }
-//                });
-//    }
-
-
-//    private void loadPhotosListView(List<Map<String, Object>> moodList) {
-//            // Create a custom adapter for the GridView
-//            MoodImageAdapter adapter = new MoodImageAdapter(requireContext(), moodList);
-//            photosListView.setAdapter(adapter);
-//
-//            // Add click listener to show details of a mood when clicked
-//            photosListView.setOnItemClickListener((parent, view, position, id) -> {
-//                Map<String, Object> selectedMood = moodList.get(position);
-//                showPostDetailDialog(selectedMood); // Pass the selected mood data to the dialog
-//            });
-//        }
-
-    private void showPostDetailDialog(Map<String, Object> moodData) {
-        // Create dialog
-        Dialog dialog = new Dialog(requireContext());
-
-        // Request feature must be called before setting content view
-        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.post_detail_dialog);
-
-        // Set window attributes for bottom animation
-        WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
-        layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-        layoutParams.width = (int)(getResources().getDisplayMetrics().widthPixels * 1.0); // 95% of screen width
-        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        dialog.getWindow().setAttributes(layoutParams);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-
-        // Initialize views from the dialog layout
-        ShapeableImageView profileImage = dialog.findViewById(R.id.profile_image_edit);
-        TextView nameText = dialog.findViewById(R.id.name);
-        TextView timeStampText = dialog.findViewById(R.id.time_stamp);
-        TextView moodTextView = dialog.findViewById(R.id.mood_text_view);
-        ImageView postImage = dialog.findViewById(R.id.post_image);
-        TextView statusText = dialog.findViewById(R.id.status);
-        TextView triggerTextView = dialog.findViewById(R.id.trigger_text_view);
-        TextView likeCount = dialog.findViewById(R.id.like_count);
-        TextView commentCount = dialog.findViewById(R.id.comment_count);
-
-        Log.d("fuc you", "showPostDetailDialog: "+ moodData.get("imageUrl"));
-
-        // Set data from moodData map
-        Glide.with(requireContext())
-                .load(moodData.get("imageUrl"))
-                .into(postImage);
-
-        nameText.setText(currentUserId);
-        statusText.setText((String) moodData.get("description"));
-        moodTextView.setText((String) moodData.get("mood"));
-//        socialSituationText.setText((String) moodData.get("socialSituation"));
-
-        // Set click listeners for dialog buttons
-        MaterialButton detailsButton = dialog.findViewById(R.id.details_button);
-        detailsButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Details clicked", Toast.LENGTH_SHORT).show();
-        });
-
-        ImageButton likeButton = dialog.findViewById(R.id.like_button);
-        likeButton.setOnClickListener(v -> {
-            int currentLikes = Integer.parseInt(likeCount.getText().toString());
-            likeCount.setText(String.valueOf(currentLikes + 1));
-            Toast.makeText(requireContext(), "Liked!", Toast.LENGTH_SHORT).show();
-        });
-
-        ImageButton commentButton = dialog.findViewById(R.id.comment_button);
-        commentButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Comment clicked", Toast.LENGTH_SHORT).show();
-        });
-
-        ImageButton shareButton = dialog.findViewById(R.id.share_button);
-        shareButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Share clicked", Toast.LENGTH_SHORT).show();
-        });
-
-        ImageButton bookmarkButton = dialog.findViewById(R.id.bookmark_button);
-        bookmarkButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Bookmarked!", Toast.LENGTH_SHORT).show();
-        });
-
-        // Show dialog
-        dialog.show();
-    }
-
 
     private void loadUserProfile(String userId) {
         db.collection("users").document(userId).get()

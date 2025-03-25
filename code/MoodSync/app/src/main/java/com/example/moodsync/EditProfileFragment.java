@@ -96,7 +96,7 @@ public class EditProfileFragment extends Fragment {
         loadUserData();
         fetchPendingRequests();
 
-        profileImageEdit.setOnClickListener(v -> changeProfileImage());
+
         editProfileButton.setOnClickListener(view1 -> {
             NavController navController = Navigation.findNavController(view1);
             navController.navigate(R.id.action_editProfileFragment_to_editProfileActivity);
@@ -505,17 +505,6 @@ public class EditProfileFragment extends Fragment {
         if (likesCountTextView != null) likesCountTextView.setText("0");
     }
 
-    private void changeProfileImage() {
-        if (profileImageEdit.getTag() != null && (boolean) profileImageEdit.getTag()) {
-            profileImageEdit.setImageResource(R.drawable.arijitsingh);
-            profileImageEdit.setTag(false);
-        } else {
-            profileImageEdit.setImageResource(R.drawable.arijitsingh);
-            profileImageEdit.setTag(true);
-        }
-
-        Toast.makeText(requireContext(), "Profile image updated", Toast.LENGTH_SHORT).show();
-    }
 
     private class PendingRequestsAdapter extends RecyclerView.Adapter<PendingRequestsAdapter.ViewHolder> {
         private List<Map<String, String>> requests;
