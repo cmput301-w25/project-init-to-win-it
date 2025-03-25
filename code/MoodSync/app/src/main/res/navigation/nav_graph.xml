@@ -132,14 +132,24 @@
         android:label="Mood History"
         tools:layout="@layout/mood_history_fragment">
         <action
+            android:id="@+id/action_moodHistoryFragment_to_editMoodFragment"
+            app:destination="@id/editMoodActivityFragment" />
+        <action
             android:id="@+id/action_moodHistoryFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_moodHistoryFragment_to_mapsActivity"
+            app:destination="@id/mapsActivity" />
         <action
             android:id="@+id/action_moodHistoryFragment_to_addMoodActivityFragment"
             app:destination="@id/addMoodActivityFragment" />
         <action
-            android:id="@+id/action_moodHistoryFragment_to_editMoodFragment"
-            app:destination="@id/editMoodActivityFragment" />
+            android:id="@+id/action_moodHistoryFragmentto_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
+        <action
+            android:id="@+id/action_moodHistoryFragment_to_JournalFragment"
+            app:destination="@id/JournalFragment" />
+
     </fragment>
 
     <fragment
