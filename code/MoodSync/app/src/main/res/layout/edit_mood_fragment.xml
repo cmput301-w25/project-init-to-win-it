@@ -16,18 +16,26 @@
         <!-- Step Indicator -->
 
         <!-- Cancel Button -->
+
+        <!-- Pick Your Mood Title -->
+
+        <!-- Mood Spinner -->
+
         <TextView
             android:id="@+id/stepIndicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="13dp"
+            android:layout_marginStart="240dp"
+            android:layout_marginTop="43dp"
+            android:layout_marginEnd="17dp"
+            android:layout_toEndOf="@+id/cancel"
             android:background="@drawable/step_indicator_background"
             android:paddingHorizontal="12dp"
             android:paddingVertical="8dp"
             android:text="1/2"
-            android:textColor="#FFFFFFFF"
+            android:textColor="#000000"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -35,8 +43,10 @@
             android:id="@+id/cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="37dp"
             android:background="@android:color/transparent"
             android:padding="8dp"
             android:text="@string/cancel"
@@ -45,20 +55,18 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <!-- Pick Your Mood Title -->
         <TextView
             android:id="@+id/pick_mood"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/cancel"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="5dp"
             android:text="@string/pick_your_m"
             android:textColor="@color/primary_text_color"
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <!-- Mood Spinner -->
         <Spinner
             android:id="@+id/main_card"
             android:layout_width="match_parent"
@@ -181,19 +189,20 @@
         </HorizontalScrollView>
 
         <!-- Add Description Title -->
+
+        <!-- Description EditText -->
         <TextView
             android:id="@+id/add_desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/horizontal_spinner"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="19dp"
             android:text="@string/add_your_de"
             android:textColor="@color/primary_text_color"
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <!-- Description EditText -->
         <EditText
             android:id="@+id/edit_description"
             android:layout_width="match_parent"
