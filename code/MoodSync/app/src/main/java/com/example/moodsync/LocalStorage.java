@@ -23,16 +23,23 @@ public class LocalStorage {
         MoodList = new ArrayList<>();
         Comments = new ArrayList<>();
     }
-    public void updateUserList() {
+    public void updateUser(String username) {
         db.collection("users")
+                .whereEqualTo("username", username)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        UserList.clear(); // Clear existing list
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            User user = document.toObject(User.class);
-                            UserList.add(user);
+                            User updatedUser = document.toObject(User.class);
+                            for (int i = 0; i < UserList.size(); i++) {
+                                if (UserList.get(i).getUsername().equals(username)) {
+                                    UserList.set(i, updatedUser);
+                                    break;
+                                }
+                            }
                         }
+                    } else {
+                        Log.e("Firestore", "Error getting documents: ", task.getException());
                     }
                 });
     }
