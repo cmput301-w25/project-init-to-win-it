@@ -1,11 +1,21 @@
 package com.example.moodsync;
 
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,11 +28,17 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.imageview.ShapeableImageView;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +47,7 @@ public class UserProfileFragment extends Fragment {
 
     private FirebaseFirestore db;
     private Button followButton;
+    private GridView photosListView;
     private TextView nameTextView, usernameTextView, followersCountTextView, followingCountTextView;
     private String currentUserId;
     private String selectedUserId;
@@ -48,7 +65,6 @@ public class UserProfileFragment extends Fragment {
         followersCountTextView = view.findViewById(R.id.followers_count);
         followingCountTextView = view.findViewById(R.id.following_count);
         followButton = view.findViewById(R.id.follow_user);
-        profileImageView = view.findViewById(R.id.profile_image_edit);
 
         MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
         currentUserId = myApp.getLoggedInUsername();
@@ -79,18 +95,13 @@ public class UserProfileFragment extends Fragment {
                             String userName = documentSnapshot.getString("userName");
                             List<String> followerList = (List<String>) documentSnapshot.get("followerList");
                             List<String> followingList = (List<String>) documentSnapshot.get("followingList");
-                            String profileImageUrl = documentSnapshot.getString("profileImageUrl");
 
                             nameTextView.setText(fullName);
                             usernameTextView.setText("@" + userName);
                             followersCountTextView.setText(String.valueOf(followerList != null ? followerList.size() : 0));
                             followingCountTextView.setText(String.valueOf(followingList != null ? followingList.size() : 0));
 
-                            if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-                                loadProfileImage(profileImageUrl);
-                            }
-
-                            checkFollowStatus();
+                            updateFollowButtonState();
                         }
                     }
                 })
@@ -102,91 +113,7 @@ public class UserProfileFragment extends Fragment {
                 });
     }
 
-    private void loadProfileImage(String imageUrl) {
-        if (isAdded() && getActivity() != null) {
-            Glide.with(requireContext())
-                    .load(imageUrl)
-                    .circleCrop()
-                    .placeholder(R.drawable.ic_person_black_24dp)
-                    .into(profileImageView);
-        } else {
-            Log.w("UserProfileFragment", "Fragment not attached, skipping image load");
-        }
-    }
-
-    private void checkFollowStatus() {
-        // First check if current user is already following the selected user
-        db.collection("users").document(currentUserId)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            List<String> followingList = (List<String>) documentSnapshot.get("followingList");
-
-                            if (followingList != null && followingList.contains(selectedUserId)) {
-                                // User is already following this person
-                                followButton.setText("Following");
-                            } else {
-                                // Check if there's a pending follow request
-                                updateFollowButtonState();
-                            }
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e("UserProfile", "Error checking follow status", e);
-                    }
-                });
-    }
-
     private void handleFollowRequest() {
-        // First check if user is already following
-        db.collection("users").document(currentUserId)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            List<String> followingList = (List<String>) documentSnapshot.get("followingList");
-
-                            if (followingList != null && followingList.contains(selectedUserId)) {
-                                // User is already following, handle unfollow
-                                unfollowUser();
-                            } else {
-                                // Check pending requests
-                                checkPendingRequestAndHandle();
-                            }
-                        }
-                    }
-                });
-    }
-
-    private void unfollowUser() {
-        // Remove from current user's following list
-        db.collection("users").document(currentUserId)
-                .update("followingList", com.google.firebase.firestore.FieldValue.arrayRemove(selectedUserId))
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        // Remove from selected user's follower list
-                        db.collection("users").document(selectedUserId)
-                                .update("followerList", com.google.firebase.firestore.FieldValue.arrayRemove(currentUserId))
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(getActivity(), "Unfollowed successfully", Toast.LENGTH_SHORT).show();
-                                        followButton.setText("Follow");
-                                        loadUserProfile(selectedUserId); // Refresh counts
-                                    }
-                                });
-                    }
-                });
-    }
-
-    private void checkPendingRequestAndHandle() {
         db.collection("pendingFollowerRequests")
                 .whereEqualTo("follower", currentUserId)
                 .whereEqualTo("followee", selectedUserId)
@@ -205,7 +132,7 @@ public class UserProfileFragment extends Fragment {
                                             @Override
                                             public void onSuccess(DocumentReference documentReference) {
                                                 Toast.makeText(getActivity(), "Follow request sent", Toast.LENGTH_SHORT).show();
-                                                followButton.setText("Cancel Request");
+                                                updateFollowButtonState();
                                             }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {
@@ -221,7 +148,7 @@ public class UserProfileFragment extends Fragment {
                                             @Override
                                             public void onSuccess(Void aVoid) {
                                                 Toast.makeText(getActivity(), "Follow request cancelled", Toast.LENGTH_SHORT).show();
-                                                followButton.setText("Follow");
+                                                updateFollowButtonState();
                                             }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {

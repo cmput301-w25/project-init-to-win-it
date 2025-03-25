@@ -1,5 +1,6 @@
 package com.example.moodsync;
 
+import android.animation.ObjectAnimator;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -7,13 +8,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,10 +32,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.imageview.ShapeableImageView;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,11 +54,14 @@ public class EditProfileFragment extends Fragment {
     private TextView locationTextView;
     private TextView bioTextView;
     private ImageView backButton;
+    private GridView photosListView;
     private MaterialButton editProfileButton;
     private MaterialButton pendingRequestsButton;
     private TextView followersCountTextView;
     private TextView followingCountTextView;
     private TextView likesCountTextView;
+
+    private TabLayout tabs;
 
     private FirebaseFirestore db;
     private String loggedInUsername;
@@ -74,6 +86,8 @@ public class EditProfileFragment extends Fragment {
         followersCountTextView = view.findViewById(R.id.followers_count);
         followingCountTextView = view.findViewById(R.id.following_count);
         likesCountTextView = view.findViewById(R.id.likes_count);
+        photosListView = view.findViewById(R.id.photos_listview);
+        tabs = view.findViewById(R.id.tabs);
 
         // Get logged in username
         MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
@@ -91,7 +105,180 @@ public class EditProfileFragment extends Fragment {
         pendingRequestsButton.setOnClickListener(v -> showPendingRequestsDialog());
         backButton.setOnClickListener(v -> requireActivity().onBackPressed());
 
+        // Set up tab listener
+        tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getText().toString().equals("Public")) {
+                    fetchMoodEvents(true); // Fetch public posts
+                } else {
+                    fetchMoodEvents(false); // Fetch private posts
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {}
+        });
+
+        // Load initial data (default to Public tab)
+        fetchMoodEvents(true);
+
         return view;
+    }
+    private void fetchMoodEvents(boolean isPublic) {
+        db.collection("mood_events")
+                .whereEqualTo("id", loggedInUsername)
+                .whereEqualTo("public", isPublic)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        List<Map<String, Object>> moodList = new ArrayList<>();
+
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Log.d("cunt1", "fetchMoodEvents: " + task.getResult() );
+                            Map<String, Object> moodData = new HashMap<>();
+                            moodData.put("imageUrl", document.getString("imageUrl"));
+                            moodData.put("description", document.getString("description"));
+                            moodData.put("mood", document.getString("mood"));
+
+                            Log.d("cunt", "fetchMoodEvents: "+ document.getString("imageUrl"));
+
+                            moodList.add(moodData);
+                        }
+
+                        loadPhotosListView(moodList);
+                    }
+                });
+    }
+
+
+    private void loadPhotosListView(List<Map<String, Object>> moodList) {
+        // Create a custom adapter for the GridView
+        MoodImageAdapter adapter = new MoodImageAdapter(requireContext(), moodList);
+        photosListView.setAdapter(adapter);
+
+        // Add click listener to show details of a mood when clicked
+        photosListView.setOnItemClickListener((parent, view, position, id) -> {
+            Map<String, Object> selectedMood = moodList.get(position);
+            showPostDetailDialog(selectedMood); // Pass the selected mood data to the dialog
+        });
+    }
+
+
+    private View getViewByPosition(int position, GridView gridView) {
+        final int firstListItemPosition = gridView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + gridView.getChildCount() - 1;
+
+        if (position < firstListItemPosition || position > lastListItemPosition) {
+            return null;
+        } else {
+            final int childIndex = position - firstListItemPosition;
+            return gridView.getChildAt(childIndex);
+        }
+    }
+
+    private void animateHoverUp(View view) {
+        // Elevate view
+        ObjectAnimator upAnimator = ObjectAnimator.ofFloat(view, "translationZ", 0f, 8f);
+        upAnimator.setDuration(150);
+        upAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        // Move slightly upward
+        ObjectAnimator moveAnimator = ObjectAnimator.ofFloat(view, "translationY", 0f, -8f);
+        moveAnimator.setDuration(150);
+        moveAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        upAnimator.start();
+        moveAnimator.start();
+
+        // Add listener to reset after animation
+        view.postDelayed(() -> {
+            ObjectAnimator downAnimator = ObjectAnimator.ofFloat(view, "translationZ", 8f, 0f);
+            downAnimator.setDuration(150);
+            downAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+
+            ObjectAnimator resetMoveAnimator = ObjectAnimator.ofFloat(view, "translationY", -8f, 0f);
+            resetMoveAnimator.setDuration(150);
+            resetMoveAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+
+            downAnimator.start();
+            resetMoveAnimator.start();
+        }, 500); // Reset after 0.5 seconds
+    }
+
+    private void showPostDetailDialog(Map<String, Object> moodData) {
+        // Create dialog
+        Dialog dialog = new Dialog(requireContext());
+
+        // Request feature must be called before setting content view
+        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.post_detail_dialog);
+
+        // Set window attributes for bottom animation
+        WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
+        layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+        layoutParams.width = (int)(getResources().getDisplayMetrics().widthPixels * 1.0); // 95% of screen width
+        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        dialog.getWindow().setAttributes(layoutParams);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+
+        // Initialize views from the dialog layout
+        ShapeableImageView profileImage = dialog.findViewById(R.id.profile_image_edit);
+        TextView nameText = dialog.findViewById(R.id.name);
+        TextView timeStampText = dialog.findViewById(R.id.time_stamp);
+        TextView moodTextView = dialog.findViewById(R.id.mood_text_view);
+        ImageView postImage = dialog.findViewById(R.id.post_image);
+        TextView statusText = dialog.findViewById(R.id.status);
+        TextView triggerTextView = dialog.findViewById(R.id.trigger_text_view);
+        TextView likeCount = dialog.findViewById(R.id.like_count);
+        TextView commentCount = dialog.findViewById(R.id.comment_count);
+
+        Log.d("fuc you", "showPostDetailDialog: "+ moodData.get("imageUrl"));
+
+        // Set data from moodData map
+        Glide.with(requireContext())
+                .load(moodData.get("imageUrl"))
+                .into(postImage);
+
+        nameText.setText(loggedInUsername);
+        statusText.setText((String) moodData.get("description"));
+        moodTextView.setText((String) moodData.get("mood"));
+//        socialSituationText.setText((String) moodData.get("socialSituation"));
+
+        // Set click listeners for dialog buttons
+        MaterialButton detailsButton = dialog.findViewById(R.id.details_button);
+        detailsButton.setOnClickListener(v -> {
+            Toast.makeText(requireContext(), "Details clicked", Toast.LENGTH_SHORT).show();
+        });
+
+        ImageButton likeButton = dialog.findViewById(R.id.like_button);
+        likeButton.setOnClickListener(v -> {
+            int currentLikes = Integer.parseInt(likeCount.getText().toString());
+            likeCount.setText(String.valueOf(currentLikes + 1));
+            Toast.makeText(requireContext(), "Liked!", Toast.LENGTH_SHORT).show();
+        });
+
+        ImageButton commentButton = dialog.findViewById(R.id.comment_button);
+        commentButton.setOnClickListener(v -> {
+            Toast.makeText(requireContext(), "Comment clicked", Toast.LENGTH_SHORT).show();
+        });
+
+        ImageButton shareButton = dialog.findViewById(R.id.share_button);
+        shareButton.setOnClickListener(v -> {
+            Toast.makeText(requireContext(), "Share clicked", Toast.LENGTH_SHORT).show();
+        });
+
+        ImageButton bookmarkButton = dialog.findViewById(R.id.bookmark_button);
+        bookmarkButton.setOnClickListener(v -> {
+            Toast.makeText(requireContext(), "Bookmarked!", Toast.LENGTH_SHORT).show();
+        });
+
+        // Show dialog
+        dialog.show();
     }
 
     private void loadUserData() {

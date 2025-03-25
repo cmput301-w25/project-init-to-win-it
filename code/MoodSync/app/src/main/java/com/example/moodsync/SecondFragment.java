@@ -190,6 +190,7 @@ public class SecondFragment extends Fragment {
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {
                         DocumentSnapshot document = task.getResult().getDocuments().get(0);
                         String userId = document.getId();
+                        globalStorage.setSearchResult(userId);
 
                         Bundle args = new Bundle();
                         args.putString("selectedUserId", userId);
@@ -338,15 +339,16 @@ public class SecondFragment extends Fragment {
                     if (userTask.isSuccessful() && !userTask.getResult().isEmpty()) {
                         DocumentSnapshot userDoc = userTask.getResult().getDocuments().get(0);
                         List<String> followingUsers = (List<String>) userDoc.get("followingList");
+                        Log.d("sex", "fetchMoodEvents: "+ followingUsers);
 
                         if (followingUsers == null) {
                             followingUsers = new ArrayList<>();
                         }
 
                         // Add current user to see their own posts too
-                        if (!followingUsers.contains(currentUsername)) {
-                            followingUsers.add(currentUsername);
-                        }
+//                        if (!followingUsers.contains(currentUsername)) {
+//                            followingUsers.add(currentUsername);
+//                        }
 
                         // If not following anyone (just self), show only own moods
                         if (followingUsers.size() <= 1) {
