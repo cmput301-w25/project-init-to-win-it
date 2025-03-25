@@ -7,6 +7,7 @@
     android:background="#203434">
 
     <!-- Enhanced Search Bar with Profile Pic -->
+    <!-- Enhanced Search Bar with Profile Pic -->
     <androidx.cardview.widget.CardView
         android:id="@+id/search_bar_container"
         android:layout_width="0dp"
@@ -21,7 +22,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:layout_width="360dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#D7D2CC"
             android:gravity="center_vertical"
@@ -32,8 +33,16 @@
             android:paddingBottom="8dp">
 
             <ImageView
+                android:id="@+id/filter_icon"
                 android:layout_width="22dp"
                 android:layout_height="22dp"
+                android:src="@drawable/ic_filter_list_black_24dp"
+                app:tint="#555555" />
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginStart="12dp"
                 android:src="@drawable/ic_search_black_24dp"
                 app:tint="#555555" />
 
@@ -72,6 +81,7 @@
             </androidx.cardview.widget.CardView>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
 
     <!-- RecyclerView for Mood Event Cards -->
     <androidx.recyclerview.widget.RecyclerView
