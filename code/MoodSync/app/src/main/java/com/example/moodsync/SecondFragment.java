@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavOptions;
@@ -50,6 +51,7 @@ public class SecondFragment extends Fragment {
     public LocalStorage globalStorage = LocalStorage.getInstance();
     private ListView searchResultsListView;
     private ArrayAdapter<String> searchResultsAdapter;
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -122,6 +124,10 @@ public class SecondFragment extends Fragment {
 //        globalStorage.updateUserList();
 
         return view;
+    }
+
+    private void handleBackPress() {
+        // If anything is too be added do it here 
     }
 
 
@@ -208,6 +214,8 @@ public class SecondFragment extends Fragment {
         float density = getResources().getDisplayMetrics().density;
         return Math.round(dp * density);
     }
+
+
 
     public String getSearchText() {
         return searchText;
