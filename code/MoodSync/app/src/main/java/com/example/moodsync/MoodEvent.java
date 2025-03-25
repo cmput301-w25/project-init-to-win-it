@@ -28,6 +28,7 @@ public class MoodEvent implements Parcelable {
     private String location;
     private String photoPath;
     private String id;
+    private String documentId;  // (new field) to keep track of document id (needed for comments subcollection)
 
     private boolean isPublic;
 
@@ -98,6 +99,14 @@ public class MoodEvent implements Parcelable {
         dest.writeString(photoPath);
         dest.writeString(id);
         dest.writeByte((byte) (isPublic ? 1 : 0));
+    }
+
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
     public String getMood() {
