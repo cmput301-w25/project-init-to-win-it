@@ -186,6 +186,9 @@
             android:name="selectedUserId"
             app:argType="string"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
     </fragment>
     <fragment
         android:id="@+id/editProfileActivity"

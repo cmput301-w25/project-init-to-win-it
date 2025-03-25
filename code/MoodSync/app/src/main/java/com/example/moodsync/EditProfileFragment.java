@@ -138,13 +138,11 @@ public class EditProfileFragment extends Fragment {
                         List<Map<String, Object>> moodList = new ArrayList<>();
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            Log.d("cunt1", "fetchMoodEvents: " + task.getResult() );
                             Map<String, Object> moodData = new HashMap<>();
                             moodData.put("imageUrl", document.getString("imageUrl"));
                             moodData.put("description", document.getString("description"));
                             moodData.put("mood", document.getString("mood"));
-
-                            Log.d("cunt", "fetchMoodEvents: "+ document.getString("imageUrl"));
+                            moodData.put("trigger", document.getString("trigger"));
 
                             moodList.add(moodData);
                         }
@@ -237,8 +235,6 @@ public class EditProfileFragment extends Fragment {
         TextView likeCount = dialog.findViewById(R.id.like_count);
         TextView commentCount = dialog.findViewById(R.id.comment_count);
 
-        Log.d("fuc you", "showPostDetailDialog: "+ moodData.get("imageUrl"));
-
         // Set data from moodData map
         Glide.with(requireContext())
                 .load(moodData.get("imageUrl"))
@@ -247,7 +243,7 @@ public class EditProfileFragment extends Fragment {
         nameText.setText(loggedInUsername);
         statusText.setText((String) moodData.get("description"));
         moodTextView.setText((String) moodData.get("mood"));
-//        socialSituationText.setText((String) moodData.get("socialSituation"));
+        triggerTextView.setText((String) moodData.get("trigger"));
 
         // Set click listeners for dialog buttons
         MaterialButton detailsButton = dialog.findViewById(R.id.details_button);

@@ -313,7 +313,7 @@ public class SecondFragment extends Fragment {
         Collections.sort(filteredMoods, (mood1, mood2) ->
                 Long.compare(mood2.getDate(), mood1.getDate()));
 
-        // Update the adapter with the filtered list
+        // Update the adaptetr with the filtered list
         moodCardAdapter.updateMoodEvents(filteredMoods);
         Log.d("MoodEvents", "Filtered to " + filteredMoods.size() + " recent mood events");
     }
@@ -345,15 +345,16 @@ public class SecondFragment extends Fragment {
                             followingUsers = new ArrayList<>();
                         }
 
-                        // Add current user to see their own posts too
-//                        if (!followingUsers.contains(currentUsername)) {
-//                            followingUsers.add(currentUsername);
-//                        }
+                         //Add current user to see their own posts too
+                        if (!followingUsers.contains(currentUsername)) {
+                            followingUsers.add(currentUsername);
+                        }
 
                         // If not following anyone (just self), show only own moods
                         if (followingUsers.size() <= 1) {
                             db.collection("mood_events")
                                     .whereEqualTo("id", currentUsername)
+                                    .whereEqualTo("public", true)
                                     .get()
                                     .addOnCompleteListener(task -> {
                                         if (task.isSuccessful()) {

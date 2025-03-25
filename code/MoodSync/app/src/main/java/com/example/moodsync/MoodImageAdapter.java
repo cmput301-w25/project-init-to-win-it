@@ -54,21 +54,57 @@ public class MoodImageAdapter extends BaseAdapter {
         }
 
         // Get views from layout
-        ImageView moodImage = convertView.findViewById(R.id.photo_image);
-//        TextView socialSituationText = convertView.findViewById(R.id.social_situation_text);
+        ImageView moodImage = convertView.findViewById(R.id.photo_image); // Use the correct ID
+        TextView moodEmojiTextView = convertView.findViewById(R.id.moodEmojiTextView);
 
         // Get data for current item
         Map<String, Object> moodData = moodList.get(position);
+        String imageUrl = (String) moodData.get("imageUrl");
+        String mood = (String) moodData.get("mood");
 
-        // Load image using Glide
+        // Check if image URL is available
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            // Load image using Glide
+            Glide.with(context)
+                    .load(imageUrl)
+                    .into(moodImage);
 
-        Glide.with(context)
-                .load(moodData.get("imageUrl"))
-                .into(moodImage);
+            // Hide the emoji view
+            moodEmojiTextView.setVisibility(View.GONE);
+        } else {
+            // Display mood emoji
+            String emoji = getEmojiForMood(mood);
+            moodEmojiTextView.setText(emoji);
+            moodEmojiTextView.setVisibility(View.VISIBLE);
 
-        // Set other data
-//        socialSituationText.setText((String) moodData.get("socialSituation"));
-
+            // Hide the image view
+            moodImage.setVisibility(View.GONE);
+        }
         return convertView;
+    }
+
+    private String getEmojiForMood(String mood) {
+        switch (mood.toLowerCase()) {
+            case "happy":
+                return "😊";
+            case "sad":
+                return "😢";
+            case "excited":
+                return "😃";
+            case "angry":
+                return "😠";
+            case "confused":
+                return "😕";
+            case "surprised":
+                return "😲";
+            case "ashamed":
+                return "😳";
+            case "scared":
+                return "😨";
+            case "disgusted":
+                return "🤢";
+            default:
+                return "";
+        }
     }
 }
