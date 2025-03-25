@@ -66,13 +66,13 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
 
         String elapsedTime = String.format(" %d seconds ago", seconds);
         if (days!=0){
-             elapsedTime = String.format("%d d %d h ago", days, hours, minutes, seconds);
+             elapsedTime = String.format("%d d %d h ago", days, hours);
         }
         else if(hours!=0){
-             elapsedTime = String.format("%d h %d minutes ago", hours, minutes, seconds);
+             elapsedTime = String.format("%d h %d minutes ago", hours, minutes);
         }
         else if(minutes!=0){
-             elapsedTime = String.format("%d minutes %d seconds ago", minutes, seconds);
+             elapsedTime = String.format("%d minutes ago", seconds);
         }
 
         holder.dateTextView.setText(elapsedTime);

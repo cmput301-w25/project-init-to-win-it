@@ -1,16 +1,20 @@
 package com.example.moodsync;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -18,14 +22,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
+
 
 public class UserProfileFragment extends Fragment {
 
@@ -34,10 +37,12 @@ public class UserProfileFragment extends Fragment {
     private TextView nameTextView, usernameTextView, followersCountTextView, followingCountTextView;
     private String currentUserId;
     private String selectedUserId;
+    private ImageView profileImageView; // Use a better name
+    private View view;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.user_profile_fragment, container, false);
+        view = inflater.inflate(R.layout.user_profile_fragment, container, false);
 
         db = FirebaseFirestore.getInstance();
 
@@ -46,6 +51,7 @@ public class UserProfileFragment extends Fragment {
         followersCountTextView = view.findViewById(R.id.followers_count);
         followingCountTextView = view.findViewById(R.id.following_count);
         followButton = view.findViewById(R.id.follow_user);
+        profileImageView = view.findViewById(R.id.profile_image_edit); // Initialize
 
         MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
         currentUserId = myApp.getLoggedInUsername();
@@ -76,11 +82,17 @@ public class UserProfileFragment extends Fragment {
                             String userName = documentSnapshot.getString("userName");
                             List<String> followerList = (List<String>) documentSnapshot.get("followerList");
                             List<String> followingList = (List<String>) documentSnapshot.get("followingList");
+                            String profileImageUrl = documentSnapshot.getString("profileImageUrl"); // Get the image URL
 
                             nameTextView.setText(fullName);
                             usernameTextView.setText("@" + userName);
                             followersCountTextView.setText(String.valueOf(followerList != null ? followerList.size() : 0));
                             followingCountTextView.setText(String.valueOf(followingList != null ? followingList.size() : 0));
+
+                            // Load the image using Glide (or Picasso, etc.)
+                            if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+                                loadProfileImage(profileImageUrl);
+                            }
 
                             updateFollowButtonState();
                         }
@@ -93,6 +105,20 @@ public class UserProfileFragment extends Fragment {
                     }
                 });
     }
+
+    private void loadProfileImage(String imageUrl) {
+        // Use Glide to load the image.  Make sure Glide is added to your dependencies.
+        if (isAdded() && getActivity() != null) { // Check if fragment is attached
+            Glide.with(requireContext())
+                    .load(imageUrl)
+                    .circleCrop() // Optional: Crop into a circle
+                    .placeholder(R.drawable.ic_person_black_24dp) // Optional: Placeholder image
+                    .into(profileImageView);
+        } else {
+            Log.w("UserProfileFragment", "Fragment not attached, skipping image load");
+        }
+    }
+
 
     private void handleFollowRequest() {
         db.collection("pendingFollowerRequests")
