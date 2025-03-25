@@ -1,0 +1,13 @@
+<!-- res/drawable/ic_journal_black_24dp.xml -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#000000"
+        android:pathData="M6 2h12c1.1 0 2 .9 2 2v18l-4-4H6c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2zm12 18H8l4-4 4 4z" />
+    <path
+        android:fillColor="#000000"
+        android:pathData="M12 10l-4 4 4 4" />
+</vector>

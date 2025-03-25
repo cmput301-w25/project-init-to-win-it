@@ -301,10 +301,14 @@ public class EditMoodActivity extends Fragment {
 
         publicButton.setOnClickListener(v -> {
             isPublic = true;
+            animateButtonClick(publicButton);
+            privateButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
         });
 
         privateButton.setOnClickListener(v -> {
             isPublic = false;
+            animateButtonClick(privateButton);
+            publicButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
         });
 
 
@@ -399,7 +403,21 @@ public class EditMoodActivity extends Fragment {
                 })
                 .show();
     }
+    private void animateButtonClick(Button button) {
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1f, 1.1f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(button, "scaleY", 1f, 1.1f, 1f);
 
+        scaleX.setDuration(ANIMATION_DURATION);
+        scaleY.setDuration(ANIMATION_DURATION);
+
+        scaleX.setInterpolator(new AccelerateDecelerateInterpolator());
+        scaleY.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        scaleX.start();
+        scaleY.start();
+
+        button.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_selected));
+    }
 
     /**
      * Checks the size of an image.

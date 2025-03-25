@@ -72,8 +72,29 @@
         <action
             android:id="@+id/action_SecondFragment_to_mapsActivity"
             app:destination="@id/mapsActivity" />
+        <action
+            android:id="@+id/action_SecondFragment_to_JournalFragment"
+            app:destination="@id/JournalFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/JournalFragment"
+        android:name="com.example.moodsync.JournalFragment"
+        android:label="Journal"
+        tools:layout="@layout/journal_fragment">
+        <action
+            android:id="@+id/action_JournalFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_JournalFragment_to_mapsActivity"
+            app:destination="@id/mapsActivity" />
+        <action
+            android:id="@+id/action_JournalFragment_to_addMoodActivityFragment"
+            app:destination="@id/addMoodActivityFragment" />
+        <action
+            android:id="@+id/action_JournalFragment_to_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
+    </fragment>
 
     <activity
         android:id="@+id/mapsActivity"
@@ -103,6 +124,7 @@
             android:id="@+id/action_addMoodActivityFragment2_to_SecondFragment"
             app:destination="@id/SecondFragment" />
     </fragment>
+
 
     <fragment
         android:id="@+id/moodHistoryFragment"

@@ -1,0 +1,110 @@
+package com.example.moodsync;
+
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.moodsync.MoodCardAdapter;
+import com.example.moodsync.MoodEvent;
+import com.example.moodsync.MyApplication;
+import com.example.moodsync.R;
+import com.example.moodsync.databinding.JournalFragmentBinding;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class JournalFragment extends Fragment {
+
+    private JournalFragmentBinding binding;
+    private RecyclerView journalRecyclerView;
+    private MoodCardAdapter moodCardAdapter;
+    private FirebaseFirestore db;
+    private String currentUserId;
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        binding = JournalFragmentBinding.inflate(inflater, container, false);
+        View view = binding.getRoot();
+
+        journalRecyclerView = binding.journalRecyclerView;
+        journalRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Get the current user ID
+        MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
+        currentUserId = myApp.getLoggedInUsername();
+
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
+
+        // Fetch private moods for the current user
+        fetchPrivateMoods();
+
+        // Handle navigation button clicks
+        handleNavigationButtonClicked(view);
+
+        return view;
+    }
+
+    private void fetchPrivateMoods() {
+        db.collection("mood_events")
+                .whereEqualTo("id", currentUserId)
+                .whereEqualTo("public", false)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<MoodEvent> moodEvents = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                            moodEvents.add(moodEvent);
+                        }
+                        // Update the adapter with the fetched mood events
+                        updateMoodAdapter(moodEvents);
+                    } else {
+                        Log.e("Firestore", "Error fetching mood events", task.getException());
+                    }
+                });
+    }
+
+    private void updateMoodAdapter(List<MoodEvent> moodEvents) {
+        moodCardAdapter = new MoodCardAdapter(moodEvents);
+        journalRecyclerView.setAdapter(moodCardAdapter);
+    }
+
+    private void handleNavigationButtonClicked(View view) {
+        view.findViewById(R.id.home_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_JournalFragment_to_SecondFragment);
+        });
+
+        view.findViewById(R.id.map_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_JournalFragment_to_mapsActivity);
+        });
+
+        view.findViewById(R.id.add_circle_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_JournalFragment_to_addMoodActivityFragment);
+        });
+
+        view.findViewById(R.id.diary_button).setOnClickListener(v -> {
+            // Already on JournalFragment, do nothing
+        });
+
+        view.findViewById(R.id.history_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_JournalFragment_to_moodHistoryFragment);
+        });
+    }
+}

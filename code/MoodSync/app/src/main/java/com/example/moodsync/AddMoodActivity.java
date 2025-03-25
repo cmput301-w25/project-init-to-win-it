@@ -591,11 +591,16 @@ public class AddMoodActivity extends Fragment {
 
         publicButton.setOnClickListener(v -> {
             isPublic = true;
+            animateButtonClick(publicButton);
+            privateButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
         });
 
         privateButton.setOnClickListener(v -> {
             isPublic = false;
+            animateButtonClick(privateButton);
+            publicButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
         });
+
 
         if (getArguments() != null) {
             this.selectedMood = getArguments().getString("selectedMood", "");
@@ -655,6 +660,24 @@ public class AddMoodActivity extends Fragment {
         animateButtonSelection(button);
         selectedSocialSituationButton = button;
     }
+
+    private void animateButtonClick(Button button) {
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1f, 1.1f, 1f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(button, "scaleY", 1f, 1.1f, 1f);
+
+        scaleX.setDuration(ANIMATION_DURATION);
+        scaleY.setDuration(ANIMATION_DURATION);
+
+        scaleX.setInterpolator(new AccelerateDecelerateInterpolator());
+        scaleY.setInterpolator(new AccelerateDecelerateInterpolator());
+
+        scaleX.start();
+        scaleY.start();
+
+        button.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_selected));
+    }
+
+
     /**
      * Animates the selection of a button by scaling it up and changing its background color.
      *
