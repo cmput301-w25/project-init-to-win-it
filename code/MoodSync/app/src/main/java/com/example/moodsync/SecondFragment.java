@@ -61,6 +61,9 @@ public class SecondFragment extends Fragment {
                         .navigate(R.id.action_SecondFragment_to_mapsActivity)
         );
 
+        binding.diaryButton.setOnClickListener(v ->
+                NavHostFragment.findNavController(SecondFragment.this)
+                        .navigate(R.id.action_SecondFragment_to_JournalFragment));
 
         searchBar = view.findViewById(R.id.search_bar);
         pfp = view.findViewById(R.id.profile_pic);
