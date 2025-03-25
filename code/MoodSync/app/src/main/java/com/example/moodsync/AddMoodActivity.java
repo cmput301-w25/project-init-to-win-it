@@ -14,9 +14,17 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
 import android.view.View;
 import android.graphics.drawable.BitmapDrawable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -117,9 +125,12 @@ public class AddMoodActivity extends Fragment {
     private Uri photoUri;
     static String imageUrl;
 
+
     private ImageView happyImage, sadImage, angryImage, confusedImage, surprisedImage, ashamedImage, scaredImage, disgustedImage;
     private ImageView lastSelectedImageView = null;
     private Button selectedSocialSituationButton = null;
+
+    private String username;
 
     private static final int ANIMATION_DURATION = 300; // Animation duration in milliseconds
 
@@ -129,6 +140,7 @@ public class AddMoodActivity extends Fragment {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int PICK_IMAGE_REQUEST = 2;
     private Map<String, Integer> moodGradients = new HashMap<>();
+    private boolean isPublic = false; // Default to private
 
     /**
      * Creates the view for the fragment.
@@ -157,7 +169,9 @@ public class AddMoodActivity extends Fragment {
             return binding1.getRoot();
         }
 
+
     }
+
 
     /**
      * Called immediately after onCreateView(LayoutInflater, ViewGroup, Bundle) has returned, but before any saved state has been restored in to the view.
@@ -168,6 +182,10 @@ public class AddMoodActivity extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        username = ((MyApplication) requireActivity().getApplication()).getLoggedInUsername();
+        Log.d("addmoodusername", "Logged-in username: " + username);
+
         moodGradients.put("Happy", R.drawable.happy_gradient);
         moodGradients.put("Sad", R.drawable.sad_gradient);
         moodGradients.put("Angry", R.drawable.angry_gradient);
@@ -353,6 +371,78 @@ public class AddMoodActivity extends Fragment {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
+    // Step 1: Blur the bitmap using RenderScript.
+    private Bitmap blurBitmap(Context context, Bitmap image) {
+        // Adjust the scale and blur radius as needed.
+        final float BITMAP_SCALE = 0.5f; // Downscale for faster processing and more blur.
+        final float BLUR_RADIUS = 10.0f; // Maximum is around 25f.
+
+        int width = Math.round(image.getWidth() * BITMAP_SCALE);
+        int height = Math.round(image.getHeight() * BITMAP_SCALE);
+        Bitmap inputBitmap = Bitmap.createScaledBitmap(image, width, height, false);
+        Bitmap outputBitmap = Bitmap.createBitmap(inputBitmap);
+
+        RenderScript rs = RenderScript.create(context);
+        ScriptIntrinsicBlur intrinsicBlur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+        Allocation tmpIn = Allocation.createFromBitmap(rs, inputBitmap);
+        Allocation tmpOut = Allocation.createFromBitmap(rs, outputBitmap);
+        intrinsicBlur.setRadius(BLUR_RADIUS);
+        intrinsicBlur.setInput(tmpIn);
+        intrinsicBlur.forEach(tmpOut);
+        tmpOut.copyTo(outputBitmap);
+
+        rs.destroy();
+        return outputBitmap;
+    }
+
+
+    private File compressImageFromUri(Context context, Uri photoUri) {
+        try {
+            // Convert Uri to Bitmap
+            Bitmap originalBitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), photoUri);
+
+            // Apply blur to reduce details (you can adjust parameters for desired blur strength)
+            Bitmap blurredBitmap = blurBitmap(context, originalBitmap);
+
+            // Create a temporary file
+            File compressedFile = new File(context.getCacheDir(), "compressed_image.jpg");
+            FileOutputStream outputStream;
+
+            int quality = 100;
+            int maxSizeKB = 64;
+            int flag = 1;
+            ByteArrayOutputStream byteArrayOutputStream;
+
+            do {
+                // Reset the stream
+                byteArrayOutputStream = new ByteArrayOutputStream();
+
+                // Compress the blurred bitmap instead of the original
+                blurredBitmap.compress(Bitmap.CompressFormat.JPEG, quality, byteArrayOutputStream);
+
+                // Reduce quality if file size exceeds limit
+                quality -= 5;
+                // Stop if quality goes too low
+                if (quality <= 5) {
+                    quality = 1;
+                    flag = 0;
+                }
+            } while ((byteArrayOutputStream.toByteArray().length / 1024 > maxSizeKB) && flag == 1);
+
+            // Write final compressed data to file
+            outputStream = new FileOutputStream(compressedFile);
+            outputStream.write(byteArrayOutputStream.toByteArray());
+            outputStream.flush();
+            outputStream.close();
+
+            return compressedFile; // Return the final compressed image file
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     /**
      * Uploads an image to Firebase Storage.
@@ -361,10 +451,14 @@ public class AddMoodActivity extends Fragment {
      * @param listener The listener to notify when the upload is complete.
      */
     private void uploadImageToFirebase(Uri imageUri, OnImageUploadedListener listener) {
+        File compressedFile = compressImageFromUri(this.getContext(), imageUri);
+        Log.d("COMPRESSION","REACHED HERE");
+        Uri compressedUri = Uri.fromFile(compressedFile);
+        Log.d("COMRPESSION", String.valueOf(checkImageSize(compressedUri)));
         String path = "mood_images/" + UUID.randomUUID().toString();
         StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(path);
 
-        UploadTask uploadTask = storageRef.putFile(imageUri);
+        UploadTask uploadTask = storageRef.putFile(compressedUri);
 
         uploadTask.addOnSuccessListener(taskSnapshot -> {
             storageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
@@ -375,7 +469,6 @@ public class AddMoodActivity extends Fragment {
                 Log.e("FirebaseStorage", "Failed to get download URL: " + exception.getMessage());
                 listener.onUploadFailed(exception);
             });
-
         }).addOnFailureListener(exception -> {
             Log.e("FirebaseStorage", "Upload failed: " + exception.getMessage());
             listener.onUploadFailed(exception);
@@ -398,72 +491,62 @@ public class AddMoodActivity extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_CAPTURE) {
             long size = checkImageSize(photoUri);
-            if (size < MAX_PHOTO_SIZE) {
-                uploadImageToFirebase(photoUri, new OnImageUploadedListener() {
+            uploadImageToFirebase(photoUri, new OnImageUploadedListener() {
 
-                    @Override
-                    public void onImageUploaded(String imageUrl) {
-                        View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
-                        rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
-                        TextView text = binding1.getRoot().findViewById(R.id.add_photos);
-                        text.setText("");
-                        text = binding1.getRoot().findViewById(R.id.upto_12mb);
-                        text.setText("");
-                        ImageView image = binding1.getRoot().findViewById(R.id.photos);
+                @Override
+                public void onImageUploaded(String imageUrl) {
+                    View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
+                    rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
+                    TextView text = binding1.getRoot().findViewById(R.id.add_photos);
+                    text.setText("");
 
-                        GradientDrawable drawable = new GradientDrawable();
-                        drawable.setCornerRadius(20); // Set the corner radius in pixels
-                        drawable.setColor(Color.TRANSPARENT);
+                    ImageView image = binding1.getRoot().findViewById(R.id.photos);
 
-                        image.setBackground(drawable);
-                        image.setClipToOutline(true); // Round thhe corners
-                        imageAddedFlag = 1;
-                    }
-                    @Override
-                    public void onUploadFailed(Exception e) {
-                    }
-                });
-            } else {
-                showPhotoOptionsDialog();
-            }
+                    GradientDrawable drawable = new GradientDrawable();
+                    drawable.setCornerRadius(20); // Set the corner radius in pixels
+                    drawable.setColor(Color.TRANSPARENT);
+
+                    image.setBackground(drawable);
+                    image.setClipToOutline(true); // Round thhe corners
+                    imageAddedFlag = 1;
+                }
+                @Override
+                public void onUploadFailed(Exception e) {
+                }
+            });
 
         } else if (resultCode == RESULT_OK && requestCode == PICK_IMAGE_REQUEST && data != null) {
             Uri selectedImageUri = data.getData();
             long size = checkImageSize(selectedImageUri);
-            if (size < MAX_PHOTO_SIZE) {
-                Log.d("FIREBASEEEE", "Changed BG");
-                uploadImageToFirebase(selectedImageUri, new OnImageUploadedListener() {
 
-                    @Override
-                    public void onImageUploaded(String imageUrl) {
-                        View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
-                        rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(selectedImageUri)));
-                        rectangle2.setClipToOutline(true); // Round thhe corners
+            Log.d("FIREBASEEEE", "Changed BG");
+            uploadImageToFirebase(selectedImageUri, new OnImageUploadedListener() {
 
-                        TextView text = binding1.getRoot().findViewById(R.id.add_photos);
-                        text.setText("");
-                        text = binding1.getRoot().findViewById(R.id.upto_12mb);
-                        text.setText("");
+                @Override
+                public void onImageUploaded(String imageUrl) {
+                    View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
+                    rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(selectedImageUri)));
+                    rectangle2.setClipToOutline(true); // Round thhe corners
 
-                        ImageView image = binding1.getRoot().findViewById(R.id.photos);
-                        image.setAlpha(0);
-                        GradientDrawable drawable = new GradientDrawable();
-                        drawable.setCornerRadius(20); // Set the corner radius in pixels
-                        drawable.setAlpha(0);
+                    TextView text = binding1.getRoot().findViewById(R.id.add_photos);
+                    text.setText("");
 
 
+                    ImageView image = binding1.getRoot().findViewById(R.id.photos);
+                    image.setAlpha(0);
+                    GradientDrawable drawable = new GradientDrawable();
+                    drawable.setCornerRadius(50); // Set the corner radius in pixels
+                    drawable.setAlpha(0);
 
-                    }
-                    @Override
-                    public void onUploadFailed(Exception e) {
-                    }
-                });
-            } else {
-                showPhotoOptionsDialog();
-            }
+
+
+                }
+                @Override
+                public void onUploadFailed(Exception e) {
+                }
+            });
         }
     }
-
     /**
      * Uploads an image to Firebase Storage.
      *
@@ -482,7 +565,6 @@ public class AddMoodActivity extends Fragment {
                 })
                 .addOnFailureListener(e -> showErrorToast(e));
     }
-
     /**
      * Retrieves a Bitmap object from the provided URI.
      *
@@ -497,16 +579,23 @@ public class AddMoodActivity extends Fragment {
             return null;
         }
     }
-
-
-
     /**
      * Sets up the second layout for the AddMoodActivity.
      * Initializes UI elements and sets listeners for interactions such as creating mood events
-     * and selecting social situations. Configures the input filter for the trigger input field.
+     * and selecting social situations. Configures the input filter for the Reason input field.
      */
     private void setupSecondLayout() {
         Log.d("LIFECYCLE", "setupSecondLayout called");
+        Button publicButton = binding2.publicButton;
+        Button privateButton = binding2.privateButton;
+
+        publicButton.setOnClickListener(v -> {
+            isPublic = true;
+        });
+
+        privateButton.setOnClickListener(v -> {
+            isPublic = false;
+        });
 
         if (getArguments() != null) {
             this.selectedMood = getArguments().getString("selectedMood", "");
@@ -514,36 +603,36 @@ public class AddMoodActivity extends Fragment {
         }
 
 
-        EditText triggerInput = binding2.triggerInput;
+        EditText ReasonInput = binding2.ReasonInput;
         InputFilter[] filters = new InputFilter[] {
-                new TriggerInputFilter(3, 20)
+                new ReasonInputFilter(200)
         };
-        triggerInput.setFilters(filters);
+        ReasonInput.setFilters(filters);
         {
 
             binding2.createmood.setOnClickListener(v -> {
-                String trigger = binding2.triggerInput.getText().toString();
+                String Reason = binding2.ReasonInput.getText().toString();
                 String socialSituation = (selectedSocialSituationButton != null) ?
                         selectedSocialSituationButton.getText().toString() : "None";
 
+
                 long currentTimestamp = System.currentTimeMillis();
-                Log.d("Firebase", "Final imageUrl: " + imageUrl);
-
-
                 MoodEvent moodEvent = new MoodEvent(
                         this.selectedMood,
-                        trigger,
+                        Reason,
                         this.moodDescription,
                         socialSituation,
                         currentTimestamp,
-                        imageUrl
+                        imageUrl,
+                        isPublic,
+                        username
                 );
 
                 saveMoodEventToFirestore(moodEvent);
             });
         }
 
-        binding2.backbutton.setOnClickListener(v -> NavHostFragment.findNavController(AddMoodActivity.this)
+        binding2.backButton.setOnClickListener(v -> NavHostFragment.findNavController(AddMoodActivity.this)
                 .navigateUp());
 
         binding2.ss1.setOnClickListener(v -> selectSocialSituation(binding2.ss1));
@@ -614,16 +703,20 @@ public class AddMoodActivity extends Fragment {
         String socialSituation = selectedSocialSituationButton != null ?
                 selectedSocialSituationButton.getText().toString() : "None";
 
-        EditText triggerInput = binding2.triggerInput;
-        String trigger = triggerInput.getText().toString();
+        String username = ((MyApplication) requireActivity().getApplication()).getLoggedInUsername();
+
+        EditText ReasonInput = binding2.ReasonInput;
+        String Reason = ReasonInput.getText().toString();
         long currentTimestamp = System.currentTimeMillis();
         MoodEvent moodEvent = new MoodEvent(
                 this.selectedMood,
-                trigger,
+                Reason,
                 this.moodDescription,
                 socialSituation,
                 currentTimestamp,
-                imageUrl
+                imageUrl,
+                isPublic,
+                username
         );
 
 
@@ -644,50 +737,41 @@ public class AddMoodActivity extends Fragment {
      * Custom InputFilter for restricting the number of words and characters in a text field.
      * The filter ensures that the text input does not exceed the specified word and character limits.
      */
-    public class TriggerInputFilter implements InputFilter {
-        private final int maxWords;
+    public class ReasonInputFilter implements InputFilter {
         private final int maxChars;
+
         /**
-         * Constructor to initialize the maximum word and character limits.
+         * Constructor to initialize the maximum number of characters allowed.
          *
-         * @param maxWords Maximum number of words allowed.
          * @param maxChars Maximum number of characters allowed.
          */
-        public TriggerInputFilter(int maxWords, int maxChars) {
-            this.maxWords = maxWords;
+        public ReasonInputFilter(int maxChars) {
             this.maxChars = maxChars;
         }
+
         @Override
         public CharSequence filter(CharSequence source, int start, int end,
                                    Spanned dest, int dstart, int dend) {
+            // Calculate the new length if the source is inserted.
+            int newLength = dest.length() - (dend - dstart) + (end - start);
+            if (newLength <= maxChars) {
+                // Within limit; allow the change.
+                return null;
+            }
 
+            // Otherwise, calculate how many characters we can keep.
             int keep = maxChars - (dest.length() - (dend - dstart));
             if (keep <= 0) {
+                // No room available.
                 return "";
             }
 
-
-            StringBuilder resultBuilder = new StringBuilder();
-            resultBuilder.append(dest.subSequence(0, dstart));
-            resultBuilder.append(source.subSequence(start, end));
-            resultBuilder.append(dest.subSequence(dend, dest.length()));
-            String resultString = resultBuilder.toString();
-
-
-            String[] words = resultString.trim().split("\\s+");
-            if (words.length > maxWords && words[0].length() > 0) {
-                return "";
+            // Adjust for high surrogate if necessary.
+            int endIndex = start + keep;
+            if (Character.isHighSurrogate(source.charAt(endIndex - 1))) {
+                endIndex--;
             }
-
-            if (keep >= end - start) {
-                return null;
-            } else {
-                keep += start;
-                if (Character.isHighSurrogate(source.charAt(keep - 1))) {
-                    keep--;
-                }
-                return source.subSequence(start, keep);
-            }
+            return source.subSequence(start, endIndex);
         }
     }
 
@@ -709,9 +793,6 @@ public class AddMoodActivity extends Fragment {
             }
         });
     }
-
-
-
     /**
      * Saves a mood event to Firestore.
      *
@@ -722,9 +803,6 @@ public class AddMoodActivity extends Fragment {
                 .addOnSuccessListener(aVoid -> showSuccessDialogUI())
                 .addOnFailureListener(e -> showErrorToast(e));
     }
-
-
-
     /**
      * Updates an existing mood event in Firestore based on the date.
      *
@@ -747,9 +825,6 @@ public class AddMoodActivity extends Fragment {
                     }
                 });
     }
-
-
-
     /**
      * Deletes a mood event from Firestore based on the date.
      *
@@ -772,7 +847,6 @@ public class AddMoodActivity extends Fragment {
                     }
                 });
     }
-
     /**
      * Displays a custom success dialog to the user and dismisses it after 2 seconds.
      * Upon dismissal, navigates to the second fragment.
@@ -795,9 +869,6 @@ public class AddMoodActivity extends Fragment {
                     .navigate(R.id.action_addMoodActivityFragment2_to_SecondFragment);
         }, 2000); // Dismiss after 2 seconds
     }
-
-
-
 
     /**
      * Displays a toast message when an error occurs while saving a mood event.
@@ -925,18 +996,15 @@ public class AddMoodActivity extends Fragment {
      * @param moodEvent The mood event to be written to Firestore.
      */
     private void debugFirestoreWrite(MoodEvent moodEvent) {
-        // init the firestore db, bro, don't be a chutiya and skip this
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // try to add the mood event doc, sending that shit out
         db.collection("mood_events").add(moodEvent)
                 .addOnSuccessListener(documentReference -> {
-                    // success, motherfucker! we got a doc id here, log that shit
                     Log.d("DEBUG", "doc added with id: " + documentReference.getId());
                     Toast.makeText(getContext(), "success! mood event added, bro!", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
-                    // shit, write failed! log the error so we know what the fuck happened
                     Log.e("DEBUG", "failed to add mood event: ", e);
                     Toast.makeText(getContext(), "fuck! write failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });

@@ -1,21 +1,33 @@
 package com.example.moodsync;
 
+import static android.app.Activity.RESULT_OK;
+import static com.example.moodsync.BitmapUtils.compressImageFromUri;
+
 import android.animation.ObjectAnimator;
 
+import com.example.moodsync.OnImageUploadedListener;
+
+import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AnticipateInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,32 +38,46 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.bumptech.glide.Glide;
 import com.example.moodsync.databinding.EditMoodFragmentBinding;
 import com.example.moodsync.databinding.EditMoodFragment2Binding;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 public class EditMoodActivity extends Fragment {
+    private static final int PICK_IMAGE_REQUEST = 2;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
     private String moodDescription;
     private String selectedMood;
+    private Uri photoUri;
     private EditMoodFragmentBinding binding1;
     private EditMoodFragment2Binding binding2;
     private boolean isSecondLayout = false;
     private RelativeLayout mainLayout;
-    private String imageUrl = "";
+    static String imageUrl;
 
     private final Map<String, Integer> moodGradients = new HashMap<>();
 
@@ -65,6 +91,7 @@ public class EditMoodActivity extends Fragment {
     private CollectionReference moodEventsRef;
     private MoodEvent moodEventToEdit;
 
+    private boolean isPublic = false; // Default to private
     /**
      * Creates the view for the fragment.
      *
@@ -89,8 +116,6 @@ public class EditMoodActivity extends Fragment {
             return binding1.getRoot();
         }
     }
-
-
     /**
      * Called immediately after onCreateView(LayoutInflater, ViewGroup, Bundle) has returned, but before any saved state has been restored in to the view.
      *
@@ -127,8 +152,6 @@ public class EditMoodActivity extends Fragment {
             setupFirstLayout(view);
         }
     }
-
-
     /**
      * Sets up the first layout of the fragment.
      *
@@ -145,7 +168,7 @@ public class EditMoodActivity extends Fragment {
         ashamedImage = view.findViewById(R.id.ashamed_image);
         scaredImage = view.findViewById(R.id.scared_image);
         disgustedImage = view.findViewById(R.id.disgusted_image);
-
+        View rectangle2 = view.findViewById(R.id.rectangle_2);
 
         happyImage.setOnClickListener(v -> selectMood("Happy", happyImage));
         sadImage.setOnClickListener(v -> selectMood("Sad", sadImage));
@@ -155,6 +178,7 @@ public class EditMoodActivity extends Fragment {
         ashamedImage.setOnClickListener(v -> selectMood("Ashamed", ashamedImage));
         scaredImage.setOnClickListener(v -> selectMood("Scared", scaredImage));
         disgustedImage.setOnClickListener(v -> selectMood("Disgusted", disgustedImage));
+        rectangle2.setOnClickListener(v -> showPhotoOptionsDialog());
 
         Spinner moodSpinner = binding1.mainCard;
         EditText descriptionInput = binding1.editDescription;
@@ -168,6 +192,7 @@ public class EditMoodActivity extends Fragment {
         }
 
         descriptionInput.setText(moodEventToEdit.getDescription());
+
 
         moodSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -271,6 +296,18 @@ public class EditMoodActivity extends Fragment {
      * and handling the creation or update of a mood event.
      */
     private void setupSecondLayout() {
+        Button publicButton = binding2.publicButton;
+        Button privateButton = binding2.privateButton;
+
+        publicButton.setOnClickListener(v -> {
+            isPublic = true;
+        });
+
+        privateButton.setOnClickListener(v -> {
+            isPublic = false;
+        });
+
+
         Log.d("LIFECYCLE", "setupSecondLayout called");
         if (getArguments() != null) {
             this.selectedMood = getArguments().getString("selectedMood", "");
@@ -278,7 +315,9 @@ public class EditMoodActivity extends Fragment {
             moodEventToEdit = getArguments().getParcelable("moodEvent"); // Get moodEvent from parameters
         }
 
-        EditText triggerInput = binding2.triggerInput;
+
+
+        EditText triggerInput = binding2.ReasonInput;
         triggerInput.setText(moodEventToEdit.getTrigger());
 
         String socialSituation = moodEventToEdit.getSocialSituation();
@@ -301,6 +340,8 @@ public class EditMoodActivity extends Fragment {
             String socialSituation1 = (selectedSocialSituationButton != null) ?
                     selectedSocialSituationButton.getText().toString() : "None";
 
+            String username = ((MyApplication) requireActivity().getApplication()).getLoggedInUsername();
+
             long currentTimestamp = System.currentTimeMillis();
             MoodEvent moodEvent = new MoodEvent(
                     this.selectedMood,
@@ -308,7 +349,9 @@ public class EditMoodActivity extends Fragment {
                     this.moodDescription,
                     socialSituation,
                     currentTimestamp, // Pass the timestamp to the MoodEvent
-                    imageUrl
+                    imageUrl,
+                    isPublic,
+                    username
             );
 
 
@@ -320,13 +363,14 @@ public class EditMoodActivity extends Fragment {
         });
 
 
-        binding2.backbutton.setOnClickListener(v -> NavHostFragment.findNavController(EditMoodActivity.this)
+        binding2.backButton.setOnClickListener(v -> NavHostFragment.findNavController(EditMoodActivity.this)
                 .navigateUp());
 
         binding2.ss1.setOnClickListener(v -> selectSocialSituation(binding2.ss1));
         binding2.ss2.setOnClickListener(v -> selectSocialSituation(binding2.ss2));
         binding2.ss3.setOnClickListener(v -> selectSocialSituation(binding2.ss3));
         binding2.ss4.setOnClickListener(v -> selectSocialSituation(binding2.ss4));
+
     }
 
     /**
@@ -342,6 +386,116 @@ public class EditMoodActivity extends Fragment {
         animateButtonSelection(button);
         selectedSocialSituationButton = button;
     }
+    private void showPhotoOptionsDialog() {
+        String[] options = {"Add from Camera", "Add from Photos"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Add Photo")
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        openCamera();
+                    } else if (which == 1) {
+                        openGallery();
+                    }
+                })
+                .show();
+    }
+
+
+    /**
+     * Checks the size of an image.
+     *
+     * @param imageUri The URI of the image to check.
+     * @return The size of the image in kilobytes.
+     */
+    private long checkImageSize(Uri imageUri) {
+        Cursor cursor = requireContext().getContentResolver().query(imageUri, null, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+            if (sizeIndex != -1) {
+                long imageSizeInBytes = cursor.getLong(sizeIndex);
+                long imageSizeInKB = imageSizeInBytes / 1024;
+                Log.d("Image Size", "Size in bytes: " + imageSizeInKB);
+                return imageSizeInKB;
+            }
+            cursor.close();
+        }
+        return 0;
+    }
+    /**
+     * Opens the camera to capture an image.
+     */
+    private void openCamera() {
+
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
+            createImageFile();
+            if (photoUri != null) {
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                startActivityForResult(takePictureIntent, 1);
+
+            }
+        }
+    }
+
+    /**
+     * Creates a new image file.
+     */
+    private void createImageFile() {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, "JPEG_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()));
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+        contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/");
+
+        photoUri = requireActivity().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+    }
+
+    /**
+     * Opens the gallery to select an image.
+     */
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+    /**
+     * Uploads an image to Firebase Storage.
+     *
+     * @param imageUri The URI of the image to upload.
+     * @param listener The listener to notify when the upload is complete.
+     */
+    private void uploadImageToFirebase(Uri imageUri, OnImageUploadedListener listener) {
+        File compressedFile = compressImageFromUri(this.getContext(), imageUri);
+        Log.d("COMPRESSION","REACHED HERE");
+        Uri compressedUri = Uri.fromFile(compressedFile);
+        Log.d("COMRPESSION", String.valueOf(checkImageSize(compressedUri)));
+        String path = "mood_images/" + UUID.randomUUID().toString();
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(path);
+
+        UploadTask uploadTask = storageRef.putFile(compressedUri);
+
+        uploadTask.addOnSuccessListener(taskSnapshot -> {
+            storageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
+                imageUrl = downloadUrl.toString();
+                Log.d("FirebaseStorage", "Image URL: " + imageUrl);
+
+                listener.onImageUploaded(imageUrl); // Notify listener
+            }).addOnFailureListener(exception -> {
+                Log.e("FirebaseStorage", "Failed to get download URL: " + exception.getMessage());
+                listener.onUploadFailed(exception);
+            });
+        }).addOnFailureListener(exception -> {
+            Log.e("FirebaseStorage", "Upload failed: " + exception.getMessage());
+            listener.onUploadFailed(exception);
+        });
+    }
+
+    /*
+     * Handles the result of an activity, typically used for image selection or capture.
+     *
+     * @param  The request code passed to startActivityForResult(), which identifies the activity.
+     * @param resultCode The result code returned by the child activity through setResult().
+     * @param data An Intent containing the result data, or null if no data is returned.
+     */
+
 
     /**
      * Animates the selection of a button by scaling it up and changing its background tint.
@@ -384,6 +538,53 @@ public class EditMoodActivity extends Fragment {
 
         button.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
     }
+    private void updateImagePreview(Uri imageUri) {
+        View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
+        rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
+    }
+
+    /**
+     * Retrieves a Bitmap object from the provided URI.
+     *
+     * @param uri The URI of the image file to convert into a Bitmap.
+     * @return The Bitmap representation of the image, or null if an error occurs during retrieval.
+     */
+    private Bitmap getBitmapFromUri(Uri uri) {
+        try {
+            return MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    private void handleImageUpload(Uri imageUri) {
+        uploadImageToFirebase(imageUri, new OnImageUploadedListener() {
+            @Override
+            public void onImageUploaded(String imageUrl) {
+                // Update photoUrl and UI
+                photoUri = Uri.parse(imageUrl);
+                updateImagePreview(photoUri);
+            }
+
+            @Override
+            public void onUploadFailed(Exception e) {  // Changed from onError
+                Toast.makeText(getContext(), "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE || requestCode == PICK_IMAGE_REQUEST) {
+                Uri imageUri = (requestCode == REQUEST_IMAGE_CAPTURE) ? photoUri : data.getData();
+                handleImageUpload(imageUri);
+            }
+        }
+    }
+
 
     /**
      * Refreshes the list of mood events from Firestore.

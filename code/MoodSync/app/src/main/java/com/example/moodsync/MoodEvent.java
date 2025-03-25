@@ -1,5 +1,6 @@
 package com.example.moodsync;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -28,19 +29,23 @@ public class MoodEvent implements Parcelable {
     private String photoPath;
     private String id;
 
+    private boolean isPublic;
+
     // Constructors, getters, and setters
 
     public MoodEvent() {
         // Default constructor required for Firebase
     }
 
-    public MoodEvent(String mood, String trigger, String description, String socialSituation, String imageUrl) {
+    public MoodEvent(String mood, String trigger, String description, String socialSituation, long date, String imageUrl, boolean isPublic, String id) {
         this.mood = mood;
         this.trigger = trigger;
         this.description = description;
         this.socialSituation = socialSituation;
         this.date=date;
         this.imageUrl = imageUrl;
+        this.isPublic = isPublic;
+        this.id = id;
     }
     protected MoodEvent(Parcel in) {
         mood = in.readString();
@@ -52,6 +57,7 @@ public class MoodEvent implements Parcelable {
         location = in.readString();
         photoPath = in.readString();
         id = in.readString();
+        isPublic = in.readByte() != 0;
     }
 
     public static final Creator<MoodEvent> CREATOR = new Creator<MoodEvent>() {
@@ -91,6 +97,7 @@ public class MoodEvent implements Parcelable {
         dest.writeString(location);
         dest.writeString(photoPath);
         dest.writeString(id);
+        dest.writeByte((byte) (isPublic ? 1 : 0));
     }
 
     public String getMood() {
@@ -163,5 +170,14 @@ public class MoodEvent implements Parcelable {
 
     public void setPhotoPath(String photoPath) {
         this.photoPath = photoPath;
+    }
+
+    // Add getter and setter for isPublic
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    public void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
     }
 }
