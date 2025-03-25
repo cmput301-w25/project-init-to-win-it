@@ -114,8 +114,8 @@ public class UserProfileFragment extends Fragment {
                             followingCountTextView.setText(String.valueOf(followingList != null ? followingList.size() : 0));
 
 
-                            updateFollowButtonState();
                             updateFollowButtonStateBasedOnFollowers();
+
                             // Check if the current user follows the selected user
                             if (followerList != null && followerList.contains(currentUserId)) {
                                 fetchMoodEvents(true); // Fetch public posts
@@ -319,12 +319,13 @@ public class UserProfileFragment extends Fragment {
                     if (task.isSuccessful() && task.getResult() != null) {
                         DocumentSnapshot documentSnapshot = task.getResult();
                         List<String> followerList = (List<String>) documentSnapshot.get("followerList");
-
+                        Log.d("fuck me", "updateFollowButtonStateBasedOnFollowers: " + followerList);
                         if (followerList != null && followerList.contains(currentUserId)) {
                             followButton.setText("Following");
                             followButton.setEnabled(false); // Optional: Disable the button
                         } else {
-                            updateFollowButtonState(); // Call the original method for pending requests
+                            updateFollowButtonState();
+                            Log.d("DONT HAPPEN", "updateFollowButtonStateBasedOnFollowers: ");// Call the original method for pending requests
                         }
                     } else {
                         Toast.makeText(getActivity(), "Error checking followers", Toast.LENGTH_SHORT).show();
