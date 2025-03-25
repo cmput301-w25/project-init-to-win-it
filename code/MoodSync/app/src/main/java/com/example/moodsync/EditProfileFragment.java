@@ -85,7 +85,7 @@ public class EditProfileFragment extends Fragment {
         pendingRequestsButton = view.findViewById(R.id.pending_requests_button);
         followersCountTextView = view.findViewById(R.id.followers_count);
         followingCountTextView = view.findViewById(R.id.following_count);
-        likesCountTextView = view.findViewById(R.id.likes_count);
+
         photosListView = view.findViewById(R.id.photos_listview);
         tabs = view.findViewById(R.id.tabs);
 

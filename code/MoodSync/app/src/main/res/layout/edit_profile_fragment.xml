@@ -31,22 +31,9 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/pending_requests_button"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="5"
-            android:textColor="#F5F5DC"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:backgroundTint="#203434"
-            app:cornerRadius="20dp"
-            app:icon="@drawable/ic_notification"
-            app:iconGravity="textStart"
-            app:iconPadding="4dp"
-            app:iconTint="#F5F5DC"
-            app:strokeColor="#F5F5DC"
-            app:strokeWidth="1dp" />
+        <View
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
     </LinearLayout>
 
     <ScrollView
@@ -216,30 +203,27 @@
                                 android:textSize="14sp" />
                         </LinearLayout>
 
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
 
-                            <TextView
-                                android:id="@+id/likes_count"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="10.5K"
-                                android:textColor="#203434"
-                                android:textSize="18sp"
-                                android:textStyle="bold" />
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Likes"
-                                android:textColor="#2E4545"
-                                android:textSize="14sp" />
-                        </LinearLayout>
                     </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/pending_requests_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="16dp"
+                        android:text="Pending Requests"
+                        android:textColor="#F5F5DC"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="#203434"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_notification"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp"
+                        app:iconTint="#F5F5DC"
+                        app:strokeColor="#F5F5DC"
+                        app:strokeWidth="1dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -259,7 +243,7 @@
                     android:layout_height="wrap_content"
                     android:background="@android:color/transparent"
                     app:tabBackground="@drawable/tab_selector"
-                    app:tabTextColor="#A0F5F5DC"
+                    app:tabTextColor="#A0000000"
                     app:tabSelectedTextColor="#203434"
                     app:tabIndicatorHeight="0dp"
                     app:tabRippleColor="@android:color/transparent"
