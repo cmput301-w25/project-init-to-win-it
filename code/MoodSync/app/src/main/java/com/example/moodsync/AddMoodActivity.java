@@ -298,7 +298,6 @@ public class AddMoodActivity extends Fragment {
         View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
         rectangle2.setOnClickListener(v -> showPhotoOptionsDialog());
     }
-
     /**
      * Shows a dialog for selecting photo options.
      */

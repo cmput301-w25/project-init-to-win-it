@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 
 public class SecondFragment extends Fragment {
-
     private HomePageFragmentBinding binding;
     private RecyclerView moodRecyclerView;
     private MoodCardAdapter moodCardAdapter;
@@ -101,7 +100,6 @@ public class SecondFragment extends Fragment {
                 handleBackPress();
             }
         });
-
         // text change listener for the search bar
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
@@ -157,14 +155,17 @@ public class SecondFragment extends Fragment {
     }
 
     private void loadProfileImage(String imageUrl) {
-        Glide.with(this)
-                .load(imageUrl)
-                .circleCrop()
-                .placeholder(R.drawable.ic_person_black_24dp)
-                .into(pfp);
+        if (getContext() != null) { // Safety check
+            Glide.with(getContext())
+                    .load(imageUrl)
+                    .circleCrop()
+                    .placeholder(R.drawable.ic_person_black_24dp)
+                    .into(pfp);
+        }
     }
 
-    private void searchFirestore(String searchText) {
+
+        private void searchFirestore(String searchText) {
         db.collection("users")
                 .whereGreaterThanOrEqualTo("userName", searchText)
                 .whereLessThanOrEqualTo("userName", searchText + "\uf8ff")
@@ -181,7 +182,6 @@ public class SecondFragment extends Fragment {
                     }
                 });
     }
-
     private void navigateToUserProfile(String selectedUsername) {
         db.collection("users")
                 .whereEqualTo("userName", selectedUsername)
@@ -283,7 +283,6 @@ public class SecondFragment extends Fragment {
         moodCardAdapter = new MoodCardAdapter(new ArrayList<>()); // start empty, then load data
         moodRecyclerView.setAdapter(moodCardAdapter);
     }
-
     //added this method to disply 3 most recent moods of followees
     private void filterToRecentMoods(List<MoodEvent> allMoodEvents) {
         // Group mood events by user
@@ -308,7 +307,6 @@ public class SecondFragment extends Fragment {
             int modsToTake = Math.min(3, userMoods.size());
             filteredMoods.addAll(userMoods.subList(0, modsToTake));
         }
-
         // Sort all filtered moods by timestamp in descending order
         Collections.sort(filteredMoods, (mood1, mood2) ->
                 Long.compare(mood2.getDate(), mood1.getDate()));
@@ -317,9 +315,7 @@ public class SecondFragment extends Fragment {
         moodCardAdapter.updateMoodEvents(filteredMoods);
         Log.d("MoodEvents", "Filtered to " + filteredMoods.size() + " recent mood events");
     }
-
-
-    //    changed this to only display moods of followees
+    //    changed this to only display moods of followee's
     private void fetchMoodEvents() {
         // Get the logged in username from MyApplication
         MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
@@ -405,7 +401,6 @@ public class SecondFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
     public ArrayList<User> Search(String searchText) {
         ArrayList<User> result = new ArrayList<>();
         ArrayList<User> tempList = globalStorage.getUserList();

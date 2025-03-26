@@ -9,4 +9,6 @@
     <item name="userProfileFragment" type="id" />
     <item name="action_userProfileFragment_to_SecondFragment" type="id" />
     <item name="goToEditProfileFragment" type="id" />
+    <item name="following_button" type="id" />
+    <item name="follower_button" type="id" />
 </resources>

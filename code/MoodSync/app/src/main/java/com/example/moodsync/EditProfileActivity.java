@@ -5,6 +5,7 @@ import static android.app.Activity.RESULT_OK;
 import static com.example.moodsync.BitmapUtils.compressImageFromUri;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -39,10 +40,13 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
 public class EditProfileActivity extends Fragment {
@@ -126,7 +130,6 @@ public class EditProfileActivity extends Fragment {
             Glide.with(requireContext())
                     .load(imageUrl)
                     .circleCrop()
-                    .transform(new RotateTransformation(90))
                     .placeholder(R.drawable.ic_person_black_24dp)
                     .into(profileImageEdit);
         }
@@ -152,12 +155,16 @@ public class EditProfileActivity extends Fragment {
         if (resultCode == RESULT_OK && data != null) {
             Uri imageUri = (requestCode == 1) ? photoUri : data.getData();
             if (imageUri != null) {
-                handleImageUpload(imageUri);
+                try {
+                    handleImageUpload(imageUri);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
 
-    private void handleImageUpload(Uri imageUri) {
+    private void handleImageUpload(Uri imageUri) throws IOException {
         uploadImageToFirebase(imageUri, new OnImageUploadedListener() {
             @Override
             public void onImageUploaded(String imageUrl) {
@@ -176,7 +183,6 @@ public class EditProfileActivity extends Fragment {
         if (isAdded() && getActivity() != null) {
             Glide.with(requireContext())
                     .load(imageUri)
-                    .transform(new RotateTransformation(90))
                     .into(profileImageEdit);
         }
     }
@@ -265,30 +271,57 @@ public class EditProfileActivity extends Fragment {
      * @param imageUri The URI of the image to upload.
      * @param listener The listener to notify when the upload is complete.
      */
-    private void uploadImageToFirebase(Uri imageUri, OnImageUploadedListener listener) {
-        File compressedFile =  compressImageFromUri(this.getContext(), imageUri);
-        Log.d("COMPRESSION", "REACHED HERE");
-        Uri compressedUri = Uri.fromFile(compressedFile);
-        Log.d("COMRPESSION", String.valueOf(checkImageSize(compressedUri)));
-        String path = "mood_images/" + UUID.randomUUID().toString();
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(path);
+    private void uploadImageToFirebase(Uri imageUri, OnImageUploadedListener listener) throws IOException {
+            File compressedFile = compressImageFromUri(requireContext(), imageUri);
+            long size = checkImageSize((imageUri));
+            Uri compressedUri = Uri.fromFile(compressedFile);
+            if (size>64) {
+                compressedUri = rotateImage(getContext(), compressedUri, 90); // Negative for left rotation
+            }
+            String path = "mood_images/" + UUID.randomUUID().toString();
+            StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(path);
 
-        UploadTask uploadTask = storageRef.putFile(compressedUri);
+            UploadTask uploadTask = storageRef.putFile(compressedUri);
 
-        uploadTask.addOnSuccessListener(taskSnapshot -> {
-            storageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
-                imageUrl = downloadUrl.toString();
-                Log.d("FirebaseStorage", "Image URL: " + imageUrl);
+            uploadTask.addOnSuccessListener(taskSnapshot -> {
+                storageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
+                    imageUrl = downloadUrl.toString();
+                    Log.d("FirebaseStorage", "Image URL: " + imageUrl);
 
-                listener.onImageUploaded(imageUrl); // Notify listener
+                    listener.onImageUploaded(imageUrl); // Notify listener
+                }).addOnFailureListener(exception -> {
+                    Log.e("FirebaseStorage", "Failed to get download URL: " + exception.getMessage());
+                    listener.onUploadFailed(exception);
+                });
             }).addOnFailureListener(exception -> {
-                Log.e("FirebaseStorage", "Failed to get download URL: " + exception.getMessage());
+                Log.e("FirebaseStorage", "Upload failed: " + exception.getMessage());
                 listener.onUploadFailed(exception);
             });
-        }).addOnFailureListener(exception -> {
-            Log.e("FirebaseStorage", "Upload failed: " + exception.getMessage());
-            listener.onUploadFailed(exception);
-        });
+        }
+
+    // Helper method to rotate images
+    private Uri rotateImage(Context context, Uri imageUri, float degrees) throws IOException {
+        Bitmap originalBitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
+
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degrees);
+
+        Bitmap rotatedBitmap = Bitmap.createBitmap(
+                originalBitmap,
+                0, 0,
+                originalBitmap.getWidth(),
+                originalBitmap.getHeight(),
+                matrix,
+                true
+        );
+
+        // Save rotated image to a temporary file
+        File rotatedFile = new File(context.getCacheDir(), "rotated_" + System.currentTimeMillis() + ".jpg");
+        try (FileOutputStream out = new FileOutputStream(rotatedFile)) {
+            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
+        }
+
+        return Uri.fromFile(rotatedFile);
     }
 
     private void saveChanges() {

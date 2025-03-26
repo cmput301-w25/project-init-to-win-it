@@ -1,6 +1,9 @@
 package com.example.moodsync;
 
+import static com.example.moodsync.R.*;
+
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -37,6 +40,8 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import org.w3c.dom.Text;
@@ -59,6 +64,8 @@ public class EditProfileFragment extends Fragment {
     private MaterialButton pendingRequestsButton;
     private TextView followersCountTextView;
     private TextView followingCountTextView;
+    private LinearLayout followerButton;
+    private LinearLayout followingButton;
     private TextView likesCountTextView;
 
     private TabLayout tabs;
@@ -67,6 +74,7 @@ public class EditProfileFragment extends Fragment {
     private String loggedInUsername;
     private List<Map<String, String>> pendingRequests = new ArrayList<>();
 
+    @SuppressLint("MissingInflatedId")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -74,6 +82,12 @@ public class EditProfileFragment extends Fragment {
 
         FirebaseApp.initializeApp(requireContext());
         db = FirebaseFirestore.getInstance();
+        FirebaseFirestore.getInstance().setFirestoreSettings(
+                new FirebaseFirestoreSettings.Builder()
+                        .setPersistenceEnabled(true)
+                        .build()
+        );
+
 
         profileImageEdit = view.findViewById(R.id.profile_image_edit);
         nameTextView = view.findViewById(R.id.nameofuser);
@@ -85,6 +99,8 @@ public class EditProfileFragment extends Fragment {
         pendingRequestsButton = view.findViewById(R.id.pending_requests_button);
         followersCountTextView = view.findViewById(R.id.followers_count);
         followingCountTextView = view.findViewById(R.id.following_count);
+        followingButton = view.findViewById(R.id.following_button);
+        followerButton = view.findViewById(R.id.follower_button);
 
         photosListView = view.findViewById(R.id.photos_listview);
         tabs = view.findViewById(R.id.tabs);
@@ -101,6 +117,11 @@ public class EditProfileFragment extends Fragment {
             NavController navController = Navigation.findNavController(view1);
             navController.navigate(R.id.action_editProfileFragment_to_editProfileActivity);
         });
+        followerButton.setOnClickListener(v->{
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_editProfileFragment_to_editProfileActivity);
+        });
+
 
         pendingRequestsButton.setOnClickListener(v -> showPendingRequestsDialog());
         backButton.setOnClickListener(v -> requireActivity().onBackPressed());
@@ -149,7 +170,17 @@ public class EditProfileFragment extends Fragment {
 
                         loadPhotosListView(moodList);
                     }
+                })
+                // OFFLINE STUFF
+                .addOnFailureListener(e -> {
+                    if (e instanceof FirebaseFirestoreException) {
+                        FirebaseFirestoreException.Code code = ((FirebaseFirestoreException) e).getCode();
+                        if (code == FirebaseFirestoreException.Code.UNAVAILABLE) {
+                            // Handle offline scenario
+                        }
+                    }
                 });
+        ;
     }
 
 
@@ -316,7 +347,16 @@ public class EditProfileFragment extends Fragment {
                         loadDummyData();
                         Log.e("EditProfileFragment", "Error getting user data: ", task.getException());
                     }
+                })
+                .addOnFailureListener(e -> {
+                    if (e instanceof FirebaseFirestoreException) {
+                        FirebaseFirestoreException.Code code = ((FirebaseFirestoreException) e).getCode();
+                        if (code == FirebaseFirestoreException.Code.UNAVAILABLE) {
+                            Toast.makeText(getContext(),"OFFLINE RN COME AGAIN LATER",Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 });
+        ;
     }
 
     private void fetchPendingRequests() {
@@ -344,6 +384,14 @@ public class EditProfileFragment extends Fragment {
                     } else {
                         Log.e("EditProfileFragment", "Error getting pending requests: ", task.getException());
                         pendingRequestsButton.setText("0");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (e instanceof FirebaseFirestoreException) {
+                        FirebaseFirestoreException.Code code = ((FirebaseFirestoreException) e).getCode();
+                        if (code == FirebaseFirestoreException.Code.UNAVAILABLE) {
+                            Toast.makeText(getContext(),"OFFLINE RN COME AGAIN LATER",Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
     }
@@ -432,8 +480,15 @@ public class EditProfileFragment extends Fragment {
                                         });
                             }
                         }
+                    })
+                    .addOnFailureListener(e -> {
+                        if (e instanceof FirebaseFirestoreException) {
+                            FirebaseFirestoreException.Code code = ((FirebaseFirestoreException) e).getCode();
+                            if (code == FirebaseFirestoreException.Code.UNAVAILABLE) {
+                                Toast.makeText(getContext(),"OFFLINE RN COME AGAIN LATER",Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     });
-
             // Update follower's following list
             db.collection("users")
                     .whereEqualTo("userName", follower)
@@ -461,6 +516,13 @@ public class EditProfileFragment extends Fragment {
                                         });
                             }
                         }
+                    }).addOnFailureListener(e -> {
+                        if (e instanceof FirebaseFirestoreException) {
+                            FirebaseFirestoreException.Code code = ((FirebaseFirestoreException) e).getCode();
+                            if (code == FirebaseFirestoreException.Code.UNAVAILABLE) {
+                                Toast.makeText(getContext(),"OFFLINE RN COME AGAIN LATER",Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     });
         }
 
@@ -481,6 +543,13 @@ public class EditProfileFragment extends Fragment {
                     })
                     .addOnFailureListener(e -> {
                         Log.e("EditProfileFragment", "Error deleting request", e);
+                    }).addOnFailureListener(e -> {
+                        if (e instanceof FirebaseFirestoreException) {
+                            FirebaseFirestoreException.Code code = ((FirebaseFirestoreException) e).getCode();
+                            if (code == FirebaseFirestoreException.Code.UNAVAILABLE) {
+                                Toast.makeText(getContext(),"OFFLINE RN COME AGAIN LATER",Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     });
         }
 
@@ -553,6 +622,13 @@ public class EditProfileFragment extends Fragment {
                         holder.userName.setText(follower);
                         holder.username.setText("@" + follower);
                         holder.userImage.setImageResource(R.drawable.ic_person_black_24dp);
+                            if (e instanceof FirebaseFirestoreException) {
+                                FirebaseFirestoreException.Code code = ((FirebaseFirestoreException) e).getCode();
+                                if (code == FirebaseFirestoreException.Code.UNAVAILABLE) {
+                                    Toast.makeText(getContext(),"OFFLINE RN COME AGAIN LATER",Toast.LENGTH_SHORT).show();
+                                }
+
+                        }
                     });
 
             holder.acceptButton.setOnClickListener(v -> {
@@ -613,6 +689,14 @@ public class EditProfileFragment extends Fragment {
                                         });
                             }
                         }
+                    })
+                    .addOnFailureListener(e -> {
+                        if (e instanceof FirebaseFirestoreException) {
+                            FirebaseFirestoreException.Code code = ((FirebaseFirestoreException) e).getCode();
+                            if (code == FirebaseFirestoreException.Code.UNAVAILABLE) {
+                                Toast.makeText(getContext(),"OFFLINE RN COME AGAIN LATER",Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     });
             db.collection("users")
                     .whereEqualTo("userName", follower)
@@ -640,6 +724,14 @@ public class EditProfileFragment extends Fragment {
                                         });
                             }
                         }
+                    })
+                    .addOnFailureListener(e -> {
+                        if (e instanceof FirebaseFirestoreException) {
+                            FirebaseFirestoreException.Code code = ((FirebaseFirestoreException) e).getCode();
+                            if (code == FirebaseFirestoreException.Code.UNAVAILABLE) {
+                                Toast.makeText(getContext(),"OFFLINE RN COME AGAIN LATER",Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     });
         }
         private void declineRequest(int position) {
@@ -656,7 +748,12 @@ public class EditProfileFragment extends Fragment {
                         Toast.makeText(requireContext(), "Request declined", Toast.LENGTH_SHORT).show();
                     })
                     .addOnFailureListener(e -> {
-                        Log.e("EditProfileFragment", "error deleting request", e);
+                        if (e instanceof FirebaseFirestoreException) {
+                            FirebaseFirestoreException.Code code = ((FirebaseFirestoreException) e).getCode();
+                            if (code == FirebaseFirestoreException.Code.UNAVAILABLE) {
+                                Toast.makeText(getContext(),"OFFLINE RN COME AGAIN LATER",Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     });
         }
 

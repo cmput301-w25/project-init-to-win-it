@@ -42,7 +42,6 @@ public class RegisterFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.register, container, false);
-
         LocalStorage globalStorage = LocalStorage.getInstance();
         db = FirebaseFirestore.getInstance();
 
@@ -84,7 +83,7 @@ public class RegisterFragment extends Fragment {
                 return;
             }
 
-
+            // Check if the username already exists
             db.collection("users").document(username)
                     .get()
                     .addOnCompleteListener(task -> {
@@ -123,6 +122,7 @@ public class RegisterFragment extends Fragment {
                     });
         });
 
+        // Fetch all users and handle offline data
         db.collection("users")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -142,7 +142,7 @@ public class RegisterFragment extends Fragment {
                                 tempUser.setFollowingList((ArrayList<String>) document.get("followingList"));
                                 tempUser.setCommentList((ArrayList<Integer>) document.get("commentList"));
 
-                                // If doesn't exist, then add
+                                // If doesn't exist, then add to local storage
                                 if (!globalStorage.checkIfUserExists(tempUser)){
                                     globalStorage.getUserList().add(tempUser);
                                     Log.d("Not added User Data", document.getId() + " => " + tempUser);
@@ -156,4 +156,5 @@ public class RegisterFragment extends Fragment {
                 });
 
         return view;
-    }}
+    }
+}

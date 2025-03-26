@@ -12,13 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Step Indicator -->
-
-        <!-- Cancel Button -->
-
-        <!-- Pick Your Mood Title -->
-
-        <!-- Mood Spinner -->
 
         <TextView
             android:id="@+id/stepIndicator"
