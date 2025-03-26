@@ -168,6 +168,8 @@ public class MoodHistoryFragment extends Fragment {
                                 for (MoodHistoryItem moodht: moodHistoryItems) {
                                     if (moodht.getMood().equals(selectedEmotionalState)) {
                                         filteredMoodHistory.add(moodht);
+                                    } else if (selectedEmotionalState.equals("Choose Option")){
+                                        filteredMoodHistory.add(moodht);
                                     }
                                 }
                                 // Update the current list with the filtered data
@@ -203,7 +205,11 @@ public class MoodHistoryFragment extends Fragment {
                                 for (MoodHistoryItem moodht: moodHistoryItems) {
                                     if (moodht.getDescription().contains(keywordEditTextData)) {
                                         filteredMoodHistory.add(moodht);
+                                    } else if (keywordEditTextData.equals("Choose Option")){
+                                        filteredMoodHistory.add(moodht);
                                     }
+
+
                                 }
                                 // Update the current list with the filtered data
                                 moodHistoryItems.clear();
