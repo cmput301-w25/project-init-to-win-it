@@ -12,7 +12,7 @@
     app:cardElevation="2dp"
     app:strokeWidth="0.5dp"
     app:strokeColor="#E0E0E0"
-    app:cardBackgroundColor="#FFFFFF">
+    app:cardBackgroundColor="#FBF0F0">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -216,7 +216,6 @@
                 android:textColor="#757575"
                 android:textSize="13sp"
                 android:layout_marginStart="6dp" />
-
             <TextView
                 android:id="@+id/trigger_text_view"
                 android:layout_width="wrap_content"
