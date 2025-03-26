@@ -44,14 +44,26 @@
 
         <Spinner
             android:id="@+id/filterSpinner"
-            android:layout_width="262dp"
-            android:layout_height="48dp"
+            android:layout_width="175dp"
+            android:layout_height="46dp"
             android:layout_centerInParent="true"
             android:layout_marginLeft="20dp"
             android:visibility="invisible"
             android:background="@drawable/spinner_rounded_border"
             android:fontFamily="serif-monospace"
             android:paddingStart="10dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/filterClearButton"
+            android:layout_width="80dp"
+            android:layout_height="52dp"
+            android:backgroundTint="@color/black"
+            android:elevation="4dp"
+            android:visibility="invisible"
+            android:layout_marginLeft="20dp"
+            android:paddingHorizontal="16dp"
+            android:text="Clear"
+            android:textColor="@color/white" />
 
 
     </LinearLayout>
