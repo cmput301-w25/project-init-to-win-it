@@ -5,6 +5,7 @@ import static android.app.Activity.RESULT_OK;
 import static com.example.moodsync.BitmapUtils.compressImageFromUri;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -39,6 +40,8 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -176,7 +179,6 @@ public class EditProfileActivity extends Fragment {
         if (isAdded() && getActivity() != null) {
             Glide.with(requireContext())
                     .load(imageUri)
-                    .transform(new RotateTransformation(90))
                     .into(profileImageEdit);
         }
     }
@@ -266,31 +268,69 @@ public class EditProfileActivity extends Fragment {
      * @param listener The listener to notify when the upload is complete.
      */
     private void uploadImageToFirebase(Uri imageUri, OnImageUploadedListener listener) {
-        File compressedFile =  compressImageFromUri(this.getContext(), imageUri);
-        Log.d("COMPRESSION", "REACHED HERE");
-        Uri compressedUri = Uri.fromFile(compressedFile);
-        Log.d("COMRPESSION", String.valueOf(checkImageSize(compressedUri)));
-        String path = "mood_images/" + UUID.randomUUID().toString();
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(path);
+        try {
+            File imageFile = new File(imageUri.getPath()); // Get the image as a File
+            long imageSizeInKB = checkImageSize(imageUri); // Get image size in KB
+            File compressedFile = null;
+            Uri uploadUri = imageUri;
 
-        UploadTask uploadTask = storageRef.putFile(compressedUri);
+            if (imageSizeInKB > 64) {
+                compressedFile = compressImageFromUri(this.getContext(), imageUri); // Compress the image
+                if (compressedFile != null) {
+                    uploadUri = Uri.fromFile(compressedFile);
+                    Log.d("COMPRESSION", "Image compressed and be rotated");
+                    // Handle 90-degree rotation for compressed images
+                }
+            } else {
+                Log.d("COMPRESSION", "no compression needed");
+            }
+            if (uploadUri != null) {
+                if(compressedFile != null){
+                    uploadUri = rotateImage(this.getContext(), uploadUri, 90); // rotate image by 90 degrees
+                }
 
-        uploadTask.addOnSuccessListener(taskSnapshot -> {
-            storageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
-                imageUrl = downloadUrl.toString();
-                Log.d("FirebaseStorage", "Image URL: " + imageUrl);
+                String path = "mood_images/" + UUID.randomUUID().toString();
+                StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(path);
 
-                listener.onImageUploaded(imageUrl); // Notify listener
-            }).addOnFailureListener(exception -> {
-                Log.e("FirebaseStorage", "Failed to get download URL: " + exception.getMessage());
-                listener.onUploadFailed(exception);
-            });
-        }).addOnFailureListener(exception -> {
-            Log.e("FirebaseStorage", "Upload failed: " + exception.getMessage());
-            listener.onUploadFailed(exception);
-        });
+                UploadTask uploadTask = storageRef.putFile(uploadUri);
+
+                uploadTask.addOnSuccessListener(taskSnapshot -> {
+                    storageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
+                        imageUrl = downloadUrl.toString();
+                        Log.d("FirebaseStorage", "Image URL: " + imageUrl);
+                        listener.onImageUploaded(imageUrl);
+                    }).addOnFailureListener(exception -> {
+                        Log.e("FirebaseStorage", "Failed to get download URL: " + exception.getMessage());
+                        listener.onUploadFailed(exception);
+                    });
+                }).addOnFailureListener(exception -> {
+                    Log.e("FirebaseStorage", "Upload failed: " + exception.getMessage());
+                    listener.onUploadFailed(exception);
+                });
+            } else {
+                Log.e("FirebaseStorage", "No image available for upload");
+                listener.onUploadFailed(new Exception("No image available for upload"));
+            }
+        } catch (Exception e) {
+            Log.e("FirebaseStorage", "Error during image processing", e);
+            listener.onUploadFailed(e);
+        }
     }
 
+
+    private Uri rotateImage(Context context, Uri imageUri, float angle) throws IOException {
+        Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+        File file = new File(context.getCacheDir(), "rotated_image.jpg");
+        FileOutputStream fos = new FileOutputStream(file);
+        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+        fos.close();
+
+        return Uri.fromFile(file);
+    }
     private void saveChanges() {
         String name = fullName.getText().toString().trim();
         String biography = bio.getText().toString().trim();
