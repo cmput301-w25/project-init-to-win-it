@@ -33,6 +33,7 @@ public class LocalStorage {
         MoodList = new ArrayList<>();
         Comments = new ArrayList<>();
     }
+    //Updates the UserList with the latest information from the database (only for  "username")
     public void updateUser(String username) {
         db.collection("users")
                 .whereEqualTo("username", username)

@@ -4,6 +4,9 @@ import android.app.Application;
 import android.util.Log;
 
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 public class MyApplication extends Application {
     private String loggedInUsername;
@@ -23,5 +26,11 @@ public class MyApplication extends Application {
         super.onCreate();
         FirebaseApp.initializeApp(this);
         globalStorage = LocalStorage.getInstance();
+
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true) // Default: true (enabled)
+                .build();
+        FirebaseFirestore.getInstance().setFirestoreSettings(settings);
+
     }
 }

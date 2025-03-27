@@ -490,6 +490,7 @@ public class AddMoodActivity extends Fragment {
                 }).addOnFailureListener(exception -> {
                     Log.e("FirebaseStorage", "Upload failed: " + exception.getMessage());
                     listener.onUploadFailed(exception);
+                    // Add offline caching here
                 });
             } else {
                 Log.e("FirebaseStorage", "No image available for upload");
@@ -586,24 +587,6 @@ public class AddMoodActivity extends Fragment {
         }
     }
 
-    /**
-     * Uploads an image to Firebase Storage.
-     *
-     * @param imageUri The URI of the image to upload. This could be a local file URI or a content URI.
-     */
-    private void uploadImageToFirebase(Uri imageUri) {
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference()
-                .child("mood_images/" + UUID.randomUUID().toString());
-
-        storageRef.putFile(imageUri)
-                .addOnSuccessListener(taskSnapshot -> {
-                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                        Log.d("Firebase", "Image uploaded successfully. URL: " + uri.toString());
-                        photoUri = null; // Reset photoUri to avoid local display
-                    });
-                })
-                .addOnFailureListener(e -> showErrorToast(e));
-    }
     /**
      * Retrieves a Bitmap object from the provided URI.
      *
@@ -758,44 +741,6 @@ public class AddMoodActivity extends Fragment {
         button.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
     }
     /**
-     * Displays a success dialog and attempts to save the mood event to Firestore.
-     * If the save is successful, a success UI is displayed; if it fails, an error message is shown.
-     */
-    private void showSuccessDialog() {
-        String socialSituation = selectedSocialSituationButton != null ?
-                selectedSocialSituationButton.getText().toString() : "None";
-
-        String username = ((MyApplication) requireActivity().getApplication()).getLoggedInUsername();
-
-        EditText ReasonInput = binding2.ReasonInput;
-        String Reason = ReasonInput.getText().toString();
-        long currentTimestamp = System.currentTimeMillis();
-        MoodEvent moodEvent = new MoodEvent(
-                this.selectedMood,
-                Reason,
-                this.moodDescription,
-                socialSituation,
-                currentTimestamp,
-                imageUrl,
-                isPublic,
-                username
-        );
-
-
-
-        Log.d("FIRESTORE", "Attempting to save: " + moodEvent.toString());
-
-        moodEventsRef.add(moodEvent)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d("FIRESTORE", "Save successful with ID: " + documentReference.getId());
-                    showSuccessDialogUI();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("FIRESTORE", "Save failed", e);
-                    showErrorToast(e);
-                });
-    }
-    /**
      * Custom InputFilter for restricting the number of words and characters in a text field.
      * The filter ensures that the text input does not exceed the specified word and character limits.
      */
@@ -866,28 +811,7 @@ public class AddMoodActivity extends Fragment {
                 .addOnSuccessListener(aVoid -> showSuccessDialogUI())
                 .addOnFailureListener(e -> showErrorToast(e));
     }
-    /**
-     * Updates an existing mood event in Firestore based on the date.
-     *
-     * @param moodEvent The mood event to be updated.
-     */
-    private void updateMoodEvent(MoodEvent moodEvent) {
-        moodEventsRef.whereEqualTo("date", moodEvent.getDate()).get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            moodEventsRef.document(document.getId()).set(moodEvent)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.d("FIRESTORE", "Mood event updated successfully!");
-                                        refreshMoodEventsList();
-                                    })
-                                    .addOnFailureListener(e -> Log.e("FIRESTORE", "Update failed", e));
-                        }
-                    } else {
-                        Log.e("FIRESTORE", "Mood event not found in Firestore");
-                    }
-                });
-    }
+
     /**
      * Deletes a mood event from Firestore based on the date.
      *
@@ -1050,27 +974,6 @@ public class AddMoodActivity extends Fragment {
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_default);
                 editDescription.setTextColor(Color.parseColor("#204343"));
         }
-    }
-
-    /**
-     * Performs a Firestore write to save the mood event.
-     * Logs the result of the operation for debugging purposes.
-     *
-     * @param moodEvent The mood event to be written to Firestore.
-     */
-    private void debugFirestoreWrite(MoodEvent moodEvent) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // try to add the mood event doc, sending that shit out
-        db.collection("mood_events").add(moodEvent)
-                .addOnSuccessListener(documentReference -> {
-                    Log.d("DEBUG", "doc added with id: " + documentReference.getId());
-                    Toast.makeText(getContext(), "success! mood event added, bro!", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("DEBUG", "failed to add mood event: ", e);
-                    Toast.makeText(getContext(), "fuck! write failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                });
     }
 
     /**
