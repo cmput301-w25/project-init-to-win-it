@@ -26,13 +26,37 @@ public class LocalStorage {
 
     private ArrayList<User> UserList = new ArrayList<User>();
     private ArrayList<MoodEvent> MoodList = new ArrayList<>();
-    private ArrayList<String> Comments = new ArrayList<String>();
+    private ArrayList<Comment> Comments = new ArrayList<Comment>();
 
     private LocalStorage() {
         UserList = new ArrayList<>();
         MoodList = new ArrayList<>();
         Comments = new ArrayList<>();
     }
+    public void clearMoods(){
+        MoodList.clear();
+    }
+    public void updateMood(String user) {
+        db.collection("mood_events")
+                .whereEqualTo("id", user)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            MoodEvent updatedMood = document.toObject(MoodEvent.class);
+                            for (int i = 0; i < MoodList.size(); i++) {
+                                if (MoodList.get(i).getId().equals(user)) {
+                                    MoodList.set(i, updatedMood);
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        Log.e("Firestore", "Error getting documents: ", task.getException());
+                    }
+                });
+    }
+
     //Updates the UserList with the latest information from the database (only for  "username")
     public void updateUser(String username) {
         db.collection("users")
@@ -75,11 +99,11 @@ public class LocalStorage {
         return findUser(currentUserId);
     }
 
-    public ArrayList<String> getComments() {
+    public ArrayList<Comment> getComments() {
         return Comments;
     }
 
-    public void addComment(String comment) {
+    public void addComment(Comment comment) {
         this.Comments.add(comment);
     }
 
@@ -100,7 +124,7 @@ public class LocalStorage {
     }
     public boolean checkIfUserExists(User user){
         for (int i=0;i<UserList.size();i++){
-            if (UserList.get(i).getUserName().equals(user.getUserName())){
+            if (UserList.get(i).getUsername().equals(user.getUsername())){
                 return true;
             }
         }
@@ -109,12 +133,35 @@ public class LocalStorage {
 
     public User findUser(String uname){
         for (int i=0;i<UserList.size();i++){
-            if (UserList.get(i).getUserName().equals(uname)){
+            if (UserList.get(i).getUsername().equals(uname)){
                 return UserList.get(i);
             }
         }
         User smn = new User();
-        smn.setUserName("");
+        smn.setUsername("");
         return smn;
     }
+
+    public void insertMood(MoodEvent moodEvent) {
+        int flag =0;
+        for (int i=0; i<MoodList.size();i++) {
+            if (moodEvent.getId().equals(MoodList.get(i).getId())){
+                flag = 1;   // Found
+                break;
+            }
+        }
+        if (flag == 0){
+            MoodList.add(moodEvent);
+        }
+    }
+    public User getUserFromUName(String uName) {
+        User use = null;
+        for (int i = 0; i < UserList.size(); i++) {
+            if (UserList.get(i).getUsername().equals(uName)) {
+                return UserList.get(i);
+            }
+        }
+        return use;
+    }
+
 }

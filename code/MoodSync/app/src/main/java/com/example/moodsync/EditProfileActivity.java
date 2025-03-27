@@ -129,7 +129,6 @@ public class EditProfileActivity extends Fragment {
             Glide.with(requireContext())
                     .load(imageUrl)
                     .circleCrop()
-                    .transform(new RotateTransformation(90))
                     .placeholder(R.drawable.ic_person_black_24dp)
                     .into(profileImageEdit);
         }

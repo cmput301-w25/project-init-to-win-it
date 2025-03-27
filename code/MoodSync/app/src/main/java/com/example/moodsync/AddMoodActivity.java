@@ -136,7 +136,6 @@ public class AddMoodActivity extends Fragment {
     private static final int ANIMATION_DURATION = 300; // Animation duration in milliseconds
 
     private FirebaseFirestore db;
-    private long MAX_PHOTO_SIZE = 64;
     private CollectionReference moodEventsRef;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int PICK_IMAGE_REQUEST = 2;

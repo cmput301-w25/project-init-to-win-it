@@ -1,118 +1,107 @@
 package com.example.moodsync;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class User {
-    public String name;
-    public String userName;
-    public String pass;
+    private String id;
+    private String name;
+    private String userName;
+    private String pass;
+    private String pfpUrl;
+    private String location;
+    private String bio;
+    private ArrayList<String> followerList = new ArrayList<>();
+    private ArrayList<String> followingList = new ArrayList<>();
+    private ArrayList<Integer> commentList = new ArrayList<>();
 
-    public String id;
-    public String pfpUrl;
-    public String location;
-    public String bio;
-    public ArrayList<String> followerList;
-    public ArrayList<String> followingList;
-
-
-    public String getUserName() {
-        return userName;
+    // Constructors
+    public User() {
+        // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public void setUserName(String userName) {
+    // Getters and Setters
+
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUsername() {
+        return userName;
+    }
+    public void setUsername(String userName) {
         this.userName = userName;
     }
 
-
-
-    public String getLocation() {
-        return location;
+    public String getPass() {
+        return pass;
     }
-
-    public void setLocation(String location) {
-        this.location = location;
+    public void setPass(String pass) {
+        this.pass = pass;
     }
-
-
 
     public String getPfpUrl() {
         return pfpUrl;
     }
-
     public void setPfpUrl(String pfpUrl) {
         this.pfpUrl = pfpUrl;
     }
 
-
-
-    public void setFollowerList(ArrayList<String> followerList) {
-        this.followerList = followerList;
+    public String getLocation() {
+        return location;
     }
-
-
-
-    public void setFollowingList(ArrayList<String> followingList) {
-        this.followingList = followingList;
-    }
-
-    public void setCommentList(ArrayList<Integer> commentList) {
-        this.commentList = commentList;
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public String getBio() {
         return bio;
     }
-
     public void setBio(String bio) {
         this.bio = bio;
     }
 
-
-    public String getId() {
-        return id;
+    public ArrayList<String> getFollowerList() {
+        return followerList;
+    }
+    public void setFollowerList(ArrayList<String> followerList) {
+        this.followerList = followerList;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public ArrayList<String> getFollowingList() {
+        return followingList;
+    }
+    public void setFollowingList(ArrayList<String> followingList) {
+        this.followingList = followingList;
     }
 
-
-    // All the comments that
-    public ArrayList<Integer> commentList;
-
-    public String getName() {return name;}
-    public String getUsername(){
-        return this.userName;
+    public ArrayList<Integer> getCommentList() {
+        return commentList;
     }
-    public String getPass(){
-        return this.pass;
-    }
-    public ArrayList<String> getflwrList(){
-        return this.followerList;
-    }
-    public ArrayList<String> getFlwingList(){
-        return this.followingList;
-    }
-    public ArrayList<Integer> getCList(){
-        return this.commentList;
+    public void setCommentList(ArrayList<Integer> commentList) {
+        this.commentList = commentList;
     }
 
-    public void setName(String name) {this.name = name;}
-    public void setUsername(String username){
-        this.userName = username;
-    }
-    public void setPass(String passw){
-        this.pass = passw;
-    }
-    public void addFlwr(String flwrID){
-        this.followerList.add(flwrID);
-    }
-    public void addFlwing(String flwingID){
-        this.followingList.add(flwingID);
-    }
-    public void addCList(Integer cId){
-        this.commentList.add(cId);
+    // Utility methods to add entries to lists
+
+    public void addFollower(String followerId) {
+        this.followerList.add(followerId);
     }
 
+    public void addFollowing(String followingId) {
+        this.followingList.add(followingId);
+    }
+
+    public void addComment(Integer commentId) {
+        this.commentList.add(commentId);
+    }
 }

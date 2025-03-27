@@ -135,7 +135,7 @@ public class RegisterFragment extends Fragment {
                                 tempUser.setName((String) document.get("fullName"));
                                 tempUser.setPass((String) document.get("password"));
                                 tempUser.setUsername((String) document.get("userName"));
-                                tempUser.setPfpUrl((String) document.get("pfpUrl"));
+                                tempUser.setPfpUrl((String) document.get("profileImageUrl"));
                                 tempUser.setLocation((String) document.get("location"));
                                 tempUser.setBio((String) document.get("bio"));
                                 tempUser.setFollowerList((ArrayList<String>) document.get("followerList"));
@@ -145,7 +145,7 @@ public class RegisterFragment extends Fragment {
                                 // If doesn't exist, then add
                                 if (!globalStorage.checkIfUserExists(tempUser)){
                                     globalStorage.getUserList().add(tempUser);
-                                    Log.d("Not added User Data", document.getId() + " => " + tempUser);
+                                    Log.d("ADAPTER",  " => " + tempUser.getUsername());
                                 }
                                 Log.d("User Data", document.getId() + " => " + tempUser);
                             }

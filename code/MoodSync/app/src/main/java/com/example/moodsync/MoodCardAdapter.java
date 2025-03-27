@@ -56,48 +56,36 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
 
     @Override
     public void onBindViewHolder(@NonNull MoodCardViewHolder holder, int position) {
-        MoodEvent moodEvent = moodEvents.get(position);
-
+        MoodEvent moodEvent = globalStorage.getMoodList().get(position);
+//         MoodEvent moodEvent = moodEvents.get(position);
+        Log.d("ADAPTER", "onBindViewHolder: " + moodEvent.getId());
         // Set the username from the mood event's ID (which is the username)
         String username = moodEvent.getId();
         holder.nameTextView.setText(username);
         setMoodEmoji(holder.moodEmoji, moodEvent.getMood());
-
-        // Fetch user details from Firestore
-        db.collection("users")
-                .whereEqualTo("userName", username)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        DocumentSnapshot userDoc = queryDocumentSnapshots.getDocuments().get(0);
-
-                        // If fullName exists, use it instead of username
-                        String fullName = userDoc.getString("fullName");
-                        if (fullName != null && !fullName.isEmpty()) {
-                            holder.nameTextView.setText(fullName);
-                        }
-
-                        // Load profile image if available
-                        String profileImageUrl = userDoc.getString("profileImageUrl");
-                        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-                            Glide.with(holder.itemView.getContext())
-                                    .load(profileImageUrl)
-                                    .circleCrop()
-                                    .placeholder(R.drawable.ic_person_black_24dp)
-                                    .into(holder.profileImageView);
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("MoodCardAdapter", "Error fetching user data", e);
-                });
-
+        User currentUser =globalStorage.getUserFromUName(username);
+        Log.d("ADAPTER", "name: " + currentUser.getPfpUrl());
+        String fullName = currentUser.getName();
+        if (fullName != null && !fullName.isEmpty()) {
+            holder.nameTextView.setText(fullName);
+        }
+        // Load profile image if available
+        String profileImageUrl = currentUser.getPfpUrl();
+        Log.d("PROFILE IMAGE", "onBindViewHolder: "+profileImageUrl);
+        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(profileImageUrl)
+                    .circleCrop()
+                    .placeholder(R.drawable.ic_person_black_24dp)
+                    .into(holder.profileImageView);
+        }
         // Format and set timestamp
         long timestamp = moodEvent.getDate();
         holder.timeStampTextView.setText(formatTimestamp(timestamp));
 
         // Load post image if available
         String imageUrl = moodEvent.getImageUrl();
+        Log.d("THING", "onBindViewHolder: "+ moodEvent.getImageUrl());
         if (imageUrl != null && !imageUrl.isEmpty()) {
             holder.postImageView.setVisibility(View.VISIBLE);
             Glide.with(holder.itemView.getContext())
@@ -127,7 +115,6 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         // Handle "View Details" button click
         holder.detailsButton.setOnClickListener(v -> showDetailsDialog(holder.itemView.getContext(), moodEvent));
 
-
         // Set comment count
         String docId = moodEvent.getDocumentId();
         if (docId != null && !docId.isEmpty()) {
@@ -136,12 +123,20 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
                     .collection("comments")
                     .get()
                     .addOnSuccessListener(snap -> {
+                                for (DocumentSnapshot document : snap.getDocuments()) {
+                                    // Convert the document to Comment object
+                                    Comment comment = document.toObject(Comment.class);
+
+                                    // Add the comment to  local list for offline access
+                                    globalStorage.getComments().add(comment);
+                                }
                         // Set the count based on how many comments are in this doc
                         holder.commentCount.setText(String.valueOf(snap.size()));
+
                     })
                     .addOnFailureListener(e -> {
                         // If something fails, just show 0 or do nothing
-                        holder.commentCount.setText("0");
+                        holder.commentCount.setText(String.valueOf(globalStorage.getComments().size()));
                     });
         }
 
@@ -245,6 +240,9 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
     public void updateMoodEvents(List<MoodEvent> newMoodEvents) {
         this.moodEvents.clear();
         this.moodEvents.addAll(newMoodEvents);
+        for (int i=0;i< newMoodEvents.size();i++) {
+            globalStorage.getMoodList().add(newMoodEvents.get(i));
+        }
         notifyDataSetChanged();
     }
 
