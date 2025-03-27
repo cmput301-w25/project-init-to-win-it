@@ -7,12 +7,18 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
@@ -35,6 +41,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +59,16 @@ public class SecondFragment extends Fragment {
     public LocalStorage globalStorage = LocalStorage.getInstance();
     private ListView searchResultsListView;
     private ArrayAdapter<String> searchResultsAdapter;
+
+    //filter functionality
+    private ImageView filterIcon;
+    private PopupWindow popupWindow;
+    private Spinner filterSpinner, emotionalStateSpinner;
+    private EditText keywordEditText;
+    private Button filterApplyButton, filterCancelButton;
+    private String selectedFilter = "", selectedEmotionalState = "", keywordEditTextData = "";
+    private List<MoodEvent> moodEvents = new ArrayList<>();
+
 
 
     @Override
@@ -77,6 +94,9 @@ public class SecondFragment extends Fragment {
         View searchResultsView = inflater.inflate(R.layout.search_results, container, false);
         searchResultsListView = searchResultsView.findViewById(R.id.search_results_listview);
 
+        //filter functionality
+        filterIcon = view.findViewById(R.id.filter_icon);
+
         // set adapter for the search results listview
         searchResultsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, new ArrayList<>());
         searchResultsListView.setAdapter(searchResultsAdapter);
@@ -94,6 +114,7 @@ public class SecondFragment extends Fragment {
             searchResultsListView.setVisibility(View.INVISIBLE);
             searchBar.setText("");
             navigateToUserProfile(selectedUsername);
+
         });
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
             @Override
@@ -321,6 +342,7 @@ public class SecondFragment extends Fragment {
 
     //    changed this to only display moods of followees
     private void fetchMoodEvents() {
+        Log.d("fetched", "applyFilter: ");
         // Get the logged in username from MyApplication
         MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
         String currentUsername = myApp.getLoggedInUsername();
@@ -339,7 +361,6 @@ public class SecondFragment extends Fragment {
                     if (userTask.isSuccessful() && !userTask.getResult().isEmpty()) {
                         DocumentSnapshot userDoc = userTask.getResult().getDocuments().get(0);
                         List<String> followingUsers = (List<String>) userDoc.get("followingList");
-                        Log.d("sex", "fetchMoodEvents: "+ followingUsers);
 
                         if (followingUsers == null) {
                             followingUsers = new ArrayList<>();
@@ -348,6 +369,7 @@ public class SecondFragment extends Fragment {
                          //Add current user to see their own posts too
                         if (!followingUsers.contains(currentUsername)) {
                             followingUsers.add(currentUsername);
+                            Log.d("JJJJ", "fetchMoodEvents: "+ followingUsers);
                         }
 
                         // If not following anyone (just self), show only own moods
@@ -380,25 +402,140 @@ public class SecondFragment extends Fragment {
                                 .get()
                                 .addOnCompleteListener(task -> {
                                     if (task.isSuccessful()) {
-                                        List<MoodEvent> moodEvents = new ArrayList<>();
+//                                        List<MoodEvent> moodEvents = new ArrayList<>();
                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
                                             moodEvent.setDocumentId(document.getId());
                                             moodEvents.add(moodEvent);
                                         }
                                         filterToRecentMoods(moodEvents);
+                                        Log.d("sex8", "fetchMoodEvents: " + moodEvents);
+                                        filterIcon.setOnClickListener(v -> showFilterPopup(moodEvents));
                                     } else {
                                         Log.e("Firestore", "Error fetching mood events", task.getException());
                                         Toast.makeText(getContext(), "Failed to load mood events", Toast.LENGTH_SHORT).show();
                                     }
                                 });
                     } else {
+
                         Log.e("Firestore", "Error fetching user data", userTask.getException());
                         Toast.makeText(getContext(), "Failed to load user data", Toast.LENGTH_SHORT).show();
                     }
                 });
+        Log.d("FUCK1", "fetchMoodEvents: "+ moodEvents);
     }
 
+
+    //filter functionality
+
+    private void showFilterPopup(List<MoodEvent> moodEvents) {
+        Log.d("FUCK2", "fetchMoodEvents: "+ moodEvents);
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View popupView = inflater.inflate(R.layout.filter_popup, null);
+
+        filterSpinner = popupView.findViewById(R.id.filterSpinner);
+        emotionalStateSpinner = popupView.findViewById(R.id.emotionalStateSpinner);
+        keywordEditText = popupView.findViewById(R.id.keywordEditText);
+        filterApplyButton = popupView.findViewById(R.id.filterApplyButton);
+        filterCancelButton = popupView.findViewById(R.id.filterCancelButton);
+
+        List<String> filterOptions = Arrays.asList("Most Recent Week", "Emotional State", "Keyword");
+        ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, filterOptions);
+        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        filterSpinner.setAdapter(filterAdapter);
+
+        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedFilter = parent.getItemAtPosition(position).toString();
+                if (selectedFilter.equals("Most Recent Week")) {
+                    keywordEditText.setVisibility(View.GONE);
+                    emotionalStateSpinner.setVisibility(View.GONE);
+                } else if (selectedFilter.equals("Emotional State")) {
+                    keywordEditText.setVisibility(View.GONE);
+                    emotionalStateSpinner.setVisibility(View.VISIBLE);
+                    List<String> emotionalStates = Arrays.asList("Choose Option", "Happy", "Sad", "Angry", "Confused", "Surprised", "Ashamed", "Scared", "Disgusted");
+                    ArrayAdapter<String> emotionalAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, emotionalStates);
+                    emotionalAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+                    emotionalStateSpinner.setAdapter(emotionalAdapter);
+                    emotionalStateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            selectedEmotionalState = parent.getItemAtPosition(position).toString();
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+                            selectedEmotionalState = "";
+                        }
+                    });
+                } else if (selectedFilter.equals("Keyword")) {
+                    keywordEditText.setVisibility(View.VISIBLE);
+                    emotionalStateSpinner.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                selectedFilter = "";
+            }
+        });
+
+        filterApplyButton.setOnClickListener(v -> {
+            popupWindow.dismiss();
+            Log.d("FUCK3", "fetchMoodEvents: "+ moodEvents);
+            applyFilter(moodEvents);
+        });
+
+        filterCancelButton.setOnClickListener(v -> {
+            popupWindow.dismiss();
+            fetchMoodEvents(); // Call fetchMoodEvents to reset filters and fetch all mood events
+        });
+
+        popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.setAnimationStyle(R.style.PopupDialogAnimation);
+        View view = getView();
+        popupWindow.showAtLocation(view, Gravity.BOTTOM, 0, 0);
+    }
+
+    private void applyFilter(List<MoodEvent> moodEvents) {
+        if (selectedFilter.equals("Most Recent Week")) {
+            Log.d("selected recent week", "applyFilter: ");
+            long currentTime = System.currentTimeMillis();
+            long oneWeekInMilli = 7 * 24 * 60 * 60 * 1000;
+            List<MoodEvent> filteredMoodEvents = new ArrayList<>();
+            Log.d("makichut", "applyFilter: "+ moodEvents);
+            for (MoodEvent moodEvent : moodEvents) {
+                if ((currentTime - moodEvent.getDate()) <= oneWeekInMilli) {
+                    filteredMoodEvents.add(moodEvent);
+                }
+            }
+            filterToRecentMoods(filteredMoodEvents);
+            Log.d("Filter recent week", "Filtered to " + filteredMoodEvents);
+        } else if (selectedFilter.equals("Emotional State")) {
+            Log.d("selected emotional state", "applyFilter: ");
+            List<MoodEvent> filteredMoodEvents = new ArrayList<>();
+            for (MoodEvent moodEvent : moodEvents) {
+                if (moodEvent.getMood().equals(selectedEmotionalState) || selectedEmotionalState.equals("Choose Option")) {
+                    filteredMoodEvents.add(moodEvent);
+                }
+            }
+            filterToRecentMoods(filteredMoodEvents);
+//            moodCardAdapter.updateMoodEvents(filteredMoodEvents);
+            Log.d("Filter emotional state", "Filtered to " + moodEvents + " mood: " );
+        } else if (selectedFilter.equals("Keyword")) {
+            Log.d("keyword", "applyFilter: ");
+            keywordEditTextData = keywordEditText.getText().toString();
+            List<MoodEvent> filteredMoodEvents = new ArrayList<>();
+            for (MoodEvent moodEvent : moodEvents) {
+                if (moodEvent.getTrigger().contains(keywordEditTextData)) {
+                    filteredMoodEvents.add(moodEvent);
+                }
+            }
+            filterToRecentMoods(filteredMoodEvents);
+//            moodCardAdapter.updateMoodEvents(filteredMoodEvents);
+        }
+    }
 
     @Override
     public void onDestroyView() {
