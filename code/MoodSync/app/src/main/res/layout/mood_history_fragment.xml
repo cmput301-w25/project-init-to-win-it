@@ -17,6 +17,58 @@
         android:textSize="40sp"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <LinearLayout
+        android:id="@+id/filterFunction"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/filterButton"
+            android:layout_width="110dp"
+            android:layout_height="56dp"
+            android:backgroundTint="#4A7A7A"
+            android:elevation="6dp"
+            android:fontFamily="sans-serif-medium"
+            android:paddingHorizontal="16dp"
+            android:text="Filter"
+            android:textColor="#FFFFFF"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/ic_filter_list_black_24dp"
+            app:iconGravity="textStart"
+            app:iconTint="#FFFFFF" />
+
+        <Spinner
+            android:id="@+id/filterSpinner"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:visibility="invisible"
+            android:background="@drawable/spinner_rounded_border"
+            android:fontFamily="sans-serif"
+            android:paddingStart="16dp"
+            android:layout_gravity="center_vertical" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/filterClearButton"
+            android:layout_width="100dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="16dp"
+            android:backgroundTint="#2D4545"
+            android:elevation="6dp"
+            android:fontFamily="sans-serif-medium"
+            android:paddingHorizontal="16dp"
+            android:text="Clear"
+            android:textColor="#FFFFFF"
+            android:visibility="invisible"
+            app:cornerRadius="12dp" />
+    </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/moodRecyclerView"
         android:layout_width="match_parent"
@@ -24,7 +76,8 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@id/addButton"
-        app:layout_constraintTop_toBottomOf="@id/titleTextView" />
+        app:layout_constraintTop_toBottomOf="@id/filterFunction" />
+
 
     <!-- Bottom Navigation Container with Card for elevation and rounded corners -->
     <androidx.cardview.widget.CardView

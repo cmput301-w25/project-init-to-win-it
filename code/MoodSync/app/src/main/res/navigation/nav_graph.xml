@@ -149,7 +149,6 @@
         <action
             android:id="@+id/action_moodHistoryFragment_to_JournalFragment"
             app:destination="@id/JournalFragment" />
-
     </fragment>
 
     <fragment
