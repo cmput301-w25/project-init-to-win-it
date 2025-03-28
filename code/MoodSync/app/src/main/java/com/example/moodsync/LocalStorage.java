@@ -28,6 +28,17 @@ public class LocalStorage {
     private ArrayList<MoodEvent> MoodList = new ArrayList<>();
     private ArrayList<Comment> Comments = new ArrayList<Comment>();
 
+    public ArrayList<MoodHistoryItem> getMHItem() {
+        return MHItem;
+    }
+
+    public void setMHItem(ArrayList<MoodHistoryItem> MHItem) {
+        this.MHItem = MHItem;
+    }
+
+    private ArrayList<MoodHistoryItem> MHItem = new ArrayList<MoodHistoryItem>();
+
+
     public ArrayList<MoodEvent> getPrivList() {
         return PrivList;
     }

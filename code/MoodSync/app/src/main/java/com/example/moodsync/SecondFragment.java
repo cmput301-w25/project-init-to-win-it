@@ -205,7 +205,6 @@ public class SecondFragment extends Fragment {
                 // after text changed, just chill
             }
         });
-//        globalStorage.updateUserList();
         return view;
     }
     private void handleBackPress() {
@@ -404,7 +403,6 @@ public class SecondFragment extends Fragment {
                                 if (!followingUsers.contains(currentUsername)) {
                                     followingUsers.add(currentUsername);
                                 }
-
                                 // Update user in cache
                                 User updatedUser = userDoc.toObject(User.class);
                                 globalStorage.addUser(updatedUser);
@@ -437,13 +435,13 @@ public class SecondFragment extends Fragment {
                 userMoods.add(mood);
             }
         }
-
         if (!userMoods.isEmpty()) {
             filterToRecentMoods(userMoods);
             moodCardAdapter.updateMoodEvents(userMoods);
         }
 
         if (NetworkUtils.isConnected(getContext())) {
+            Log.d("INTERNET SHIT", "fetchSingleUserMoods: HAVE INTERNET");
             // Network request for fresh data
             db.collection("mood_events")
                     .whereEqualTo("id", username)

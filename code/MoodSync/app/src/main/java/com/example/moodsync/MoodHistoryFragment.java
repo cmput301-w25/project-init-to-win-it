@@ -41,6 +41,7 @@ public class MoodHistoryFragment extends Fragment {
     private List<MoodHistoryItem> originalMoodHistoryItems = new ArrayList<>();
     private FirebaseFirestore db;
     private static final String TAG = "MoodHistoryFragment";
+    public LocalStorage globalStorage = LocalStorage.getInstance();
 
     //Variables used for Filter
     Button filterButton;
@@ -154,7 +155,7 @@ public class MoodHistoryFragment extends Fragment {
 
         // Set up RecyclerView
         binding.moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        moodHistoryAdapter = new MoodHistoryAdapter(moodHistoryItems, getContext());
+        moodHistoryAdapter = new MoodHistoryAdapter(globalStorage.getMHItem(), getContext());
         binding.moodRecyclerView.setAdapter(moodHistoryAdapter);
 
         db = FirebaseFirestore.getInstance();
@@ -327,6 +328,7 @@ public class MoodHistoryFragment extends Fragment {
                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
                             moodEvent.setId(document.getId()); // Store the document ID in MoodEvent
 
+
                             Bundle args = new Bundle();
                             args.putParcelable("moodEvent", (Parcelable) moodEvent);
 
@@ -367,13 +369,19 @@ public class MoodHistoryFragment extends Fragment {
                             MoodHistoryItem item = new MoodHistoryItem(mood, emoji, description, date);
                             item.setId(id);
                             moodHistoryItems.add(item);
-                            Log.d(TAG, "Added item: " + item.toString());
+                            // Add to cache
+
+                            Log.d(TAG, "Added item: " + item);
                         }
 
                         Collections.sort(moodHistoryItems, (item1, item2) -> item2.getDate().compareTo(item1.getDate()));
                         Log.d(TAG, "Sorted items. First item date: " +
                                 (moodHistoryItems.isEmpty() ? "N/A" : moodHistoryItems.get(0).getDate()));
 
+                        globalStorage.getMHItem().clear();
+                        for (int i=0;i<moodHistoryItems.size();i++){
+                            globalStorage.getMHItem().add(moodHistoryItems.get(i));
+                        }
                         Log.d(TAG, "Number of items fetched: " + moodHistoryItems.size());
                         moodHistoryAdapter.notifyDataSetChanged();
                     } else {
