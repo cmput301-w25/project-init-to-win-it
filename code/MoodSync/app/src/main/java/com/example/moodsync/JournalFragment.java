@@ -31,7 +31,7 @@ public class JournalFragment extends Fragment {
 
     private JournalFragmentBinding binding;
     private RecyclerView journalRecyclerView;
-    private MoodCardAdapter moodCardAdapter;
+    private JournalCardAdapter moodCardAdapter;
     private FirebaseFirestore db;
     private String currentUserId;
     private ImageView pfp;
@@ -70,9 +70,13 @@ public class JournalFragment extends Fragment {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         List<MoodEvent> moodEvents = new ArrayList<>();
+                        // Clear list
+                        globalStorage.getPrivList().clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
                             moodEvents.add(moodEvent);
+                            // Add to list
+                            globalStorage.getPrivList().add(moodEvent);
                         }
                         // Update the adapter with the fetched mood events
                         updateMoodAdapter(moodEvents);
@@ -83,24 +87,11 @@ public class JournalFragment extends Fragment {
     }
 
     private void updateMoodAdapter(List<MoodEvent> moodEvents) {
-        moodCardAdapter = new MoodCardAdapter(moodEvents);
+        moodCardAdapter = new JournalCardAdapter(moodEvents);
         journalRecyclerView.setAdapter(moodCardAdapter);
     }
     private void fetchProfileImageUrl(String userId) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users").document(userId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String imageUrl = documentSnapshot.getString("profileImageUrl");
-                        if (imageUrl != null && !imageUrl.isEmpty()) {
-                            loadProfileImage(imageUrl);
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("Firestore", "Error fetching profile image URL", e);
-                });
+        loadProfileImage(globalStorage.getUserFromUName(userId).getPfpUrl());
     }
 
     private void loadProfileImage(String imageUrl) {

@@ -145,10 +145,12 @@ public class SecondFragment extends Fragment {
                 NavHostFragment.findNavController(SecondFragment.this)
                         .navigate(R.id.action_SecondFragment_to_JournalFragment));
         searchBar = view.findViewById(R.id.search_bar);
+
         pfp = view.findViewById(R.id.profile_pic);
         fetchProfileImageUrl(globalStorage.getCurrentUserId());
         binding.homeButton.setTextColor(getResources().getColor(R.color.green));
         binding.homeButton.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.green)));
+
         // inflate the search results xml layout
         View searchResultsView = inflater.inflate(R.layout.search_results, container, false);
         searchResultsListView = searchResultsView.findViewById(R.id.search_results_listview);
@@ -171,6 +173,7 @@ public class SecondFragment extends Fragment {
             searchBar.setText("");
             navigateToUserProfile(selectedUsername);
         });
+        // Disable back gestures from this fragment
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -209,25 +212,10 @@ public class SecondFragment extends Fragment {
         // If anything is too be added do it here
     }
     private void fetchProfileImageUrl(String userId) {
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users").document(userId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String imageUrl = documentSnapshot.getString("profileImageUrl");
-                        if (imageUrl != null && !imageUrl.isEmpty()) {
-                            loadProfileImage(imageUrl);
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("Firestore", "Error fetching profile image URL", e);
-                });
+        loadProfileImage(globalStorage.getUserFromUName(userId).getPfpUrl());
     }
 
     private void loadProfileImage(String imageUrl) {
-
         Glide.with(this)
                 .load(imageUrl)
                 .circleCrop()
@@ -286,9 +274,6 @@ public class SecondFragment extends Fragment {
         float density = getResources().getDisplayMetrics().density;
         return Math.round(dp * density);
     }
-    public String getSearchText() {
-        return searchText;
-    }
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -341,6 +326,7 @@ public class SecondFragment extends Fragment {
     private void filterToRecentMoods(List<MoodEvent> allMoodEvents) {
         // Group mood events by user
         Map<String, List<MoodEvent>> moodsByUser = new HashMap<>();
+        globalStorage.clearMoods();
         for (MoodEvent event : allMoodEvents) {
             String userId = event.getId();
             if (!moodsByUser.containsKey(userId)) {
@@ -368,86 +354,159 @@ public class SecondFragment extends Fragment {
     }
     //    changed this to only display moods of followees
     private void fetchMoodEvents() {
-        Log.d("fetched", "applyFilter: ");
-        // Get the logged in username from MyApplication
+        Log.d("MoodSync", "Starting fetchMoodEvents");
         MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
         String currentUsername = myApp.getLoggedInUsername();
+
+        // Check for valid user
         if (currentUsername == null || currentUsername.isEmpty()) {
             Log.e("SecondFragment", "No logged in user found");
             moodCardAdapter.updateMoodEvents(new ArrayList<>());
             return;
         }
-        // First, get the current user's document to access their followingList
-        db.collection("users")
-                .whereEqualTo("userName", currentUsername)
-                .get()
-                .addOnCompleteListener(userTask -> {
-                    if (userTask.isSuccessful() && !userTask.getResult().isEmpty()) {
-                        DocumentSnapshot userDoc = userTask.getResult().getDocuments().get(0);
-                        List<String> followingUsers = (List<String>) userDoc.get("followingList");
-                        if (followingUsers == null) {
-                            followingUsers = new ArrayList<>();
+
+        // Try to load from cache first
+        List<MoodEvent> cachedMoods = globalStorage.getMoodList();
+        if (!cachedMoods.isEmpty()) {
+            Log.d("MoodSync", "Displaying cached moods");
+            filterToRecentMoods(cachedMoods);
+            moodCardAdapter.updateMoodEvents(cachedMoods);
+        }
+
+        // Get user data (first from cache, then network)
+        User cachedUser = globalStorage.getUserFromUName(currentUsername);
+        List<String> followingUsers;
+
+        if (cachedUser != null && cachedUser.getFollowingList() != null) {
+            followingUsers = cachedUser.getFollowingList();
+            Log.d("MoodSync", "Using cached following list");
+        } else {
+            followingUsers = new ArrayList<>();
+        }
+
+        // Add current user if not already in list
+        if (!followingUsers.contains(currentUsername)) {
+            followingUsers.add(currentUsername);
+        }
+        if (NetworkUtils.isConnected(getContext())) {
+            // Network request for fresh data
+            db.collection("users")
+                    .whereEqualTo("userName", currentUsername)
+                    .get()
+                    .addOnCompleteListener(userTask -> {
+                        if (userTask.isSuccessful() && !userTask.getResult().isEmpty()) {
+                            DocumentSnapshot userDoc = userTask.getResult().getDocuments().get(0);
+                            List<String> freshFollowingUsers = (List<String>) userDoc.get("followingList");
+                            // Update local cache with fresh following list
+                            if (freshFollowingUsers != null) {
+                                followingUsers.clear();
+                                followingUsers.addAll(freshFollowingUsers);
+                                if (!followingUsers.contains(currentUsername)) {
+                                    followingUsers.add(currentUsername);
+                                }
+
+                                // Update user in cache
+                                User updatedUser = userDoc.toObject(User.class);
+                                globalStorage.addUser(updatedUser);
+                            }
+
+                            // Determine query based on following count
+                            if (followingUsers.size() <= 1) {
+                                fetchSingleUserMoods(currentUsername, globalStorage);
+                            } else {
+                                fetchFollowedUsersMoods(followingUsers, globalStorage);
+                            }
+                        } else {
+                            Log.e("Firestore", "Error fetching user data", userTask.getException());
+                            // If we have cached data, use it instead of showing error
+                            if (!cachedMoods.isEmpty()) {
+                                Toast.makeText(getContext(), "Using cached data", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getContext(), "Failed to load data", Toast.LENGTH_SHORT).show();
+                            }
                         }
-                        //Add current user to see their own posts too
-                        if (!followingUsers.contains(currentUsername)) {
-                            followingUsers.add(currentUsername);
-                            Log.d("JJJJ", "fetchMoodEvents: "+ followingUsers);
-                        }
-                        // If not following anyone (just self), show only own moods
-                        if (followingUsers.size() <= 1) {
-                            db.collection("mood_events")
-                                    .whereEqualTo("id", currentUsername)
-                                    .whereEqualTo("public", true)
-                                    .get()
-                                    .addOnCompleteListener(task -> {
-                                        if (task.isSuccessful()) {
-                                            globalStorage.clearMoods();
-                                            List<MoodEvent> moodEvents = new ArrayList<>();
-                                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                                MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                                                moodEvent.setDocumentId(document.getId());
-                                                moodEvents.add(moodEvent);
-                                                globalStorage.insertMood(moodEvent);
-                                            }
-                                            filterToRecentMoods(moodEvents);
-                                        } else {
-                                            Log.e("Firestore", "Error fetching mood events", task.getException());
-                                            Toast.makeText(getContext(), "Failed to load mood events", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                            return;
-                        }
-                        // Query mood_events where user is in the list of followed users
-                        db.collection("mood_events")
-                                .whereIn("id", followingUsers)
-                                .whereEqualTo("public", true)
-                                .get()
-                                .addOnCompleteListener(task -> {
-                                    if (task.isSuccessful()) {
-//                                      List<MoodEvent> moodEvents = new ArrayList<>();
-                                        globalStorage.clearMoods();
-                                        for (QueryDocumentSnapshot document : task.getResult()) {
-                                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                                            moodEvent.setDocumentId(document.getId());
-                                            moodEvents.add(moodEvent);
-                                            globalStorage.insertMood(moodEvent);
-                                        }
-                                        filterToRecentMoods(moodEvents);
-                                        Log.d("sex8", "fetchMoodEvents: " + moodEvents);
-                                        filterIcon.setOnClickListener(v -> showFilterPopup(moodEvents));
-                                    } else {
-                                        Log.e("Firestore", "Error fetching mood events", task.getException());
-                                        Toast.makeText(getContext(), "Failed to load mood events", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                    } else {
-                        Log.e("Firestore", "Error fetching user data", userTask.getException());
-                        Toast.makeText(getContext(), "Failed to load user data", Toast.LENGTH_SHORT).show();
-                    }
-                });
-        Log.d("FUCK1", "fetchMoodEvents: "+ moodEvents);
+                    });
+        }
     }
-    //filter functionalit
+
+    private void fetchSingleUserMoods(String username, LocalStorage globalStorage) {
+        // Try cache first
+        List<MoodEvent> userMoods = new ArrayList<>();
+        for (MoodEvent mood : globalStorage.getMoodList()) {
+            if (mood.getId().equals(username) && mood.isPublic()) {
+                userMoods.add(mood);
+            }
+        }
+
+        if (!userMoods.isEmpty()) {
+            filterToRecentMoods(userMoods);
+            moodCardAdapter.updateMoodEvents(userMoods);
+        }
+
+        if (NetworkUtils.isConnected(getContext())) {
+            // Network request for fresh data
+            db.collection("mood_events")
+                    .whereEqualTo("id", username)
+                    .whereEqualTo("public", true)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            List<MoodEvent> freshMoods = new ArrayList<>();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                                moodEvent.setDocumentId(document.getId());
+                                freshMoods.add(moodEvent);
+                                globalStorage.addMood(moodEvent); // Update cache
+                            }
+                            filterToRecentMoods(freshMoods);
+                            moodCardAdapter.updateMoodEvents(freshMoods);
+                        } else {
+                            Log.e("Firestore", "Error fetching single user moods", task.getException());
+                        }
+                    });
+        }
+    }
+
+    private void fetchFollowedUsersMoods(List<String> followingUsers, LocalStorage globalStorage) {
+        // Try cache first
+        List<MoodEvent> followedMoods = new ArrayList<>();
+        for (MoodEvent mood : globalStorage.getMoodList()) {
+            if (followingUsers.contains(mood.getId()) && mood.isPublic()) {
+                followedMoods.add(mood);
+            }
+        }
+
+        if (!followedMoods.isEmpty()) {
+            filterToRecentMoods(followedMoods);
+            moodCardAdapter.updateMoodEvents(followedMoods);
+        }
+
+        if (NetworkUtils.isConnected(getContext())) {
+            // Network request for fresh data
+            db.collection("mood_events")
+                    .whereIn("id", followingUsers)
+                    .whereEqualTo("public", true)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            List<MoodEvent> freshMoods = new ArrayList<>();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                                moodEvent.setDocumentId(document.getId());
+                                freshMoods.add(moodEvent);
+                                globalStorage.addMood(moodEvent); // Update cache
+                            }
+                            filterToRecentMoods(freshMoods);
+                            moodCardAdapter.updateMoodEvents(freshMoods);
+                            filterIcon.setOnClickListener(v -> showFilterPopup(freshMoods));
+                        } else {
+                            Log.e("Firestore", "Error fetching followed users' moods", task.getException());
+                        }
+                    });
+        }
+    }
+
+    //filter functionality
     private void showFilterPopup(List<MoodEvent> moodEvents) {
         Log.d("FUCK2", "fetchMoodEvents: "+ moodEvents);
 

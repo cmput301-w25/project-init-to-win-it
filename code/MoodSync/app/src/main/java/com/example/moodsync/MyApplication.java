@@ -25,12 +25,15 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         FirebaseApp.initializeApp(this);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         globalStorage = LocalStorage.getInstance();
 
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(true) // Default: true (enabled)
                 .build();
         FirebaseFirestore.getInstance().setFirestoreSettings(settings);
+        db.setFirestoreSettings(settings);
 
     }
 }

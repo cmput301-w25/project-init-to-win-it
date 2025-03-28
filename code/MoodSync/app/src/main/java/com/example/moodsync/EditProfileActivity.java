@@ -296,6 +296,7 @@ public class EditProfileActivity extends Fragment {
                 uploadTask.addOnSuccessListener(taskSnapshot -> {
                     storageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
                         imageUrl = downloadUrl.toString();
+                        globalStorage.getUserFromUName(globalStorage.getCurrentUserId()).setPfpUrl(imageUrl);
                         Log.d("FirebaseStorage", "Image URL: " + imageUrl);
                         listener.onImageUploaded(imageUrl);
                     }).addOnFailureListener(exception -> {

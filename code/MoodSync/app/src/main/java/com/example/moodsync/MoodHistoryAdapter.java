@@ -199,12 +199,12 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
     }
 
     private void deleteMoodFromFirestore(MoodHistoryItem item, int position) {
+        moodHistoryItems.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, moodHistoryItems.size());
         db.collection("mood_events").document(item.getId())
                 .delete()
                 .addOnSuccessListener(aVoid -> {
-                    moodHistoryItems.remove(position);
-                    notifyItemRemoved(position);
-                    notifyItemRangeChanged(position, moodHistoryItems.size());
                 })
                 .addOnFailureListener(e -> {
                     // Handle the error (optional logging)

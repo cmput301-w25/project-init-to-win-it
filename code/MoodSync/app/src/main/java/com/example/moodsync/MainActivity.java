@@ -7,6 +7,8 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import com.example.moodsync.databinding.ActivityMainBinding;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
+
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -17,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());

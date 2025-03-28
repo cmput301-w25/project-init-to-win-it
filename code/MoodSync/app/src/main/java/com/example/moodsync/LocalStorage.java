@@ -28,6 +28,16 @@ public class LocalStorage {
     private ArrayList<MoodEvent> MoodList = new ArrayList<>();
     private ArrayList<Comment> Comments = new ArrayList<Comment>();
 
+    public ArrayList<MoodEvent> getPrivList() {
+        return PrivList;
+    }
+
+    public void setPrivList(ArrayList<MoodEvent> privList) {
+        PrivList = privList;
+    }
+
+    private ArrayList<MoodEvent> PrivList = new ArrayList<MoodEvent>();
+
     private LocalStorage() {
         UserList = new ArrayList<>();
         MoodList = new ArrayList<>();

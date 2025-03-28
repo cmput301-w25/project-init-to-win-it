@@ -50,7 +50,7 @@ public class User {
     }
 
     public String getPfpUrl() {
-        return pfpUrl;
+        return this.pfpUrl;
     }
     public void setPfpUrl(String pfpUrl) {
         this.pfpUrl = pfpUrl;
