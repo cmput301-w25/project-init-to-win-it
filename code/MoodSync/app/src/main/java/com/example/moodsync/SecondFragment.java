@@ -334,7 +334,7 @@ public class SecondFragment extends Fragment {
         Collections.sort(filteredMoods, (mood1, mood2) ->
                 Long.compare(mood2.getDate(), mood1.getDate()));
 
-        // Update the adaptetr with the filtered list
+        // Update the adapter with the filtered list
         moodCardAdapter.updateMoodEvents(filteredMoods);
         Log.d("MoodEvents", "Filtered to " + filteredMoods.size() + " recent mood events");
     }
