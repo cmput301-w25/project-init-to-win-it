@@ -18,6 +18,7 @@
             app:destination="@id/LoginFragment" />
     </fragment>
 
+
     <fragment
         android:id="@+id/RegisterFragment"
         android:name="com.example.moodsync.RegisterFragment"
@@ -44,7 +45,12 @@
             android:id="@+id/action_LoginFragment_to_RegisterFragment"
             app:destination="@id/RegisterFragment" />
     </fragment>
-
+    <fragment
+        android:id="@+id/moojic"
+        android:name="com.example.moodsync.MoojicFragment"
+        android:label="music"
+        tools:layout="@layout/fragment_moojic">
+    </fragment>
 
     <fragment
         android:id="@+id/SecondFragment"
@@ -59,7 +65,7 @@
             app:destination="@id/addMoodActivityFragment" />
         <action
             android:id="@+id/action_SecondFragment_to_moodHistoryFragment"
-            app:destination="@id/moodHistoryFragment" />
+            app:destination="@id/moojic" />
         <action
             android:id="@+id/action_SecondFragment_to_editMoodActivityFragment"
             app:destination="@id/editMoodActivityFragment" />
@@ -75,6 +81,7 @@
         <action
             android:id="@+id/action_SecondFragment_to_JournalFragment"
             app:destination="@id/JournalFragment" />
+
     </fragment>
 
     <fragment

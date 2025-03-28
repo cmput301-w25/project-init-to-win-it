@@ -80,6 +80,8 @@
         <item>Scared</item>
     </string-array>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="now_playing">Now playing: %1$s by %2$s</string>
+
 
 
 </resources>
