@@ -65,7 +65,7 @@
             app:destination="@id/addMoodActivityFragment" />
         <action
             android:id="@+id/action_SecondFragment_to_moodHistoryFragment"
-            app:destination="@id/moojic" />
+            app:destination="@id/moodHistoryFragment" />
         <action
             android:id="@+id/action_SecondFragment_to_editMoodActivityFragment"
             app:destination="@id/editMoodActivityFragment" />
