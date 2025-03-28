@@ -24,6 +24,7 @@ recyclerview = "1.4.0"
 recyclerviewVersion = "1.3.2"
 googleAndroidLibrariesMapsplatformSecretsGradlePlugin = "2.0.1"
 playServicesMaps = "19.1.0"
+playServicesLocation = "21.3.0"
 #>>>>>>> 4bd71cf3063b87d4c82a733ba25a686acb787892
 
 [libraries]
@@ -56,6 +57,7 @@ firebase-storage = { group = "com.google.firebase", name = "firebase-storage", v
 recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 recyclerview-v132 = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerviewVersion" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 #>>>>>>> 4bd71cf3063b87d4c82a733ba25a686acb787892
 
 [plugins]
