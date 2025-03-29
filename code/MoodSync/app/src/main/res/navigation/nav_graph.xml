@@ -18,6 +18,7 @@
             app:destination="@id/LoginFragment" />
     </fragment>
 
+
     <fragment
         android:id="@+id/RegisterFragment"
         android:name="com.example.moodsync.RegisterFragment"
@@ -44,7 +45,12 @@
             android:id="@+id/action_LoginFragment_to_RegisterFragment"
             app:destination="@id/RegisterFragment" />
     </fragment>
-
+    <fragment
+        android:id="@+id/moojic"
+        android:name="com.example.moodsync.MoojicFragment"
+        android:label="music"
+        tools:layout="@layout/fragment_moojic">
+    </fragment>
 
     <fragment
         android:id="@+id/SecondFragment"
@@ -72,8 +78,30 @@
         <action
             android:id="@+id/action_SecondFragment_to_mapsActivity"
             app:destination="@id/mapsActivity" />
+        <action
+            android:id="@+id/action_SecondFragment_to_JournalFragment"
+            app:destination="@id/JournalFragment" />
+
     </fragment>
 
+    <fragment
+        android:id="@+id/JournalFragment"
+        android:name="com.example.moodsync.JournalFragment"
+        android:label="Journal"
+        tools:layout="@layout/journal_fragment">
+        <action
+            android:id="@+id/action_JournalFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_JournalFragment_to_mapsActivity"
+            app:destination="@id/mapsActivity" />
+        <action
+            android:id="@+id/action_JournalFragment_to_addMoodActivityFragment"
+            app:destination="@id/addMoodActivityFragment" />
+        <action
+            android:id="@+id/action_JournalFragment_to_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
+    </fragment>
 
     <activity
         android:id="@+id/mapsActivity"
@@ -104,20 +132,30 @@
             app:destination="@id/SecondFragment" />
     </fragment>
 
+
     <fragment
         android:id="@+id/moodHistoryFragment"
         android:name="com.example.moodsync.MoodHistoryFragment"
         android:label="Mood History"
         tools:layout="@layout/mood_history_fragment">
         <action
+            android:id="@+id/action_moodHistoryFragment_to_editMoodFragment"
+            app:destination="@id/editMoodActivityFragment" />
+        <action
             android:id="@+id/action_moodHistoryFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_moodHistoryFragment_to_mapsActivity"
+            app:destination="@id/mapsActivity" />
         <action
             android:id="@+id/action_moodHistoryFragment_to_addMoodActivityFragment"
             app:destination="@id/addMoodActivityFragment" />
         <action
-            android:id="@+id/action_moodHistoryFragment_to_editMoodFragment"
-            app:destination="@id/editMoodActivityFragment" />
+            android:id="@+id/action_moodHistoryFragmentto_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
+        <action
+            android:id="@+id/action_moodHistoryFragment_to_JournalFragment"
+            app:destination="@id/JournalFragment" />
     </fragment>
 
     <fragment
@@ -154,6 +192,9 @@
             android:name="selectedUserId"
             app:argType="string"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
     </fragment>
     <fragment
         android:id="@+id/editProfileActivity"

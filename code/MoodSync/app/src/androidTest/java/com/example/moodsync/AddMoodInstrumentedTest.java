@@ -103,7 +103,7 @@ public class AddMoodInstrumentedTest {
         onView(withId(R.id.next)).perform(click());
 
         // Step 4: Fill out the second Add Mood screen
-        onView(withId(R.id.triggerInput))
+        onView(withId(R.id.trigger_text_view))
                 .perform(typeText("test trigger"), closeSoftKeyboard());
         onView(withId(R.id.createmood)).perform(click());
 
@@ -143,7 +143,7 @@ public class AddMoodInstrumentedTest {
 
         // 5) Verify that we did NOT navigate to the second page
         //    by checking that the second screen’s 'triggerInput' does not exist
-        onView(withId(R.id.triggerInput))
+        onView(withId(R.id.trigger_text_view))
                 .check(doesNotExist());
     }
 

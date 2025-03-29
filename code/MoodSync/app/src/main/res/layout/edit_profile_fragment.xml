@@ -103,7 +103,7 @@
                                 android:textColor="#203434"
                                 android:textSize="22sp"
                                 android:textStyle="bold"
-                                android:id = "@+id/nameofuser"/>
+                                android:id="@+id/nameofuser"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -111,7 +111,7 @@
                                 android:text="\@Johndoe"
                                 android:textColor="#2E4545"
                                 android:textSize="16sp"
-                                android:id = "@+id/usernameofuser"/>
+                                android:id="@+id/usernameofuser"/>
 
                             <LinearLayout
                                 android:layout_width="wrap_content"
@@ -132,7 +132,7 @@
                                     android:text="New York, USA"
                                     android:textColor="#2E4545"
                                     android:textSize="14sp"
-                                    android:id = "@+id/locationofuser"/>
+                                    android:id="@+id/locationofuser"/>
                             </LinearLayout>
 
                             <com.google.android.material.button.MaterialButton
@@ -160,7 +160,7 @@
                         android:text="Photographer | Travel Enthusiast | Coffee Lover\nCapturing moments and sharing stories through my lens. Always on the lookout for the next adventure."
                         android:textColor="#203434"
                         android:textSize="14sp"
-                        android:id = "@+id/bioofuser"/>
+                        android:id="@+id/bioofuser"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -243,42 +243,54 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="8dp"
-                android:orientation="horizontal">
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                app:strokeColor="#F5F5DC"
+                app:strokeWidth="1dp">
 
-                <TextView
-                    android:layout_width="0dp"
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabs"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Photos"
-                    android:textColor="#F5F5DC"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:background="@android:color/transparent"
+                    app:tabBackground="@drawable/tab_selector"
+                    app:tabTextColor="#A0000000"
+                    app:tabSelectedTextColor="#203434"
+                    app:tabIndicatorHeight="0dp"
+                    app:tabRippleColor="@android:color/transparent"
+                    app:tabGravity="fill"
+                    app:tabMode="fixed">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="See All"
-                    android:textColor="#F5F5DC"
-                    android:textSize="14sp" />
-            </LinearLayout>
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Public" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Private" />
+
+                </com.google.android.material.tabs.TabLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <GridView
                 android:id="@+id/photos_listview"
-                android:layout_width="400dp"
-                android:layout_height="305dp"
+                android:layout_width="wrap_content"
+                android:layout_height="278dp"
                 android:layout_marginHorizontal="16dp"
                 android:clipToPadding="false"
-                android:horizontalSpacing="2dp"
+                android:horizontalSpacing="8dp"
                 android:minHeight="220dp"
                 android:numColumns="3"
                 android:paddingBottom="8dp"
                 android:stretchMode="columnWidth"
-                android:verticalSpacing="5dp" />
+                android:verticalSpacing="8dp" />
 
         </LinearLayout>
     </ScrollView>
