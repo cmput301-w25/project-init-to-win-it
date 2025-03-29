@@ -296,11 +296,13 @@ public class MoodHistoryFragment extends Fragment {
         filterClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                filterSpinner.setSelection(0);
+                selectedEmotionalState = "";
+                keywordEditTextData = "";
+                //Restoring Original Data
                 if (originalMoodHistoryItems.size() == 0){
                     return;
                 }
-                filterSpinner.setSelection(0);
-                //Restoring Original Data
                 moodHistoryItems.clear();
                 moodHistoryItems.addAll(originalMoodHistoryItems);
                 moodHistoryAdapter.notifyDataSetChanged();

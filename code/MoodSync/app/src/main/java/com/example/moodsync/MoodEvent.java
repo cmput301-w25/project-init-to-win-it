@@ -6,6 +6,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.example.moodsync.MoodHistoryFragment;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.util.Date;
 
@@ -47,6 +48,17 @@ public class MoodEvent implements Parcelable {
         this.imageUrl = imageUrl;
         this.isPublic = isPublic;
         this.id = id;
+    }
+    public MoodEvent(String mood, String trigger, String description, String socialSituation, long date, String imageUrl, boolean isPublic, String id, String location) {
+        this.mood = mood;
+        this.trigger = trigger;
+        this.description = description;
+        this.socialSituation = socialSituation;
+        this.date=date;
+        this.imageUrl = imageUrl;
+        this.isPublic = isPublic;
+        this.id = id;
+        this.location = location;
     }
     protected MoodEvent(Parcel in) {
         mood = in.readString();
