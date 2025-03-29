@@ -88,8 +88,9 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
+                globalStorage.setCurrentMoodForEdit(currentItem.getDate().getTime());
                 listener.onItemClick(currentItem);
-                Log.d("offline mood", "onBindViewHolder: "+currentItem.getMood());
+                Log.d("offline mood", "onBindViewHolder: "+currentItem.getDate().getTime());
 
             }
         });
@@ -204,7 +205,7 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
     private void deleteMoodFromFirestore(MoodHistoryItem item, int position) {
         moodHistoryItems.remove(position);
         //mood Event
-        globalStorage.removeMood(item.getId());
+        globalStorage.removeMood(item.getDate().getTime());
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, moodHistoryItems.size());
         db.collection("mood_events").document(item.getId())

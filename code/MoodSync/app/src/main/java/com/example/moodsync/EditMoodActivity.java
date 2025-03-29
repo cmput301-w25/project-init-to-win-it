@@ -93,6 +93,7 @@ public class EditMoodActivity extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference moodEventsRef;
     private MoodEvent moodEventToEdit;
+    public LocalStorage globalStorage = LocalStorage.getInstance();
 
     private boolean isPublic = false; // Default to private
     /**
@@ -140,7 +141,7 @@ public class EditMoodActivity extends Fragment {
         moodGradients.put("Disgusted", R.drawable.disgusted_gradient);
 
         if (getArguments() != null) {
-            moodEventToEdit = getArguments().getParcelable("moodEvent");
+            moodEventToEdit = globalStorage.getMoodEvent(globalStorage.getCurrentMoodForEdit());
         }
 
         if (moodEventToEdit == null) {
@@ -195,7 +196,6 @@ public class EditMoodActivity extends Fragment {
         }
 
         descriptionInput.setText(moodEventToEdit.getDescription());
-
 
         moodSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -669,6 +669,7 @@ public class EditMoodActivity extends Fragment {
      * @param moodEvent The mood event to update.
      */
     private void updateMoodEvent(MoodEvent moodEvent) {
+        globalStorage.updateMood(globalStorage.getCurrentMoodForEdit(),moodEvent);
         moodEventsRef.whereEqualTo("description", moodEventToEdit.getDescription()).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {

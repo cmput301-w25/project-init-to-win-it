@@ -33,17 +33,17 @@ public class LocalStorage {
 
     private String searchResult;
 
-    private static String currentUserId;
+    private String currentUserId;
 
-    public static String getCurrentMoodForEdit() {
+    public long getCurrentMoodForEdit() {
         return currentMoodForEdit;
     }
 
-    public static void setCurrentMoodForEdit(String currentMoodForEdit) {
+    public void setCurrentMoodForEdit(long currentMoodForEdit) {
         LocalStorage.currentMoodForEdit = currentMoodForEdit;
     }
 
-    private static String currentMoodForEdit;
+    private static long currentMoodForEdit;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -80,25 +80,13 @@ public class LocalStorage {
     public void clearMoods(){
         MoodList.clear();
     }
-    public void updateMood(String user) {
-        db.collection("mood_events")
-                .whereEqualTo("id", user)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            MoodEvent updatedMood = document.toObject(MoodEvent.class);
-                            for (int i = 0; i < MoodList.size(); i++) {
-                                if (MoodList.get(i).getId().equals(user)) {
-                                    MoodList.set(i, updatedMood);
-                                    break;
-                                }
-                            }
-                        }
-                    } else {
-                        Log.e("Firestore", "Error getting documents: ", task.getException());
-                    }
-                });
+    public void updateMood(long time, MoodEvent mood){
+        // Update data of the specific mood
+        for (int i=0;i<MoodList.size();i++){
+            if (MoodList.get(i).getDate() == time){
+                MoodList.set(i,mood);
+            }
+        }
     }
 
     //Updates the UserList with the latest information from the database (only for  "username")
@@ -129,7 +117,7 @@ public class LocalStorage {
     }
 
     public void setCurrentUserId(String currentUserId) {
-        LocalStorage.currentUserId = currentUserId;
+        this.currentUserId = currentUserId;
     }
 
     // Public method to get the singleton instance
@@ -224,13 +212,22 @@ public class LocalStorage {
         }
         return use;
     }
-    public void removeMood(String documentID){
+    public void removeMood(long millis){
         for (int i=0; i<MoodList.size();i++) {
-            if (MoodList.get(i).getDocumentId().equals(documentID)){
+            if (MoodList.get(i).getDate() == (millis)){
                 MoodList.remove(i);
                 break;
             }
         }
+    }
+
+    public MoodEvent getMoodEvent(long millis){
+        for (int i=0; i<MoodList.size();i++) {
+            if (MoodList.get(i).getDate() == (millis)) {
+                return MoodList.get(i);
+            }
+        }
+        return null;
     }
 
     public ArrayList<MoodEvent>  getMoodsForCurrentUser(User user,boolean isPublic){
