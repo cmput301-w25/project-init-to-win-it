@@ -28,6 +28,7 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
     private final Context context;
     private final FirebaseFirestore db;
     private OnItemClickListener listener;
+    public LocalStorage globalStorage = LocalStorage.getInstance();
 
     public interface OnItemClickListener {
         void onItemClick(MoodHistoryItem item);
@@ -158,7 +159,6 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
     public int getItemCount() {
         return moodHistoryItems.size();
     }
-
     private void showDeleteConfirmationDialog(MoodHistoryItem item, int position) {
         // Create a custom dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.BottomSheetDialogTheme);
@@ -203,6 +203,8 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
 
     private void deleteMoodFromFirestore(MoodHistoryItem item, int position) {
         moodHistoryItems.remove(position);
+        //mood Event
+        globalStorage.removeMood(item.getId());
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, moodHistoryItems.size());
         db.collection("mood_events").document(item.getId())

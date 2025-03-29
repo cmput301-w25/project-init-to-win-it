@@ -1,14 +1,27 @@
 package com.example.moodsync;
 
 import android.util.Log;
+import android.view.ContextMenu;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 public class LocalStorage {
     private static LocalStorage instance;
+
+    public String getPfpUrl() {
+        return pfpUrl;
+    }
+
+    public void setPfpUrl(String pfpUrl) {
+        LocalStorage.pfpUrl = pfpUrl;
+    }
+
+    private static String pfpUrl;
 
     public String getSearchResult() {
         return searchResult;
@@ -173,15 +186,32 @@ public class LocalStorage {
         return smn;
     }
 
+    public void insertComment(Comment comment){
+        if (!Comments.isEmpty()) {
+            int flag = 0;
+            for (int i = 0; i < Comments.size(); i++) {
+                if (Comments.get(i).getCommentId().equals(comment.getCommentId())) {
+                    flag = 1;   // Found
+                    break;
+                }
+            }
+            if (flag == 0) {
+                Comments.add(comment);
+            }
+        }
+        }
     public void insertMood(MoodEvent moodEvent) {
         int flag =0;
+        if (!MoodList.isEmpty()){
         for (int i=0; i<MoodList.size();i++) {
-            if (moodEvent.getId().equals(MoodList.get(i).getId())){
+            if (moodEvent.getDate() == MoodList.get(i).getDate()) {
                 flag = 1;   // Found
                 break;
             }
         }
+        }
         if (flag == 0){
+            Log.d("Insert mood", "insertMood: NEW MOOD"+moodEvent.getId());
             MoodList.add(moodEvent);
         }
     }
@@ -193,6 +223,24 @@ public class LocalStorage {
             }
         }
         return use;
+    }
+    public void removeMood(String documentID){
+        for (int i=0; i<MoodList.size();i++) {
+            if (MoodList.get(i).getDocumentId().equals(documentID)){
+                MoodList.remove(i);
+                break;
+            }
+        }
+    }
+
+    public ArrayList<MoodEvent>  getMoodsForCurrentUser(User user,boolean isPublic){
+        ArrayList <MoodEvent> temp = new ArrayList<MoodEvent>();
+        for (int i = 0; i < MoodList.size(); i++) {
+            if (MoodList.get(i).getId().equals(user.getId()) && MoodList.get(i).isPublic() == isPublic) {
+                temp.add(MoodList.get(i));
+            }
+        }
+        return temp;
     }
 
 }

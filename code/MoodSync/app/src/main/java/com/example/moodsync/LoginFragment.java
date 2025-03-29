@@ -35,6 +35,7 @@ public class LoginFragment extends Fragment {
     private TextInputEditText usernameInput, passwordInput;
     private MaterialButton loginButton;
     private FirebaseFirestore db;
+    LocalStorage globalStorage = LocalStorage.getInstance();
 
     @Nullable
     @Override
@@ -114,6 +115,7 @@ public class LoginFragment extends Fragment {
 
                             if (storedUsername.equals(username) && storedPassword.equals(password)) {
                                 userFound = true;
+                                globalStorage.setCurrentUserId(username);
                                 break;
                             }
                         }

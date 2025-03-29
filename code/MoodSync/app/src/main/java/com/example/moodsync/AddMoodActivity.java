@@ -812,12 +812,12 @@ public class AddMoodActivity extends Fragment {
      * @param moodEvent The mood event to be saved in Firestore.
      */
     private void saveMoodEventToFirestore(MoodEvent moodEvent) {
+        showSuccessDialogUI();
+        Log.d("SAVE MOOD", "saveMoodEventToFirestore: "+moodEvent.getId());
         moodEventsRef.add(moodEvent)
-                .addOnSuccessListener(aVoid -> showSuccessDialogUI())
                 .addOnFailureListener(e -> showErrorToast(e));
         globalStorage.insertMood(moodEvent);
     }
-
     /**
      * Deletes a mood event from Firestore based on the date.
      *

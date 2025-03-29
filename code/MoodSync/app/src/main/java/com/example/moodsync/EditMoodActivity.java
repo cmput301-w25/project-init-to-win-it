@@ -645,8 +645,6 @@ public class EditMoodActivity extends Fragment {
             }
         }
     }
-
-
     /**
      * Refreshes the list of mood events from Firestore.
      */
@@ -665,7 +663,6 @@ public class EditMoodActivity extends Fragment {
             }
         });
     }
-
     /**
      * Updates the mood event in Firestore with new data.
      *
@@ -688,29 +685,6 @@ public class EditMoodActivity extends Fragment {
                     }
                 });
     }
-    /**
-     * Deletes a mood event from the Firestore database.
-     *
-     * @param moodEvent The mood event to be deleted.
-     */
-    private void deleteMoodEvent(MoodEvent moodEvent) {
-        moodEventsRef.whereEqualTo("date", moodEvent.getDate()).get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            moodEventsRef.document(document.getId()).delete()
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.d("FIRESTORE", "Mood event deleted successfully");
-                                        refreshMoodEventsList();
-                                    })
-                                    .addOnFailureListener(e -> Log.e("FIRESTORE", "Failed to delete mood event", e));
-                        }
-                    } else {
-                        Log.e("FIRESTORE", "Mood event not found for deletion");
-                    }
-                });
-    }
-
     /**
      * Displays a success dialog UI for a mood event action and navigates to the mood history after a delay.
      */

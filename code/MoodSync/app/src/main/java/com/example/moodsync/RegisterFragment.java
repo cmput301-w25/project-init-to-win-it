@@ -141,7 +141,6 @@ public class RegisterFragment extends Fragment {
                                 tempUser.setFollowerList((ArrayList<String>) document.get("followerList"));
                                 tempUser.setFollowingList((ArrayList<String>) document.get("followingList"));
                                 tempUser.setCommentList((ArrayList<Integer>) document.get("commentList"));
-
                                 // If doesn't exist, then add
                                 if (!globalStorage.checkIfUserExists(tempUser)){
                                     globalStorage.getUserList().add(tempUser);

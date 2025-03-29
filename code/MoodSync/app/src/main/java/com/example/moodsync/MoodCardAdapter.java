@@ -56,7 +56,7 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
 
     @Override
     public void onBindViewHolder(@NonNull MoodCardViewHolder holder, int position) {
-        MoodEvent moodEvent = globalStorage.getMoodList().get(position);
+        MoodEvent moodEvent = moodEvents.get(position);
 //         MoodEvent moodEvent = moodEvents.get(position);
         Log.d("ADAPTER", "onBindViewHolder: " + moodEvent.getId());
         // Set the username from the mood event's ID (which is the username)
@@ -128,7 +128,7 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
                                     Comment comment = document.toObject(Comment.class);
 
                                     // Add the comment to  local list for offline access
-                                    globalStorage.getComments().add(comment);
+                                    globalStorage.insertComment(comment);
                                 }
                         // Set the count based on how many comments are in this doc
                         holder.commentCount.setText(String.valueOf(snap.size()));
@@ -240,9 +240,6 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
     public void updateMoodEvents(List<MoodEvent> newMoodEvents) {
         this.moodEvents.clear();
         this.moodEvents.addAll(newMoodEvents);
-        for (int i=0;i< newMoodEvents.size();i++) {
-            globalStorage.getMoodList().add(newMoodEvents.get(i));
-        }
         notifyDataSetChanged();
     }
 
