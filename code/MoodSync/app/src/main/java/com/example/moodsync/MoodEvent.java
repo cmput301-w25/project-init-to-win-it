@@ -62,7 +62,6 @@ public class MoodEvent implements Parcelable {
         photoPath = in.readString();
         id = in.readString();
         isPublic = in.readByte() != 0;
-        songUrl = in.readString(); // Add this line
     }
     public String getSongUrl() {
         return songUrl;
@@ -83,14 +82,13 @@ public class MoodEvent implements Parcelable {
         }
     };
 
-    public MoodEvent(String selectedMood, String trigger, String moodDescription, String socialSituation, long currentTimestamp,String imageeUrl,String songUrl) {
+    public MoodEvent(String selectedMood, String trigger, String moodDescription, String socialSituation, long currentTimestamp,String imageeUrl) {
         this.mood = selectedMood;
         this.trigger = trigger;
         this.description = moodDescription;
         this.socialSituation = socialSituation;
         this.date=currentTimestamp;
         this.imageUrl = imageeUrl;
-        this.songUrl = songUrl;
     }
 
     @Override
@@ -110,7 +108,6 @@ public class MoodEvent implements Parcelable {
         dest.writeString(photoPath);
         dest.writeString(id);
         dest.writeByte((byte) (isPublic ? 1 : 0));
-        dest.writeString(songUrl); // Add this line
     }
 
     public String getDocumentId() {

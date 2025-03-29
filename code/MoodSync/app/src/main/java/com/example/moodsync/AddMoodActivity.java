@@ -370,8 +370,6 @@ public class AddMoodActivity extends Fragment {
         });
 
 
-
-
         binding1.cancel.setOnClickListener(v -> NavHostFragment.findNavController(AddMoodActivity.this)
                 .navigate(R.id.action_addMoodActivityFragment_to_SecondFragment));
 
