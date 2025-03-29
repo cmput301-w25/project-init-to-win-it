@@ -10,15 +10,11 @@
     <RelativeLayout
         android:id="@+id/main_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <!-- Step Indicator -->
-
-        <!-- Cancel Button -->
-
-        <!-- Pick Your Mood Title -->
-
-        <!-- Mood Spinner -->
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="0dp">
 
         <TextView
             android:id="@+id/stepIndicator"
@@ -81,7 +77,6 @@
             android:spinnerMode="dropdown"
             android:textColor="@color/secondary_text_color" />
 
-        <!-- Pick Your Emoticon Title -->
         <TextView
             android:id="@+id/pick_emoticon"
             android:layout_width="wrap_content"
@@ -94,7 +89,6 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <!-- Emoticon Horizontal Scroll View -->
         <HorizontalScrollView
             android:id="@+id/horizontal_spinner"
             android:layout_width="match_parent"
@@ -187,16 +181,13 @@
             </LinearLayout>
         </HorizontalScrollView>
 
-        <!-- Add Description Title -->
-
-        <!-- Description EditText -->
         <TextView
             android:id="@+id/add_desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/horizontal_spinner"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="19dp"
+            android:layout_marginTop="24dp"
             android:text="@string/add_your_de"
             android:textColor="@color/primary_text_color"
             android:textSize="24sp"
@@ -204,8 +195,8 @@
 
         <EditText
             android:id="@+id/edit_description"
-            android:layout_width="365dp"
-            android:layout_height="96dp"
+            android:layout_width="match_parent"
+            android:layout_height="84dp"
             android:layout_below="@id/add_desc"
             android:layout_marginStart="24dp"
             android:layout_marginTop="16dp"
@@ -219,14 +210,41 @@
             android:textColorHint="@color/hint_text_color"
             android:textSize="16sp" />
 
-        <!-- Add Photos Section -->
+        <!-- Choose Your Song Title -->
+        <TextView
+            android:id="@+id/choose_song"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/edit_description"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:text="Choose your song"
+            android:textColor="@color/primary_text_color"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <!-- Music Spinner -->
+        <Spinner
+            android:id="@+id/music_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_below="@+id/choose_song"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/edit_text_background"
+            android:dropDownWidth="match_parent"
+            android:entries="@array/music_options"
+            android:spinnerMode="dropdown"
+            android:textColor="@color/secondary_text_color" />
+
         <RelativeLayout
             android:id="@+id/add_photos_section"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/edit_description"
-            android:layout_marginTop="24dp"
+            android:layout_below="@+id/music_spinner"
             android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
             android:layout_marginEnd="24dp">
 
             <View
@@ -255,14 +273,13 @@
                 android:textSize="18sp" />
         </RelativeLayout>
 
-        <!-- Next Button -->
         <Button
             android:id="@+id/next"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/add_photos_section"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="22dp"
+            android:layout_marginTop="24dp"
             android:layout_marginEnd="24dp"
             android:layout_marginBottom="24dp"
             android:background="@drawable/next_button_background"
