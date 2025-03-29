@@ -32,6 +32,16 @@ public class MoodEvent implements Parcelable {
 
     private boolean isPublic;
 
+    public String getSongurl() {
+        return songurl;
+    }
+
+    public void setSongurl(String songurl) {
+        this.songurl = songurl;
+    }
+
+    private String songurl;
+
     // Constructors, getters, and setters
 
     public MoodEvent() {
