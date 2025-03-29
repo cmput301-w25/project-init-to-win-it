@@ -464,7 +464,8 @@ public class EditMoodActivity extends Fragment {
                     imageUrl,
                     isPublic,
                     username,
-                    selectedSongUrl
+                    selectedSongUrl,
+                    selectedSongTitle
             );
 
 

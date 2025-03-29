@@ -275,19 +275,19 @@ public class AddMoodActivity extends Fragment {
             Bundle args = new Bundle();
             this.selectedSongUrl = songUrls.get(which);
 
-            selectedSongTitle = songTitles.get(which);
+            this.selectedSongTitle = songTitles.get(which);
 
             // Update spinner
             ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
                     requireContext(),
                     android.R.layout.simple_spinner_item);
-            spinnerAdapter.add(selectedSongTitle);
+            spinnerAdapter.add(this.selectedSongTitle);
             spinnerAdapter.add("Choose a song");
             spinnerAdapter.add("No music");
             binding1.musicSpinner.setAdapter(spinnerAdapter);
             binding1.musicSpinner.setSelection(0);
 
-            Toast.makeText(requireContext(), "Selected: " + selectedSongUrl, Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Selected: " + this.selectedSongTitle, Toast.LENGTH_SHORT).show();
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
@@ -387,6 +387,7 @@ public class AddMoodActivity extends Fragment {
             args.putString("selectedMood", this.selectedMood);
             args.putString("description", this.moodDescription);
             args.putString("songUrl" , this.selectedSongUrl);
+            args.putString("songName", this.selectedSongTitle);
 
             NavHostFragment.findNavController(AddMoodActivity.this)
                     .navigate(R.id.action_addMoodActivityFragment_to_addMoodActivityFragment2, args);
@@ -731,6 +732,8 @@ public class AddMoodActivity extends Fragment {
             this.selectedMood = getArguments().getString("selectedMood", "");
             this.moodDescription = getArguments().getString("description", "");
             this.selectedSongUrl = getArguments().getString("songUrl" , "");
+            this.selectedSongTitle = getArguments().getString("songName" , "");
+
         }
 
 
@@ -757,7 +760,8 @@ public class AddMoodActivity extends Fragment {
                         imageUrl,
                         isPublic,
                         username,
-                        this.selectedSongUrl
+                        this.selectedSongUrl,
+                        this.selectedSongTitle
                 );
 
                 saveMoodEventToFirestore(moodEvent);

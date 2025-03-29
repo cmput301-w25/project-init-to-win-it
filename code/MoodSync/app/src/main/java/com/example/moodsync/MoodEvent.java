@@ -32,6 +32,7 @@ public class MoodEvent implements Parcelable {
 
     private boolean isPublic;
     private String songUrl;
+    private String songTitle;
 
 
     // Constructors, getters, and setters
@@ -40,7 +41,7 @@ public class MoodEvent implements Parcelable {
         // Default constructor required for Firebase
     }
 
-    public MoodEvent(String mood, String trigger, String description, String socialSituation, long date, String imageUrl, boolean isPublic, String id, String songUrl) {
+    public MoodEvent(String mood, String trigger, String description, String socialSituation, long date, String imageUrl, boolean isPublic, String id, String songUrl, String songTitle) {
         this.mood = mood;
         this.trigger = trigger;
         this.description = description;
@@ -50,6 +51,7 @@ public class MoodEvent implements Parcelable {
         this.isPublic = isPublic;
         this.id = id;
         this.songUrl = songUrl;
+        this.songTitle = songTitle;
     }
     protected MoodEvent(Parcel in) {
         mood = in.readString();
@@ -62,6 +64,8 @@ public class MoodEvent implements Parcelable {
         photoPath = in.readString();
         id = in.readString();
         isPublic = in.readByte() != 0;
+        songUrl = in.readString();
+        songTitle = in.readString();
     }
     public String getSongUrl() {
         return songUrl;
@@ -82,13 +86,15 @@ public class MoodEvent implements Parcelable {
         }
     };
 
-    public MoodEvent(String selectedMood, String trigger, String moodDescription, String socialSituation, long currentTimestamp,String imageeUrl) {
+    public MoodEvent(String selectedMood, String trigger, String moodDescription, String socialSituation, long currentTimestamp,String imageeUrl , String songUrl, String songTitle) {
         this.mood = selectedMood;
         this.trigger = trigger;
         this.description = moodDescription;
         this.socialSituation = socialSituation;
         this.date=currentTimestamp;
         this.imageUrl = imageeUrl;
+        this.songUrl = songUrl;
+        this.songTitle = songTitle;
     }
 
     @Override
@@ -108,6 +114,15 @@ public class MoodEvent implements Parcelable {
         dest.writeString(photoPath);
         dest.writeString(id);
         dest.writeByte((byte) (isPublic ? 1 : 0));
+        dest.writeString(songTitle);
+        dest.writeString(songUrl);
+    }
+    public String getSongTitle() {
+        return songTitle;
+    }
+
+    public void setSongTitle(String songTitle) {
+        this.songTitle = songTitle;
     }
 
     public String getDocumentId() {
@@ -198,4 +213,8 @@ public class MoodEvent implements Parcelable {
     public void setPublic(boolean isPublic) {
         this.isPublic = isPublic;
     }
+    private transient Object tag; // transient means it won't be serialized
+
+
+
 }
