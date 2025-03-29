@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -60,6 +61,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -78,6 +80,8 @@ public class EditMoodActivity extends Fragment {
     private boolean isSecondLayout = false;
     private RelativeLayout mainLayout;
     static String imageUrl;
+    private String selectedSongUrl;
+    private String selectedSongTitle;
 
     private final Map<String, Integer> moodGradients = new HashMap<>();
 
@@ -233,8 +237,24 @@ public class EditMoodActivity extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) {
                 //do nothing
             }
-        });
 
+        });
+        binding1.musicSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedOption = parent.getItemAtPosition(position).toString();
+
+                if (selectedOption.equals("Choose a song")) {
+                    showSongSelectionDialog();
+                }
+                Log.d("song set" , "lund fakir team");
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
         binding1.cancel.setOnClickListener(v -> NavHostFragment.findNavController(EditMoodActivity.this)
                 .navigate(R.id.action_editMoodActivityFragment_to_moodHistoryFragment));
 
@@ -258,6 +278,94 @@ public class EditMoodActivity extends Fragment {
                         .navigate(R.id.action_editMoodActivityFragment_to_editMoodActivityFragment2, args);
             }
         });
+
+    }
+    private void showSongSelectionDialog() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Show loading dialog
+        AlertDialog.Builder loadingBuilder = new AlertDialog.Builder(requireContext());
+        loadingBuilder.setTitle("Loading Songs");
+        loadingBuilder.setMessage("Please wait while we fetch songs...");
+        AlertDialog loadingDialog = loadingBuilder.create();
+        loadingDialog.show();
+
+        // Define collections
+        List<String> collectionNames = Arrays.asList(
+                "songs_happy", "songs_sad", "songs_angry",
+                "songs_disgusted", "songs_surprised", "songs_excited");
+
+        List<String> songTitles = new ArrayList<>();
+        List<String> songUrls = new ArrayList<>();
+        List<String> songCategories = new ArrayList<>();
+
+        final int[] completedQueries = {0};
+        final int totalQueries = collectionNames.size();
+
+        for (String collectionName : collectionNames) {
+            db.collection(collectionName).get().addOnCompleteListener(task -> {
+                completedQueries[0]++;
+
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String title = document.getString("title");
+                        String url = document.getString("url");
+                        String singer = document.getString("singer");
+
+                        if (title != null && url != null) {
+                            String displayTitle = (singer != null && !singer.isEmpty())
+                                    ? title + " - " + singer
+                                    : title;
+
+                            songTitles.add(displayTitle);
+                            songUrls.add(url);
+                            songCategories.add(collectionName.replace("songs_", ""));
+                        }
+                    }
+                }
+
+                // Check if all queries are done
+                if (completedQueries[0] >= totalQueries) {
+                    loadingDialog.dismiss();
+
+                    if (songTitles.isEmpty()) {
+                        Toast.makeText(requireContext(), "No songs found", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Create song selection dialog
+                    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                    builder.setTitle("Select a Song");
+
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            requireContext(),
+                            android.R.layout.simple_list_item_1, // Fixed layout issue
+                            songTitles);
+
+                    builder.setAdapter(adapter, (dialog, which) -> {
+                        selectedSongUrl = songUrls.get(which);
+                        selectedSongTitle = songTitles.get(which);
+
+                        // Update spinner
+                        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                                requireContext(),
+                                android.R.layout.simple_spinner_item);
+                        spinnerAdapter.add(selectedSongTitle);
+                        spinnerAdapter.add("Choose a song");
+                        spinnerAdapter.add("No music");
+                        binding1.musicSpinner.setAdapter(spinnerAdapter);
+                        binding1.musicSpinner.setSelection(0);
+
+                        Toast.makeText(requireContext(), "Selected: " + selectedSongTitle, Toast.LENGTH_SHORT).show();
+                    });
+
+                    builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+                    builder.show();
+                }
+            });
+
+        }
+
 
     }
 
@@ -355,7 +463,8 @@ public class EditMoodActivity extends Fragment {
                     currentTimestamp, // Pass the timestamp to the MoodEvent
                     imageUrl,
                     isPublic,
-                    username
+                    username,
+                    selectedSongUrl
             );
 
 

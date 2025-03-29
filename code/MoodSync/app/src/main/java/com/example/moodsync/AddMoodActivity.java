@@ -25,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -47,6 +48,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
@@ -132,7 +134,8 @@ public class AddMoodActivity extends Fragment {
     private Button selectedSocialSituationButton = null;
 
     private String username;
-
+    private String selectedSongUrl;
+    private String selectedSongTitle;
     private static final int ANIMATION_DURATION = 300; // Animation duration in milliseconds
 
     private FirebaseFirestore db;
@@ -141,6 +144,7 @@ public class AddMoodActivity extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 2;
     private Map<String, Integer> moodGradients = new HashMap<>();
     private boolean isPublic = false; // Default to private
+
 
     /**
      * Creates the view for the fragment.
@@ -151,6 +155,7 @@ public class AddMoodActivity extends Fragment {
      * @return The root view of the fragment's layout.
      */
     static int imageAddedFlag =0 ;
+
 
 
     @Override
@@ -212,6 +217,84 @@ public class AddMoodActivity extends Fragment {
         moodGradients.put("Scared", R.drawable.scared_gradient);
         moodGradients.put("Disgusted", R.drawable.disgusted_gradient);
     }
+    private void fetchSongsForMood(String collectionName) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Show loading dialog
+        AlertDialog.Builder loadingBuilder = new AlertDialog.Builder(requireContext());
+        loadingBuilder.setTitle("Loading Songs");
+        loadingBuilder.setMessage("Please wait while we fetch songs...");
+        AlertDialog loadingDialog = loadingBuilder.create();
+        loadingDialog.show();
+
+        db.collection(collectionName).get().addOnCompleteListener(task -> {
+            loadingDialog.dismiss();
+
+            if (task.isSuccessful()) {
+                List<String> songTitles = new ArrayList<>();
+                List<String> songUrls = new ArrayList<>();
+
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    String title = document.getString("title");
+                    String url = document.getString("url");
+                    String singer = document.getString("singer");
+
+                    if (title != null && url != null) {
+                        String displayTitle = (singer != null && !singer.isEmpty())
+                                ? title + " - " + singer
+                                : title;
+
+                        songTitles.add(displayTitle);
+                        songUrls.add(url);
+                    }
+                }
+
+                if (songTitles.isEmpty()) {
+                    Toast.makeText(requireContext(), "No songs found for this mood", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Show song selection dialog
+                showSongSelectionDialog(songTitles, songUrls);
+            } else {
+                Toast.makeText(requireContext(), "Failed to load songs", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showSongSelectionDialog(List<String> songTitles, List<String> songUrls) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Select a Song");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_list_item_1,
+                songTitles);
+
+        builder.setAdapter(adapter, (dialog, which) -> {
+            Bundle args = new Bundle();
+            this.selectedSongUrl = songUrls.get(which);
+
+            selectedSongTitle = songTitles.get(which);
+
+            // Update spinner
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                    requireContext(),
+                    android.R.layout.simple_spinner_item);
+            spinnerAdapter.add(selectedSongTitle);
+            spinnerAdapter.add("Choose a song");
+            spinnerAdapter.add("No music");
+            binding1.musicSpinner.setAdapter(spinnerAdapter);
+            binding1.musicSpinner.setSelection(0);
+
+            Toast.makeText(requireContext(), "Selected: " + selectedSongUrl, Toast.LENGTH_SHORT).show();
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+
 
     /**
      * Sets up the first layout of the fragment.
@@ -265,6 +348,29 @@ public class AddMoodActivity extends Fragment {
                 // Do nothing
             }
         });
+// Spinner Selection Listener
+        // In setupFirstLayout method, add this code after initializing the spinner
+        binding1.musicSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedOption = parent.getItemAtPosition(position).toString();
+
+                // If a mood is selected, fetch songs for that mood
+                if (!selectedOption.equals("None")) {
+                    // Convert the mood name to lowercase for collection name
+                    String collectionName = "songs_" + selectedOption.toLowerCase();
+                    fetchSongsForMood(collectionName);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
+
+
+
 
         binding1.cancel.setOnClickListener(v -> NavHostFragment.findNavController(AddMoodActivity.this)
                 .navigate(R.id.action_addMoodActivityFragment_to_SecondFragment));
@@ -282,6 +388,7 @@ public class AddMoodActivity extends Fragment {
             args.putBoolean("isSecondLayout", true);
             args.putString("selectedMood", this.selectedMood);
             args.putString("description", this.moodDescription);
+            args.putString("songUrl" , this.selectedSongUrl);
 
             NavHostFragment.findNavController(AddMoodActivity.this)
                     .navigate(R.id.action_addMoodActivityFragment_to_addMoodActivityFragment2, args);
@@ -606,7 +713,6 @@ public class AddMoodActivity extends Fragment {
      * and selecting social situations. Configures the input filter for the Reason input field.
      */
     private void setupSecondLayout() {
-        Log.d("LIFECYCLE", "setupSecondLayout called");
         Button publicButton = binding2.publicButton;
         Button privateButton = binding2.privateButton;
 
@@ -626,6 +732,7 @@ public class AddMoodActivity extends Fragment {
         if (getArguments() != null) {
             this.selectedMood = getArguments().getString("selectedMood", "");
             this.moodDescription = getArguments().getString("description", "");
+            this.selectedSongUrl = getArguments().getString("songUrl" , "");
         }
 
 
@@ -651,7 +758,8 @@ public class AddMoodActivity extends Fragment {
                         currentTimestamp,
                         imageUrl,
                         isPublic,
-                        username
+                        username,
+                        this.selectedSongUrl
                 );
 
                 saveMoodEventToFirestore(moodEvent);

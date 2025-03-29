@@ -18,7 +18,7 @@
         android:textStyle="bold" />
 
     <ImageButton
-        android:id="@+id/back_Button"
+        android:id="@+id/back_Button"   
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_alignParentStart="true"
@@ -50,21 +50,21 @@
         android:id="@+id/reasonLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-<<<<<<< Updated upstream
         android:layout_alignParentTop="true"
         android:layout_marginTop="86dp"
-        android:text="What was the reason for this mood?"
-        android:textColor="#FBFAF5"
-        android:textSize="22sp"
-        android:textStyle="bold" />
-=======
-        android:layout_below="@id/cancel"
-        android:layout_marginTop="70dp"
-        android:text="What was the reason for this mood?"
-        android:textStyle="bold"
-        android:textAppearance="@style/cancel"
-        android:textSize="18sp" />
->>>>>>> Stashed changes
+        android:text="What was the reason for this mood?" />
+
+    <!--=======-->
+    <!--        android:layout_below="@id/cancel"-->
+    <!--        android:layout_marginTop="70dp"-->
+    <!--        android:text="What was the reason for this mood?"-->
+    <!--        android:textStyle="bold"-->
+    <!--        android:textAppearance="@style/cancel"-->
+    <!--        android:textSize="22sp"-->
+    <!--&gt;>>>>>> Stashed changes-->
+    <!--        android:textColor="#FBFAF5"-->
+    <!--        android:textSize="22sp"-->
+    <!--        android:textStyle="bold" />-->
 
     <EditText
         android:id="@+id/ReasonInput"
