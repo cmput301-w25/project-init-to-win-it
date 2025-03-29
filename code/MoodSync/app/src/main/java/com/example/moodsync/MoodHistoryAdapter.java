@@ -2,6 +2,7 @@ package com.example.moodsync;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -87,6 +88,8 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemClick(currentItem);
+                Log.d("offline mood", "onBindViewHolder: "+currentItem.getMood());
+
             }
         });
     }

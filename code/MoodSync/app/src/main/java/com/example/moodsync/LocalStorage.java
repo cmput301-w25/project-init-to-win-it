@@ -22,6 +22,16 @@ public class LocalStorage {
 
     private static String currentUserId;
 
+    public static String getCurrentMoodForEdit() {
+        return currentMoodForEdit;
+    }
+
+    public static void setCurrentMoodForEdit(String currentMoodForEdit) {
+        LocalStorage.currentMoodForEdit = currentMoodForEdit;
+    }
+
+    private static String currentMoodForEdit;
+
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private ArrayList<User> UserList = new ArrayList<User>();

@@ -144,6 +144,7 @@ public class AddMoodActivity extends Fragment {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int PICK_IMAGE_REQUEST = 2;
     private Map<String, Integer> moodGradients = new HashMap<>();
+    public LocalStorage globalStorage = LocalStorage.getInstance();
     private boolean isPublic = false; // Default to private
 
     /**
@@ -474,6 +475,7 @@ public class AddMoodActivity extends Fragment {
             if (uploadUri != null) {
                 if(compressedFile != null){
                     uploadUri = rotateImage(this.getContext(), uploadUri, 90); // rotate image by 90 degrees
+
                 }
 
                 String path = "mood_images/" + UUID.randomUUID().toString();
@@ -513,7 +515,7 @@ public class AddMoodActivity extends Fragment {
 
         File file = new File(context.getCacheDir(), "rotated_image.jpg");
         FileOutputStream fos = new FileOutputStream(file);
-        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 10, fos);
         fos.close();
 
         return Uri.fromFile(file);
@@ -813,6 +815,7 @@ public class AddMoodActivity extends Fragment {
         moodEventsRef.add(moodEvent)
                 .addOnSuccessListener(aVoid -> showSuccessDialogUI())
                 .addOnFailureListener(e -> showErrorToast(e));
+        globalStorage.insertMood(moodEvent);
     }
 
     /**

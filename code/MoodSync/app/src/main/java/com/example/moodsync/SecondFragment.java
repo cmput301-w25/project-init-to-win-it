@@ -202,7 +202,6 @@ public class SecondFragment extends Fragment {
                     }
                 });
     }
-
     private void navigateToUserProfile(String selectedUsername) {
         db.collection("users")
                 .whereEqualTo("userName", selectedUsername)
@@ -301,7 +300,7 @@ public class SecondFragment extends Fragment {
     private void setupRecyclerView() {
         moodRecyclerView = binding.moodRecyclerView;
         moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        moodCardAdapter = new MoodCardAdapter(new ArrayList<>()); // start empty, then load data
+        moodCardAdapter = new MoodCardAdapter(globalStorage.getMoodList()); // start empty, then load data
         moodRecyclerView.setAdapter(moodCardAdapter);
     }
 
@@ -360,7 +359,6 @@ public class SecondFragment extends Fragment {
                     if (userTask.isSuccessful() && !userTask.getResult().isEmpty()) {
                         DocumentSnapshot userDoc = userTask.getResult().getDocuments().get(0);
                         List<String> followingUsers = (List<String>) userDoc.get("followingList");
-
                         if (followingUsers == null) {
                             followingUsers = new ArrayList<>();
                         }
