@@ -56,7 +56,7 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
 
     @Override
     public void onBindViewHolder(@NonNull MoodCardViewHolder holder, int position) {
-        MoodEvent moodEvent = globalStorage.getMoodList().get(position);
+            MoodEvent moodEvent = moodEvents.get(position);
 //         MoodEvent moodEvent = moodEvents.get(position);
         Log.d("ADAPTER", "onBindViewHolder: " + moodEvent.getId());
         // Set the username from the mood event's ID (which is the username)
