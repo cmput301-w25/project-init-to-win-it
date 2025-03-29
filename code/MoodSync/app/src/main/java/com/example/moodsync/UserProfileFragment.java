@@ -319,7 +319,7 @@ public class UserProfileFragment extends Fragment {
                     if (task.isSuccessful() && task.getResult() != null) {
                         DocumentSnapshot documentSnapshot = task.getResult();
                         List<String> followerList = (List<String>) documentSnapshot.get("followerList");
-                        Log.d("fuck me", "updateFollowButtonStateBasedOnFollowers: " + followerList);
+                        Log.d("damn me", "updateFollowButtonStateBasedOnFollowers: " + followerList);
                         if (followerList != null && followerList.contains(currentUserId)) {
                             followButton.setText("Following");
                             followButton.setEnabled(false); // Optional: Disable the button
