@@ -85,7 +85,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/main_card"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="13dp"
             android:text="@string/pick_your_e"
             android:textColor="@color/primary_text_color"
             android:textSize="24sp"
@@ -189,7 +189,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/horizontal_spinner"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="4dp"
             android:text="@string/add_your_de"
             android:textColor="@color/primary_text_color"
             android:textSize="24sp"
@@ -197,8 +197,8 @@
 
         <EditText
             android:id="@+id/edit_description"
-            android:layout_width="match_parent"
-            android:layout_height="84dp"
+            android:layout_width="365dp"
+            android:layout_height="wrap_content"
             android:layout_below="@id/add_desc"
             android:layout_marginStart="24dp"
             android:layout_marginTop="16dp"
@@ -213,19 +213,20 @@
             android:textSize="16sp" />
 
         <!-- Choose Your Song Title -->
+
+        <!-- Music Spinner -->
         <TextView
             android:id="@+id/choose_song"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/edit_description"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="14dp"
             android:text="Choose your song"
             android:textColor="@color/primary_text_color"
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <!-- Music Spinner -->
         <Spinner
             android:id="@+id/music_spinner"
             android:layout_width="match_parent"
@@ -252,27 +253,28 @@
             <View
                 android:id="@+id/rectangle_2"
                 android:layout_width="match_parent"
-                android:layout_height="127dp"
+                android:layout_height="84dp"
                 android:background="@drawable/edit_text_background" />
 
+            <TextView
+                android:id="@+id/add_photos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            </TextView>
             <ImageView
                 android:id="@+id/photos"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="32dp"
+                android:layout_alignBottom="@+id/rectangle_2"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="154dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="161dp"
+                android:layout_marginBottom="5dp"
                 android:src="@drawable/photos" />
 
-            <TextView
-                android:id="@+id/add_photos"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/photos"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="8dp"
-                android:text="@string/add_from_photos"
-                android:textColor="@color/secondary_text_color"
-                android:textSize="18sp" />
         </RelativeLayout>
 
         <Button
@@ -280,11 +282,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/add_photos_section"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="29dp"
             android:layout_marginEnd="24dp"
+            android:layout_marginBottom="16dp"
             android:background="@drawable/next_button_background"
             android:backgroundTint="#D7D2CC"
             android:paddingVertical="12dp"
