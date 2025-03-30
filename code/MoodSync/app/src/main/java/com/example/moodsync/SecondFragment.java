@@ -361,16 +361,22 @@ public class SecondFragment extends Fragment {
                         if (followingUsers.size() <= 1) {
                             db.collection("mood_events")
                                     .whereEqualTo("id", currentUsername)
-                                    .whereEqualTo("public", true)
                                     .get()
                                     .addOnCompleteListener(task -> {
                                         if (task.isSuccessful()) {
                                             List<MoodEvent> moodEvents = new ArrayList<>();
+                                            globalStorage.getPrivList().clear();
                                             for (QueryDocumentSnapshot document : task.getResult()) {
                                                 MoodEvent moodEvent = document.toObject(MoodEvent.class);
                                                 moodEvent.setDocumentId(document.getId());
                                                 moodEvents.add(moodEvent);
-                                                globalStorage.insertMood(moodEvent);
+                                                if (moodEvent.isPublic()) {
+                                                    globalStorage.insertMood(moodEvent);
+                                                    Log.d("ADDED", "saveMoodEventToFirestore: "+moodEvent.getId());
+                                                }
+                                                else if(!moodEvent.isPublic() && moodEvent.getId().equals(myApp.getLoggedInUsername())){
+                                                    globalStorage.getPrivList().add(moodEvent);
+                                                }
                                             }
                                             filterToRecentMoods(globalStorage.getMoodList());
                                         } else {
@@ -378,23 +384,30 @@ public class SecondFragment extends Fragment {
                                             Toast.makeText(getContext(), "Failed to load mood events", Toast.LENGTH_SHORT).show();
                                         }
                                     });
+                            globalStorage.refreshPubList();
                             return;
                         }
 
                         // Query mood_events where user is in the list of followed users
                         db.collection("mood_events")
                                 .whereIn("id", followingUsers)
-                                .whereEqualTo("public", true)
                                 .get()
                                 .addOnCompleteListener(task -> {
                                     if (task.isSuccessful()) {
 //                                        List<MoodEvent> moodEvents = new ArrayList<>();
+                                        globalStorage.getPrivList().clear();
                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
                                             moodEvent.setDocumentId(document.getId());
                                             moodEvents.add(moodEvent);
-                                            globalStorage.insertMood(moodEvent);
-                                        }
+                                            if (moodEvent.isPublic()) {
+                                                globalStorage.insertMood(moodEvent);
+                                                Log.d("ADDED", "public: "+moodEvent.getDescription());
+                                            }
+                                            else if(!moodEvent.isPublic() && moodEvent.getId().equals(myApp.getLoggedInUsername())){
+                                                        globalStorage.getPrivList().add(moodEvent);
+                                                }
+                                            }
                                         filterToRecentMoods(globalStorage.getMoodList());
                                         Log.d("sex8", "fetchMoodEvents: " + moodEvents);
                                         filterIcon.setOnClickListener(v -> showFilterPopup(moodEvents));
@@ -409,6 +422,8 @@ public class SecondFragment extends Fragment {
                         Toast.makeText(getContext(), "Failed to load user data", Toast.LENGTH_SHORT).show();
                     }
                 });
+        globalStorage.refreshPubList();
+
         Log.d("FUCK1", "fetchMoodEvents: "+ moodEvents);
     }
 

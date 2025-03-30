@@ -222,14 +222,51 @@ public class LocalStorage {
     }
 
     public MoodEvent getMoodEvent(long millis){
-        for (int i=0; i<MoodList.size();i++) {
-            if (MoodList.get(i).getDate() == (millis)) {
-                return MoodList.get(i);
+        ArrayList <MoodEvent> temp = new ArrayList<MoodEvent>();
+        temp.addAll(MoodList);
+        temp.addAll(PrivList);
+        for (int i=0; i<temp.size();i++) {
+            if (temp.get(i).getDate() == (millis)) {
+                return temp.get(i);
             }
         }
         return null;
     }
+    public boolean checkMoodInPriv(MoodEvent mood){
+        boolean flag= false;
+        for (int i=0;i<PrivList.size();i++){
+            if(PrivList.get(i).getDate() == mood.getDate()){
+                flag = true;
+                return flag;
+            }
+        }
+        return flag;
+    }
 
+    public void refreshPrivList(){
+        for (int i=0;i<PrivList.size();i++){
+            if(PrivList.get(i).isPublic()) {
+                MoodList.add(PrivList.get(i));
+                PrivList.remove(i);
+            }
+        }
+        for (int i=0;i<PrivList.size();i++){
+            for (int j=0;j<PrivList.size();j++){
+                if (PrivList.get(i).getDate() == PrivList.get(j).getDate() ){
+                    PrivList.remove(j);
+                }
+            }
+        }
+        refreshPubList();
+    }
+    public void refreshPubList(){
+        for (int i=0;i<MoodList.size();i++){
+            if(!MoodList.get(i).isPublic()) {
+                PrivList.add(MoodList.get(i));
+                MoodList.remove(i);
+            }
+        }
+    }
     public ArrayList<MoodEvent>  getMoodsForCurrentUser(User user,boolean isPublic){
         ArrayList <MoodEvent> temp = new ArrayList<MoodEvent>();
         for (int i = 0; i < MoodList.size(); i++) {

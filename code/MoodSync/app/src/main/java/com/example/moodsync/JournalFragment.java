@@ -63,27 +63,7 @@ public class JournalFragment extends Fragment {
     }
 
     private void fetchPrivateMoods() {
-        db.collection("mood_events")
-                .whereEqualTo("id", currentUserId)
-                .whereEqualTo("public", false)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<MoodEvent> moodEvents = new ArrayList<>();
-                        // Clear list
-                        globalStorage.getPrivList().clear();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                            moodEvents.add(moodEvent);
-                            // Add to list
-                            globalStorage.getPrivList().add(moodEvent);
-                        }
-                        // Update the adapter with the fetched mood events
-                        updateMoodAdapter(moodEvents);
-                    } else {
-                        Log.e("Firestore", "Error fetching mood events", task.getException());
-                    }
-                });
+        updateMoodAdapter(globalStorage.getPrivList());
     }
 
     private void updateMoodAdapter(List<MoodEvent> moodEvents) {

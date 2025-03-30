@@ -562,25 +562,30 @@ public class AddMoodActivity extends Fragment {
                 uploadImageToFirebase(processedUri, new OnImageUploadedListener() {
                     @Override
                     public void onImageUploaded(String imageUrl) {
-                        View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
-                        Bitmap bitmap = getBitmapFromUri(finalProcessedUri);
-                        rectangle2.setBackground(new BitmapDrawable(getResources(), bitmap));
-                        rectangle2.setClipToOutline(true);
+                        try {
+                            View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
+                            Bitmap bitmap = getBitmapFromUri(finalProcessedUri);
+                            rectangle2.setBackground(new BitmapDrawable(getResources(), bitmap));
+                            rectangle2.setClipToOutline(true);
 
-                        TextView text = binding1.getRoot().findViewById(R.id.add_photos);
-                        text.setText("");
+                            TextView text = binding1.getRoot().findViewById(R.id.add_photos);
+                            text.setText("");
 
-                        ImageView image = binding1.getRoot().findViewById(R.id.photos);
-                        image.setAlpha(0);
+                            ImageView image = binding1.getRoot().findViewById(R.id.photos);
+                            image.setAlpha(0);
 
-                        GradientDrawable drawable = new GradientDrawable();
-                        drawable.setCornerRadius(50);
-                        drawable.setAlpha(0);
+                            GradientDrawable drawable = new GradientDrawable();
+                            drawable.setCornerRadius(50);
+                            drawable.setAlpha(0);
 
-                        image.setBackground(drawable);
-                        image.setClipToOutline(true);
+                            image.setBackground(drawable);
+                            image.setClipToOutline(true);
 
-                        imageAddedFlag = 1;
+                            imageAddedFlag = 1;
+                        }
+                        catch(Exception e){
+                            
+                        }
                     }
 
                     @Override
@@ -857,7 +862,14 @@ public class AddMoodActivity extends Fragment {
         Log.d("SAVE MOOD", "saveMoodEventToFirestore: "+moodEvent.getId());
         moodEventsRef.add(moodEvent)
                 .addOnFailureListener(e -> showErrorToast(e));
-        globalStorage.insertMood(moodEvent);
+        if (moodEvent.isPublic()) {
+            globalStorage.insertMood(moodEvent);
+            Log.d("ADDED", "saveMoodEventToFirestore: "+moodEvent.getId());
+        }
+        else{
+            globalStorage.getPrivList().add(moodEvent);
+            Log.d("ADDED", "saveMoodEventToFirestore: "+moodEvent.getId());
+        }
     }
     /**
      * Deletes a mood event from Firestore based on the date.

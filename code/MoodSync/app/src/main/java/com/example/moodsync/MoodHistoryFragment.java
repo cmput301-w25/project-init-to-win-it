@@ -323,13 +323,16 @@ public class MoodHistoryFragment extends Fragment {
     private void fetchMoodEventAndNavigate(MoodHistoryItem selectedItem) {
 
         MoodEvent matchingMoodEvent = null;
-        for (MoodEvent moodEvent : globalStorage.getMoodList()) {
-            if (moodEvent.getDescription().equals(selectedItem.getDescription())) {
+        ArrayList <MoodEvent> temp = new ArrayList<MoodEvent>();
+        temp.addAll(globalStorage.getMoodList());
+        temp.addAll(globalStorage.getPrivList());
+        for (MoodEvent moodEvent : temp) {
+            Log.d("FORLOOP", "fetchMoodEventAndNavigate: "+moodEvent.getDate());
+            if (moodEvent.getDate() == (selectedItem.getDate().getTime())) {
                 matchingMoodEvent = moodEvent;
                 break; // Stop once we find a matching MoodEvent
             }
         }
-
         if (matchingMoodEvent != null) {
             // Create a Bundle and add the MoodEvent as a Parcelable
             Bundle args = new Bundle();
