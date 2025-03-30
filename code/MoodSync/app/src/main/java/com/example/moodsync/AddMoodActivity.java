@@ -1,7 +1,6 @@
 package com.example.moodsync;
 
 import static android.app.Activity.RESULT_OK;
-
 import android.animation.ObjectAnimator;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -11,8 +10,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.Manifest;
-
-import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
@@ -23,38 +20,19 @@ import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
 import android.view.View;
 import android.graphics.drawable.BitmapDrawable;
-import androidx.appcompat.app.AppCompatActivity;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestBuilder;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
 import com.example.moodsync.databinding.AddMoodFragmentBinding;
 import com.example.moodsync.databinding.AddMoodFragment2Binding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 import android.graphics.ColorMatrixColorFilter;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -64,64 +42,28 @@ import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestBuilder;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
-import com.example.moodsync.databinding.AddMoodFragmentBinding;
-import com.example.moodsync.databinding.AddMoodFragment2Binding;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-
-
-
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import androidx.annotation.Nullable;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -130,8 +72,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.UploadTask;
@@ -288,18 +228,36 @@ public class AddMoodActivity extends Fragment {
     }
 
     private void showSongSelectionDialog(List<String> songTitles, List<String> songUrls) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Select a Song");
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.TransparentDialog);
 
+        // Inflate custom layout
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_song_selection_dialog, null);
+        builder.setView(dialogView);
+
+        // Get references to views
+        TextView titleTextView = dialogView.findViewById(R.id.dialogTitle);
+        ListView listView = dialogView.findViewById(R.id.songListView);
+        Button cancelButton = dialogView.findViewById(R.id.cancelButton);
+
+        // Set title
+        titleTextView.setText("Select a Song");
+
+        // Create and set adapter
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_list_item_1,
                 songTitles);
+        listView.setAdapter(adapter);
 
-        builder.setAdapter(adapter, (dialog, which) -> {
-            Bundle args = new Bundle();
+        // Create dialog
+        AlertDialog dialog = builder.create();
+
+        // Make background transparent
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // Set list item click listener
+        listView.setOnItemClickListener((parent, view, which, id) -> {
             this.selectedSongUrl = songUrls.get(which);
-
             this.selectedSongTitle = songTitles.get(which);
 
             // Update spinner
@@ -316,16 +274,21 @@ public class AddMoodActivity extends Fragment {
             spinnerAdapter.add("Surprised");
             spinnerAdapter.add("Confused");
 
-
             binding1.musicSpinner.setAdapter(spinnerAdapter);
             binding1.musicSpinner.setSelection(0);
 
             Toast.makeText(requireContext(), "Selected: " + this.selectedSongTitle, Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
         });
 
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-        builder.show();
+        // Set cancel button click listener
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        // Show dialog
+        dialog.show();
     }
+
+
 
 
 
@@ -1065,6 +1028,7 @@ public class AddMoodActivity extends Fragment {
         View rectangleViewOrSum = binding1.rectangle2;
         TextView textView = binding1.stepIndicator;
         Button button = binding1.next;
+        Spinner spinner = binding1.musicSpinner;
 
         switch (mood) {
             case "None":
@@ -1082,6 +1046,7 @@ public class AddMoodActivity extends Fragment {
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_happy);
                 button.setBackgroundResource(R.drawable.edit_text_happy);
                 textView.setBackgroundResource(R.drawable.edit_text_happy);
+                spinner.setBackgroundResource(R.drawable.edit_text_happy);
                 editDescription.setTextColor(Color.parseColor("#5A4A33"));
                 break;
             case "Sad":
@@ -1090,6 +1055,7 @@ public class AddMoodActivity extends Fragment {
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_sad);
                 button.setBackgroundResource(R.drawable.edit_text_sad);
                 textView.setBackgroundResource(R.drawable.edit_text_sad);
+                spinner.setBackgroundResource(R.drawable.edit_text_happy);
                 editDescription.setTextColor(Color.parseColor("#2C3E50"));
                 break;
             case "Angry":
@@ -1097,6 +1063,7 @@ public class AddMoodActivity extends Fragment {
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_angry);
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_angry);
                 button.setBackgroundResource(R.drawable.edit_text_angry);
+                spinner.setBackgroundResource(R.drawable.edit_text_angry);
                 textView.setBackgroundResource(R.drawable.edit_text_angry);
                 editDescription.setTextColor(Color.parseColor("#4D1A1A"));
                 break;
@@ -1105,6 +1072,7 @@ public class AddMoodActivity extends Fragment {
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_confused);
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_confused);
                 button.setBackgroundResource(R.drawable.edit_text_confused);
+                spinner.setBackgroundResource(R.drawable.edit_text_confused);
                 textView.setBackgroundResource(R.drawable.edit_text_confused);
                 editDescription.setTextColor(Color.parseColor("#3A2D58"));
                 break;
@@ -1112,6 +1080,7 @@ public class AddMoodActivity extends Fragment {
                 editDescription.setBackgroundResource(R.drawable.edit_text_surprised);
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_surprised);
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_surprised);
+                spinner.setBackgroundResource(R.drawable.edit_text_surprised);
                 button.setBackgroundResource(R.drawable.edit_text_surprised);
                 textView.setBackgroundResource(R.drawable.edit_text_surprised);
                 editDescription.setTextColor(Color.parseColor("#5D2B3E"));
@@ -1120,6 +1089,7 @@ public class AddMoodActivity extends Fragment {
                 editDescription.setBackgroundResource(R.drawable.edit_text_ashamed);
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_ashamed);
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_ashamed);
+                spinner.setBackgroundResource(R.drawable.edit_text_ashamed);
                 textView.setBackgroundResource(R.drawable.edit_text_ashamed);
                 button.setBackgroundResource(R.drawable.edit_text_ashamed);
 
@@ -1128,6 +1098,7 @@ public class AddMoodActivity extends Fragment {
             case "Scared":
                 editDescription.setBackgroundResource(R.drawable.edit_text_scared);
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_scared);
+                spinner.setBackgroundResource(R.drawable.edit_text_scared);
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_scared);
                 textView.setBackgroundResource(R.drawable.edit_text_scared);
                 button.setBackgroundResource(R.drawable.edit_text_scared);
@@ -1135,6 +1106,7 @@ public class AddMoodActivity extends Fragment {
                 editDescription.setTextColor(Color.parseColor("#2B3F5D"));
                 break;
             case "Disgusted":
+                spinner.setBackgroundResource(R.drawable.edit_text_disgusted);
                 editDescription.setBackgroundResource(R.drawable.edit_text_disgusted);
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_disgusted);
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_disgusted);
@@ -1150,6 +1122,7 @@ public class AddMoodActivity extends Fragment {
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_default);
                 button.setBackgroundResource(R.drawable.edit_text_default);
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_default);
+                spinner.setBackgroundResource(R.drawable.edit_text_default);
                 editDescription.setTextColor(Color.parseColor("#204343"));
         }
     }
