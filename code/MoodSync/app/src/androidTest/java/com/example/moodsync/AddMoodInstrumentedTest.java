@@ -30,6 +30,7 @@ import org.junit.runner.RunWith;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.UUID;
 
 /**
  * Espresso instrumented tests for MoodSync, using the Firestore emulator.
@@ -63,15 +64,19 @@ public class AddMoodInstrumentedTest {
         CollectionReference moodsRef = db.collection("mood_events");
 
         // Add a "seed" mood event so that the home page's list shows it
-        MoodEvent seed = new MoodEvent(
-                "Happy",
-                "Baseline Trigger",
-                "Seeded baseline event",
-                "With friends",
-                System.currentTimeMillis(),
-                "https://image-url"
+        MoodEvent seededEvent = new MoodEvent(
+                "Happy", // mood
+                "Got a new job", // trigger
+                "Feeling excited and grateful", // description
+                "With friends", // socialSituation
+                System.currentTimeMillis(), // date
+                "https://image-url", // imageUrl
+                true, // isPublic
+                UUID.randomUUID().toString(), // id
+                "https://storage.googleapis.com/inittowinit-1188f.firebasestorage.app/songs1/Adam%20Dib%20-%20After%20the%20Bunker%20-%20No%20Backing%20Vocals%20.mp3?Expires=1774785984&GoogleAccessId=firebase-adminsdk-fbsvc%40inittowinit-1188f.iam.gserviceaccount.com&Signature=SbPcDm346A72dfI2Y7IfCSn8kb84RbAMNsOdWexrf7P8dKqdLdPh%2BWeEKJ8fPCWQELYpqvHhRAojX2ttFzeY9fWnFSHLel2RfnO34JdutXS526MRS%2B6x1zu0IfRGQGpt5sD%2F57l25dWRFOvvhJL2eAmeFSWhtYSIMv%2Bd%2FyJ85F0afs9VfgBQWsGIBCcFPdqY2PpooY1E4hmZEXJbYFvdugypQ0fUOlriILQe%2FpeKgt8m1yocZljYJLrTIvflJjsQ2KAX1bRa02P7qMKkgHcXYgGOt6uxjE5s4BexgyFcz0kTnFEkJ4o%2BW2r04xIeMhaJPK5MNgmccsnutcuY%2ByTsFg%3D%3D", // songUrl
+                "Adam Dib - After the Bunker - No Backing Vocals", // songTitle
+                "53.526264,-113.5170344" // currentLocation
         );
-        moodsRef.add(seed);
     }
 
     /**
