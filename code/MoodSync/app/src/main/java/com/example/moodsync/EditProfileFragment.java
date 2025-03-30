@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.FirebaseApp;
@@ -56,7 +57,9 @@ public class EditProfileFragment extends Fragment {
     private ImageView backButton;
     private GridView photosListView;
     private MaterialButton editProfileButton;
-    private MaterialButton pendingRequestsButton;
+    private TextView pendingRequestsButton;
+
+    private MaterialCardView pendingRequestView;
     private TextView followersCountTextView;
     private TextView followingCountTextView;
     private TextView likesCountTextView;
@@ -82,7 +85,8 @@ public class EditProfileFragment extends Fragment {
         bioTextView = view.findViewById(R.id.bioofuser);
         backButton = view.findViewById(R.id.back_button);
         editProfileButton = view.findViewById(R.id.edit_profile_button);
-        pendingRequestsButton = view.findViewById(R.id.pending_requests_button);
+        pendingRequestsButton = view.findViewById(R.id.pending_button);
+        pendingRequestView = view.findViewById(R.id.pending_button_request);
         followersCountTextView = view.findViewById(R.id.followers_count);
         followingCountTextView = view.findViewById(R.id.following_count);
 
@@ -102,7 +106,7 @@ public class EditProfileFragment extends Fragment {
             navController.navigate(R.id.action_editProfileFragment_to_editProfileActivity);
         });
 
-        pendingRequestsButton.setOnClickListener(v -> showPendingRequestsDialog());
+        pendingRequestView.setOnClickListener(v -> showPendingRequestsDialog());
         backButton.setOnClickListener(v -> requireActivity().onBackPressed());
 
         // Set up tab listener
@@ -232,7 +236,6 @@ public class EditProfileFragment extends Fragment {
         ImageView postImage = dialog.findViewById(R.id.post_image);
         TextView statusText = dialog.findViewById(R.id.status);
         TextView triggerTextView = dialog.findViewById(R.id.trigger_text_view);
-        TextView likeCount = dialog.findViewById(R.id.like_count);
         TextView commentCount = dialog.findViewById(R.id.comment_count);
 
         // Set data from moodData map
@@ -245,33 +248,12 @@ public class EditProfileFragment extends Fragment {
         moodTextView.setText((String) moodData.get("mood"));
         triggerTextView.setText((String) moodData.get("trigger"));
 
-        // Set click listeners for dialog buttons
-        MaterialButton detailsButton = dialog.findViewById(R.id.details_button);
-        detailsButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Details clicked", Toast.LENGTH_SHORT).show();
-        });
-
-        ImageButton likeButton = dialog.findViewById(R.id.like_button);
-        likeButton.setOnClickListener(v -> {
-            int currentLikes = Integer.parseInt(likeCount.getText().toString());
-            likeCount.setText(String.valueOf(currentLikes + 1));
-            Toast.makeText(requireContext(), "Liked!", Toast.LENGTH_SHORT).show();
-        });
 
         ImageButton commentButton = dialog.findViewById(R.id.comment_button);
         commentButton.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "Comment clicked", Toast.LENGTH_SHORT).show();
         });
 
-        ImageButton shareButton = dialog.findViewById(R.id.share_button);
-        shareButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Share clicked", Toast.LENGTH_SHORT).show();
-        });
-
-        ImageButton bookmarkButton = dialog.findViewById(R.id.bookmark_button);
-        bookmarkButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Bookmarked!", Toast.LENGTH_SHORT).show();
-        });
 
         // Show dialog
         dialog.show();

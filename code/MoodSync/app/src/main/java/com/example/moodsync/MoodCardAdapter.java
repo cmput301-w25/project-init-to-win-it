@@ -101,6 +101,8 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         int moodColor = getMoodColor(moodEvent.getMood());
         holder.moodBanner.setBackgroundColor(moodColor);
 
+
+
         // Set description
         holder.statusTextView.setText(moodEvent.getDescription());
 

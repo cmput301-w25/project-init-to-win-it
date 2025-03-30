@@ -41,7 +41,6 @@ public class JournalFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = JournalFragmentBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        pfp = binding.profilePic;
         journalRecyclerView = binding.moodRecyclerView;
         journalRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
