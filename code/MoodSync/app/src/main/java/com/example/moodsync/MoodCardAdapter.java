@@ -64,7 +64,7 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         holder.nameTextView.setText(username);
         setMoodEmoji(holder.moodEmoji, moodEvent.getMood());
         User currentUser =globalStorage.getUserFromUName(username);
-        Log.d("ADAPTER", "name: " + currentUser.getPfpUrl());
+        Log.d("ADAPTER", "name: " +username);
         String fullName = currentUser.getName();
         if (fullName != null && !fullName.isEmpty()) {
             holder.nameTextView.setText(fullName);

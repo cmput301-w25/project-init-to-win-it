@@ -5,6 +5,7 @@ import static android.app.Activity.RESULT_OK;
 import android.animation.ObjectAnimator;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -60,6 +61,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
@@ -137,6 +139,8 @@ public class AddMoodActivity extends Fragment {
     private String username;
 
     private static final int ANIMATION_DURATION = 300; // Animation duration in milliseconds
+    private String currentLocation =null;
+    private FusedLocationProviderClient fusedLocationClient;
 
     private FirebaseFirestore db;
     private long MAX_PHOTO_SIZE = 64;
@@ -627,6 +631,41 @@ public class AddMoodActivity extends Fragment {
             animateButtonClick(privateButton);
             publicButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
         });
+        Button locationYesButton = binding2.locationYesButton;
+        Button locationNoButton = binding2.locationNoButton;
+
+        locationYesButton.setOnClickListener(v -> {
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                return;
+            }
+
+            //Checking fusedLocationClient works
+            if (fusedLocationClient == null) {
+                fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+            }
+
+            fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
+                if (location != null) {
+                    String latLngFormatted = location.getLatitude() + "," + location.getLongitude();
+                    currentLocation = latLngFormatted;
+
+                    // Only animates button if current location given
+                    animateButtonClick(locationYesButton);
+                    locationNoButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+                }
+            });
+        });
+
+        locationNoButton.setOnClickListener(v -> {
+            currentLocation = null;
+            animateButtonClick(locationNoButton);
+            locationYesButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+        });
 
 
         if (getArguments() != null) {
@@ -657,7 +696,8 @@ public class AddMoodActivity extends Fragment {
                         currentTimestamp,
                         imageUrl,
                         isPublic,
-                        username
+                        username,
+                        currentLocation
                 );
 
                 saveMoodEventToFirestore(moodEvent);
@@ -672,6 +712,7 @@ public class AddMoodActivity extends Fragment {
         binding2.ss3.setOnClickListener(v -> selectSocialSituation(binding2.ss3));
         binding2.ss4.setOnClickListener(v -> selectSocialSituation(binding2.ss4));
     }
+
 
     /**
      * Handles the selection of a social situation button. Updates the visual appearance

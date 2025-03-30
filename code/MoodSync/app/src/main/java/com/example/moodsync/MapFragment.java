@@ -67,7 +67,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private FragmentMapBinding binding;
     private GoogleMap mMap;
+    ImageView img;
     Button mapfilterButton;
+    public LocalStorage globalStorage = LocalStorage.getInstance();
     Button mapfilterClear;
     Spinner mapfilterSpinner;
     Spinner mapfilterSpinner2;
@@ -88,6 +90,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     double currentLat;
     double currentLng;
     String profileImageUrl = "";
+    List<String> followingUsers;
 
     @Nullable
     @Override
@@ -566,7 +569,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             return null;
         }
     }
-
     public void displayRequestedMoods(List<MoodEvent> chosenArray, int mode) {
         if (chosenArray.size() == 0){
             Toast.makeText(requireContext(), "No mood locations found 😞", Toast.LENGTH_SHORT).show();
@@ -605,9 +607,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 //Mood History
                 customMarkerBitmap = editCustomMarker(bitmap, getEmojiForMood(moodht.getMood()), currentUserId);
             }
-
-
-
             //Getting location
             String[] latLngParts = moodht.getLocation().split(",");
             double lat = Double.parseDouble(latLngParts[0]);
@@ -677,6 +676,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         super.onDestroyView();
         binding = null;
     }
+    private void loadProfileImage(String imageUrl, ImageView image) {
+
+        Glide.with(this)
+                .load(imageUrl)
+                .circleCrop()
+                .placeholder(R.drawable.ic_person_black_24dp)
+                .into(image);
+    }
+
 
     private Bitmap editCustomMarker(Bitmap imageBitmap, String emoji, String user_id) {
         View markerView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_marker, null);
@@ -685,7 +693,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         TextView emj= markerView.findViewById(R.id.marker_emoji);
         TextView usrid = markerView.findViewById(R.id.marker_id);
 
-        img.setImageBitmap(imageBitmap);
+        loadProfileImage(globalStorage.getUserFromUName(user_id).getPfpUrl(),img);
         emj.setText(emoji);
         usrid.setText(user_id);
 
@@ -750,7 +758,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 .addOnCompleteListener(userTask -> {
                     if (userTask.isSuccessful() && !userTask.getResult().isEmpty()) {
                         DocumentSnapshot userDoc = userTask.getResult().getDocuments().get(0);
-                        List<String> followingUsers = (List<String>) userDoc.get("followingList");
+                        followingUsers = (List<String>) userDoc.get("followingList");
 
                         if (followingUsers == null) {
                             followingUsers = new ArrayList<>();
@@ -768,6 +776,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                             moodEvent.setDocumentId(document.getId());
                                             if (moodEvent.getLocation() != null){
                                                 mostRecentMoodsList.add(moodEvent);
+
                                                 Log.d(TAG, "Adding moodEvent of mostRecent");
                                             }
                                         }

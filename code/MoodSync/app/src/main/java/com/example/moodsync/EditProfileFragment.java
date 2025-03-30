@@ -317,15 +317,18 @@ public class EditProfileFragment extends Fragment {
 
                         locationTextView.setText(globalStorage.getCurrentUser().getLocation() != null ?
                                 globalStorage.getCurrentUser().getLocation() : "Location not set");
-
                         bioTextView.setText(globalStorage.getCurrentUser().getBio() != null ?
                                 globalStorage.getCurrentUser().getBio() : "No bio available");
+                        try {
+                            Glide.with(this)
+                                    .load(globalStorage.getCurrentUser().getPfpUrl())
+                                    .circleCrop()
+                                    .placeholder(R.drawable.ic_person_black_24dp)
+                                    .into(profileImageEdit);
+                        }
+                        catch (Exception e){
 
-                        Glide.with(this)
-                                .load(globalStorage.getCurrentUser().getPfpUrl())
-                                .circleCrop()
-                                .placeholder(R.drawable.ic_person_black_24dp)
-                                .into(profileImageEdit);
+                        }
 
                     } else {
                         nameTextView.setText(globalStorage.getCurrentUser().getName());

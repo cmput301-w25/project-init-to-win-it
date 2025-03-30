@@ -79,8 +79,6 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
 
         holder.dateTextView.setText(elapsedTime);
 
-
-
         // i adjusted text colors based on background color for better readability
         adjustTextColors(holder, currentItem.getMood());
 
@@ -89,6 +87,7 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 globalStorage.setCurrentMoodForEdit(currentItem.getDate().getTime());
+                Log.d("HISTORY ADAPTER", "onBindViewHolder: "+currentItem.getDate().getTime());
                 listener.onItemClick(currentItem);
                 Log.d("offline mood", "onBindViewHolder: "+currentItem.getDate().getTime());
 
@@ -127,33 +126,6 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         // using consistent text colors that work well with all our pastel backgrounds
         holder.moodTextView.setTextColor(0xFF333333);
         holder.descriptionTextView.setTextColor(0xFF555555);
-    }
-
-    private int getMoodColor(String mood) {
-        if (mood == null) {
-            return 0xFFFFFFFF; // Default white
-        }
-
-        switch (mood.toLowerCase()) {
-            case "happy":
-                return 0xFFFFF8E1; // Soft Yellow
-            case "sad":
-                return 0xFFE3F2FD; // Soft Blue
-            case "angry":
-                return 0xFFFFEBEE; // Soft Red
-            case "confused":
-                return 0xFFF3E5F5; // Soft Purple
-            case "surprised":
-                return 0xFFE0F7FA; // Soft Cyan
-            case "ashamed":
-                return 0xFFEFEBE9; // Soft Brown
-            case "scared":
-                return 0xFFECEFF1; // Soft Blue Grey
-            case "disgusted":
-                return 0xFFE8F5E9; // Soft Green
-            default:
-                return 0xFFF5F5F5; // Light Grey
-        }
     }
 
     @Override

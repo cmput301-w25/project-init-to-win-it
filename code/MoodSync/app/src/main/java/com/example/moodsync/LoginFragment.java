@@ -81,11 +81,12 @@ public class LoginFragment extends Fragment {
                                     globalStorage.getUserList().add(tempUser);
                                     Log.d("ADAPTER",  " => " + tempUser.getUsername());
                                 }
-                                Log.d("User Data", document.getId() + " => " + tempUser);
                             }
+                            Log.d("ADAPTER",  " => " + globalStorage.getUserFromUName("shravan").getUsername());
                         } else {
                             Log.d("User Data", "Error fetching users: " + task.getException().getMessage());
                         }
+
                     }
                 });
 

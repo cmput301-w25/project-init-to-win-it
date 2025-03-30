@@ -109,7 +109,7 @@ public class EditMoodActivity extends Fragment {
 
         FirebaseApp.initializeApp(requireContext());
         db = FirebaseFirestore.getInstance();
-        moodEventsRef = db.collection("mood_events");
+
 
         if (getArguments() != null && getArguments().getBoolean("isSecondLayout", false)) {
             isSecondLayout = true;
@@ -140,9 +140,8 @@ public class EditMoodActivity extends Fragment {
         moodGradients.put("Scared", R.drawable.scared_gradient);
         moodGradients.put("Disgusted", R.drawable.disgusted_gradient);
 
-        if (getArguments() != null) {
             moodEventToEdit = globalStorage.getMoodEvent(globalStorage.getCurrentMoodForEdit());
-        }
+
 
         if (moodEventToEdit == null) {
             // Handle error:  Maybe navigate back or show an error message.
@@ -278,6 +277,31 @@ public class EditMoodActivity extends Fragment {
         scaredImage.setBackgroundResource(android.R.color.transparent);
         disgustedImage.setBackgroundResource(android.R.color.transparent);
     }
+    private String getEmojiForMood(String mood) {
+        switch (mood.toLowerCase()) {
+            case "happy":
+                return "😊";
+            case "sad":
+                return "😢";
+            case "excited":
+                return "😃";
+            case "angry":
+                return "😠";
+            case "confused":
+                return "😕";
+            case "surprised":
+                return "😲";
+            case "ashamed":
+                return "😳";
+            case "scared":
+                return "😨";
+            case "disgusted":
+                return "🤢";
+            default:
+                return "";
+        }
+    }
+
 
     /**
      * Sets the given value on the spinner based on a string value.
@@ -358,7 +382,8 @@ public class EditMoodActivity extends Fragment {
                     currentTimestamp, // Pass the timestamp to the MoodEvent
                     imageUrl,
                     isPublic,
-                    username
+                    username,
+                    globalStorage.getMoodEvent(globalStorage.getCurrentMoodForEdit()).getLocation()
             );
 
 
@@ -649,19 +674,6 @@ public class EditMoodActivity extends Fragment {
      * Refreshes the list of mood events from Firestore.
      */
     private void refreshMoodEventsList() {
-        moodEventsRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                List<MoodEvent> moodEventsList = new ArrayList<>();
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                    moodEvent.setDocumentId(document.getId());
-                    moodEventsList.add(moodEvent);
-                }
-
-            } else {
-                Log.e("FIRESTORE", "Error getting documents: ", task.getException());
-            }
-        });
     }
     /**
      * Updates the mood event in Firestore with new data.
@@ -670,6 +682,14 @@ public class EditMoodActivity extends Fragment {
      */
     private void updateMoodEvent(MoodEvent moodEvent) {
         globalStorage.updateMood(globalStorage.getCurrentMoodForEdit(),moodEvent);
+        for (int i=0; i<globalStorage.getMHItem().size();i++){
+            if (globalStorage.getMHItem().get(i).getDate().getTime()== moodEvent.getDate()){
+                MoodHistoryItem temp  = new MoodHistoryItem(moodEvent.getMood(),getEmojiForMood(moodEvent.getMood()),moodEvent.getDescription(), new Date(moodEvent.getDate()));
+                globalStorage.getMHItem().set(i,temp);
+            }
+        }
+        refreshMoodEventsList();
+        moodEventsRef = db.collection("mood_events");
         moodEventsRef.whereEqualTo("description", moodEventToEdit.getDescription()).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {
@@ -680,6 +700,7 @@ public class EditMoodActivity extends Fragment {
                                         refreshMoodEventsList();
                                     })
                                     .addOnFailureListener(e -> Log.e("FIRESTORE", "Update failed", e));
+                            refreshMoodEventsList();
                         }
                     } else {
                         Log.e("FIRESTORE", "Mood event not found in Firestore");
@@ -715,11 +736,11 @@ public class EditMoodActivity extends Fragment {
         if (navController.getCurrentDestination().getId() == R.id.editMoodActivityFragment ||
                 navController.getCurrentDestination().getId() == R.id.editMoodActivityFragment2) {
             try {
-                navController.navigate(R.id.action_editMoodActivityFragment_to_moodHistoryFragment);
+                navController.navigate(R.id.action_editMoodActivityFragment2_to_mainPage);
             } catch (IllegalArgumentException e) {
                 Log.e("Navigation", "Failed to navigate: " + e.getMessage());
                 // Fallback navigation if needed
-                navController.navigate(R.id.moodHistoryFragment);
+                navController.navigate(R.id.SecondFragment);
             }
         }
     }

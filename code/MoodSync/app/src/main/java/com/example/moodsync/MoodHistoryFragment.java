@@ -321,27 +321,26 @@ public class MoodHistoryFragment extends Fragment {
     }
 
     private void fetchMoodEventAndNavigate(MoodHistoryItem selectedItem) {
-        db.collection("mood_events")
-                .whereEqualTo("description", selectedItem.getDescription())
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                            moodEvent.setId(document.getId()); // Store the document ID in MoodEvent
 
+        MoodEvent matchingMoodEvent = null;
+        for (MoodEvent moodEvent : globalStorage.getMoodList()) {
+            if (moodEvent.getDescription().equals(selectedItem.getDescription())) {
+                matchingMoodEvent = moodEvent;
+                break; // Stop once we find a matching MoodEvent
+            }
+        }
 
-                            Bundle args = new Bundle();
-                            args.putParcelable("moodEvent", (Parcelable) moodEvent);
+        if (matchingMoodEvent != null) {
+            // Create a Bundle and add the MoodEvent as a Parcelable
+            Bundle args = new Bundle();
+            args.putParcelable("moodEvent", (Parcelable) matchingMoodEvent);
 
-                            NavHostFragment.findNavController(MoodHistoryFragment.this)
-                                    .navigate(R.id.action_moodHistoryFragment_to_editMoodFragment, args);
-                            break; // Assuming only one MoodEvent will match the description
-                        }
-                    } else {
-                        Log.d(TAG, "Error getting MoodEvent: ", task.getException());
-                    }
-                });
+            // Navigate to the editMoodFragment with the selected MoodEvent
+            NavHostFragment.findNavController(MoodHistoryFragment.this)
+                    .navigate(R.id.action_moodHistoryFragment_to_editMoodFragment, args);
+        } else {
+            Log.d(TAG, "No matching MoodEvent found in local storage.");
+        }
     }
 
     private void fetchMoodEvents() {

@@ -191,6 +191,9 @@
         <action
             android:id="@+id/action_editMoodActivityFragment2_to_moodHistoryFragment"
             app:destination="@id/moodHistoryFragment" />
+        <action
+            android:id="@+id/action_editMoodActivityFragment2_to_mainPage"
+            app:destination="@id/SecondFragment" />
     </fragment>
 
 
