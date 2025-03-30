@@ -43,7 +43,7 @@ import java.util.concurrent.CompletableFuture;
 public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCardViewHolder> {
     private MediaPlayer mediaPlayer;
     private Song currentSong;
-    private boolean isPlaying = false;
+    private Boolean isPlaying = false;
     private ImageButton currentPlayButton = null;
     private final List<MoodEvent> moodEvents;
     private FirebaseFirestore db;
@@ -85,9 +85,8 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         });
 
         // Update button state based on current playing status
-        if (currentSong != null &&
-                moodEvent.getSongUrl().equals(currentSong.getUrl().trim()) &&
-                isPlaying) {
+        if (currentSong != null && moodEvent.getSongUrl() != null
+                && moodEvent.getSongUrl().equals(currentSong.getUrl().trim()) && isPlaying) {
             holder.playButton.setImageResource(android.R.drawable.ic_media_pause);
         } else {
             holder.playButton.setImageResource(android.R.drawable.ic_media_play);
