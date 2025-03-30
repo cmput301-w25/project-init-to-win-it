@@ -65,7 +65,7 @@ import java.util.Map;
  * interactions like searching or applying filters.
  * </p>
  */
-public class SecondFragment extends Fragment {
+public class  SecondFragment extends Fragment {
 
     private HomePageFragmentBinding binding;
     private RecyclerView moodRecyclerView;
@@ -503,7 +503,7 @@ public class SecondFragment extends Fragment {
      * @param moodEvents A list of all mood events fetched from Firestore to be filtered.
      */
     private void showFilterPopup(List<MoodEvent> moodEvents) {
-        Log.d("FUCK2", "fetchMoodEvents: "+ moodEvents);
+
         LayoutInflater inflater = LayoutInflater.from(getContext());
         View popupView = inflater.inflate(R.layout.filter_popup, null);
 
@@ -563,6 +563,7 @@ public class SecondFragment extends Fragment {
 
         filterCancelButton.setOnClickListener(v -> {
             popupWindow.dismiss();
+            moodEvents.clear();
             fetchMoodEvents(); // Call fetchMoodEvents to reset filters and fetch all mood events
         });
 
