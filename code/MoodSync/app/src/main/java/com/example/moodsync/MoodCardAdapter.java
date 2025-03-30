@@ -87,9 +87,9 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         // Update button state based on current playing status
         if (currentSong != null && moodEvent.getSongUrl() != null
                 && moodEvent.getSongUrl().equals(currentSong.getUrl().trim()) && isPlaying) {
-            holder.playButton.setImageResource(android.R.drawable.ic_media_pause);
+            holder.playButton.setImageResource(R.drawable.sound_up);
         } else {
-            holder.playButton.setImageResource(android.R.drawable.ic_media_play);
+            holder.playButton.setImageResource(R.drawable.sound_down);
         }
 
         Log.d("ADAPTER", "onBindViewHolder: " + moodEvent.getId());
@@ -199,13 +199,13 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
                     // Pause the song
                     mediaPlayer.pause();
                     isPlaying = false;
-                    playButton.setImageResource(android.R.drawable.ic_media_play);
+                    playButton.setImageResource(R.drawable.sound_up);
                     Log.d("MoodCardAdapter", "MediaPlayer paused");
                 } else {
                     // Resume the song
                     mediaPlayer.start();
                     isPlaying = true;
-                    playButton.setImageResource(android.R.drawable.ic_media_pause);
+                    playButton.setImageResource(R.drawable.sound_down);
                     Log.d("MoodCardAdapter", "MediaPlayer resumed");
                 }
                 return;
@@ -234,13 +234,13 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
             mediaPlayer.setOnPreparedListener(mp -> {
                 mp.start();
                 isPlaying = true;
-                playButton.setImageResource(android.R.drawable.ic_media_pause);
+                playButton.setImageResource(R.drawable.sound_down);
                 Log.d("MoodCardAdapter", "MediaPlayer started playing");
             });
 
             mediaPlayer.setOnCompletionListener(mp -> {
                 isPlaying = false;
-                playButton.setImageResource(android.R.drawable.ic_media_play);
+                playButton.setImageResource(R.drawable.sound_up);
                 Log.d("MoodCardAdapter", "MediaPlayer completed playing");
             });
 
