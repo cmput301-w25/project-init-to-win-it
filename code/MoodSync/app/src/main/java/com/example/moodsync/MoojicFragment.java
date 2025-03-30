@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MoojicFragment extends Fragment {
-
+    private MediaPlayer mediaPlayer;
     private FragmentMoojicBinding binding;
     private FirebaseFirestore db;
-    private MediaPlayer mediaPlayer;
+
     private List<Song> songsList = new ArrayList<>();
     private SongsAdapter songAdapter;
     private static final String TAG = "MoojicFragment";
@@ -48,7 +48,9 @@ public class MoojicFragment extends Fragment {
 
         return binding.getRoot();
     }
-
+    public MediaPlayer getMediaPlayer() {
+        return mediaPlayer;
+    }
     private void setupplay_button() {
         // The play button should be in the now playing section, not on individual items
         // Add a play button to your fragment layout first, then:
@@ -80,7 +82,7 @@ public class MoojicFragment extends Fragment {
 
     private void loadSongsFromFirestore() {
         binding.progressBar.setVisibility(View.VISIBLE);
-        db.collection("songs")
+        db.collection("allsongs")
                 .get()
                 .addOnCompleteListener(task -> {
                     binding.progressBar.setVisibility(View.GONE);
@@ -115,7 +117,7 @@ public class MoojicFragment extends Fragment {
                 });
     }
 
-    private void playSong(Song song) {
+    public void playSong(Song song) {
         try {
             currentSong = song;
 
@@ -217,5 +219,8 @@ public class MoojicFragment extends Fragment {
             mediaPlayer.release();
             mediaPlayer = null;
         }
+    }
+    public void playExternalSong(Song song) {
+        playSong(song);
     }
 }

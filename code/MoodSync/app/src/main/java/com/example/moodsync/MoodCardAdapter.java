@@ -5,6 +5,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.AudioAttributes;
+import android.media.Image;
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -31,13 +34,17 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCardViewHolder> {
-
+    private MediaPlayer mediaPlayer;
+    private Song currentSong;
+    private boolean isPlaying = false;
+    private ImageButton currentPlayButton = null;
     private final List<MoodEvent> moodEvents;
     private FirebaseFirestore db;
     public LocalStorage globalStorage = LocalStorage.getInstance();
@@ -45,6 +52,13 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
     public MoodCardAdapter(List<MoodEvent> moodEvents) {
         this.moodEvents = moodEvents;
         this.db = FirebaseFirestore.getInstance();
+        this.mediaPlayer = new MediaPlayer(); // Initialize MediaPlayer
+    }
+
+    public MoodCardAdapter(List<MoodEvent> moodEvents, MediaPlayer mediaPlayer) {
+        this.moodEvents = moodEvents;
+        this.db = FirebaseFirestore.getInstance();
+        this.mediaPlayer = mediaPlayer;
     }
 
     @NonNull
@@ -56,14 +70,36 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
 
     @Override
     public void onBindViewHolder(@NonNull MoodCardViewHolder holder, int position) {
-            MoodEvent moodEvent = moodEvents.get(position);
-//         MoodEvent moodEvent = moodEvents.get(position);
+        MoodEvent moodEvent = moodEvents.get(position);
+        holder.songTitle.setText(moodEvent.getSongTitle());
+
+        // Setup play button click listener
+        holder.playButton.setOnClickListener(v -> {
+            String songUrl = moodEvent.getSongUrl();
+            Log.d("song url" , "song url is " + songUrl);
+            if (songUrl != null && !songUrl.isEmpty()) {
+                playSong(moodEvent, holder.playButton);
+            } else {
+                Toast.makeText(holder.itemView.getContext(), "No song available", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Update button state based on current playing status
+        if (currentSong != null &&
+                moodEvent.getSongUrl().equals(currentSong.getUrl().trim()) &&
+                isPlaying) {
+            holder.playButton.setImageResource(android.R.drawable.ic_media_pause);
+        } else {
+            holder.playButton.setImageResource(android.R.drawable.ic_media_play);
+        }
+
         Log.d("ADAPTER", "onBindViewHolder: " + moodEvent.getId());
         // Set the username from the mood event's ID (which is the username)
         String username = moodEvent.getId();
         holder.nameTextView.setText(username);
+        holder.songTitle.setText(moodEvent.getSongTitle());
         setMoodEmoji(holder.moodEmoji, moodEvent.getMood());
-        User currentUser =globalStorage.getUserFromUName(username);
+        User currentUser = globalStorage.getUserFromUName(username);
         Log.d("ADAPTER", "name: " + currentUser.getPfpUrl());
         String fullName = currentUser.getName();
         if (fullName != null && !fullName.isEmpty()) {
@@ -95,14 +131,11 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         } else {
             holder.postImageView.setVisibility(View.GONE);
         }
-
         // Set mood text and color
         holder.moodTextView.setText(moodEvent.getMood());
         int moodColor = getMoodColor(moodEvent.getMood());
         holder.moodBanner.setBackgroundColor(moodColor);
-
-
-
+        holder.songTitle.setText(moodEvent.getSongTitle());
         // Set description
         holder.statusTextView.setText(moodEvent.getDescription());
 
@@ -125,13 +158,13 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
                     .collection("comments")
                     .get()
                     .addOnSuccessListener(snap -> {
-                                for (DocumentSnapshot document : snap.getDocuments()) {
-                                    // Convert the document to Comment object
-                                    Comment comment = document.toObject(Comment.class);
+                        for (DocumentSnapshot document : snap.getDocuments()) {
+                            // Convert the document to Comment object
+                            Comment comment = document.toObject(Comment.class);
 
-                                    // Add the comment to  local list for offline access
-                                    globalStorage.getComments().add(comment);
-                                }
+                            // Add the comment to  local list for offline access
+                            globalStorage.getComments().add(comment);
+                        }
                         // Set the count based on how many comments are in this doc
                         holder.commentCount.setText(String.valueOf(snap.size()));
 
@@ -147,6 +180,92 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
             showCommentsDialog(holder.itemView.getContext(), moodEvent, holder.commentCount);
         });
     }
+
+    private void playSong(MoodEvent moodEvent, ImageButton playButton) {
+        Log.d("song", "Entering playSong method");
+
+        try {
+            String songUrl = moodEvent.getSongUrl().trim();
+            String songTitle = moodEvent.getSongTitle();
+
+            if (songUrl == null || songUrl.isEmpty()) {
+                Toast.makeText(playButton.getContext(), "Invalid song URL", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Check if the same song is already playing
+            if (currentSong != null && songUrl.equals(currentSong.getUrl()) && mediaPlayer != null) {
+                // Toggle play/pause for current song
+                if (mediaPlayer.isPlaying()) {
+                    // Pause the song
+                    mediaPlayer.pause();
+                    isPlaying = false;
+                    playButton.setImageResource(android.R.drawable.ic_media_play);
+                    Log.d("MoodCardAdapter", "MediaPlayer paused");
+                } else {
+                    // Resume the song
+                    mediaPlayer.start();
+                    isPlaying = true;
+                    playButton.setImageResource(android.R.drawable.ic_media_pause);
+                    Log.d("MoodCardAdapter", "MediaPlayer resumed");
+                }
+                return;
+            }
+
+            // If we're here, we're playing a new song
+            if (mediaPlayer == null) {
+                mediaPlayer = new MediaPlayer();
+            }
+
+            // If a song is already playing, stop and reset the MediaPlayer
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            mediaPlayer.reset();
+
+            mediaPlayer.setAudioAttributes(
+                    new AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .build()
+            );
+
+            mediaPlayer.setDataSource(songUrl);
+
+            mediaPlayer.setOnPreparedListener(mp -> {
+                mp.start();
+                isPlaying = true;
+                playButton.setImageResource(android.R.drawable.ic_media_pause);
+                Log.d("MoodCardAdapter", "MediaPlayer started playing");
+            });
+
+            mediaPlayer.setOnCompletionListener(mp -> {
+                isPlaying = false;
+                playButton.setImageResource(android.R.drawable.ic_media_play);
+                Log.d("MoodCardAdapter", "MediaPlayer completed playing");
+            });
+
+            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                Log.e("MoodCardAdapter", "MediaPlayer error: " + what + ", " + extra);
+                Toast.makeText(playButton.getContext(), "Error playing song", Toast.LENGTH_SHORT).show();
+                return false;
+            });
+
+            mediaPlayer.prepareAsync();
+            Log.d("MoodCardAdapter", "MediaPlayer preparing async");
+
+            currentSong = new Song();
+            currentSong.setUrl(songUrl);
+            currentSong.setTitle(songTitle);
+            currentPlayButton = playButton;
+
+        } catch (IOException e) {
+            Log.e("MoodCardAdapter", "Error setting data source: ", e);
+            Toast.makeText(playButton.getContext(), "Error playing song: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
 
     private String formatTimestamp(long timestamp) {
         // Simple timestamp formatting - you can enhance this as needed
@@ -457,6 +576,8 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         ImageButton commentButton;
         LinearLayout moodBanner;
         TextView commentCount;
+        TextView songTitle;
+        ImageButton playButton;
 
         public MoodCardViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -472,6 +593,8 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
             commentButton = itemView.findViewById(R.id.comment_button);
             commentCount = itemView.findViewById(R.id.comment_count);
             moodBanner = itemView.findViewById(R.id.mood_banner);
+            songTitle = itemView.findViewById(R.id.song_title);
+            playButton = itemView.findViewById(R.id.playButton);
         }
     }
 }
