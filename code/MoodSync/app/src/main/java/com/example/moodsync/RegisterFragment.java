@@ -29,6 +29,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A fragment that handles user registration. This class provides a form for users to
+ * input their full name, username, and password to create an account. It validates the
+ * inputs, checks username availability in Firestore, and registers the user if all
+ * conditions are met.
+ *
+ * <p>
+ * The fragment also fetches existing user data from Firestore and stores it in a local
+ * storage instance for further use. Upon successful registration, the user is navigated
+ * to the next fragment.
+ * </p>
+ */
 public class RegisterFragment extends Fragment {
     private TextView goToLogin;
 
