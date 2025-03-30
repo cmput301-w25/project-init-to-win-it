@@ -1,9 +1,12 @@
 package com.example.moodsync;
 import static android.app.Activity.RESULT_OK;
 import static com.example.moodsync.BitmapUtils.compressImageFromUri;
+
+import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -36,12 +39,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.example.moodsync.databinding.EditMoodFragmentBinding;
 import com.example.moodsync.databinding.EditMoodFragment2Binding;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -86,6 +92,8 @@ public class EditMoodActivity extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference moodEventsRef;
     private MoodEvent moodEventToEdit;
+    private String currentLocation = null; //Default to no location
+    private FusedLocationProviderClient fusedLocationClient;
 
     private boolean isPublic = false; // Default to private
     /**
@@ -493,7 +501,60 @@ public class EditMoodActivity extends Fragment {
             animateButtonClick(privateButton);
             publicButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
         });
+        Button locationYesButton = binding2.locationYesButton;
+        Button locationNoButton = binding2.locationNoButton;
+        if (moodEventToEdit.getLocation() != null && !moodEventToEdit.getLocation().isEmpty()) {
+            currentLocation = moodEventToEdit.getLocation();
+            animateButtonClick(locationYesButton);
+            locationNoButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+        } else {
+            animateButtonClick(locationNoButton);
+            locationYesButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+        }
 
+        if (moodEventToEdit.isPublic()) {
+            isPublic = true;
+            animateButtonClick(publicButton);
+            privateButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+        } else {
+            isPublic = false;
+            animateButtonClick(privateButton);
+            publicButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+        }
+
+
+        locationYesButton.setOnClickListener(v -> {
+            if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                return;
+            }
+
+            //Checking fusedLocationClient works
+            if (fusedLocationClient == null) {
+                fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+            }
+
+            fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
+                if (location != null) {
+                    String latLngFormatted = location.getLatitude() + "," + location.getLongitude();
+                    currentLocation = latLngFormatted;
+
+                    // Only animates button if current location given
+                    animateButtonClick(locationYesButton);
+                    locationNoButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+                }
+            });
+        });
+
+        locationNoButton.setOnClickListener(v -> {
+            currentLocation = null;
+            animateButtonClick(locationNoButton);
+            locationYesButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+        });
 
         Log.d("LIFECYCLE", "setupSecondLayout called");
         if (getArguments() != null) {
@@ -543,7 +604,7 @@ public class EditMoodActivity extends Fragment {
                     username,
                     this.selectedSongUrl,
                     this.selectedSongTitle,
-                    "37.4219983,-122.084"
+                    currentLocation
             );
 
 
