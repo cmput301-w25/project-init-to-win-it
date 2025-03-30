@@ -304,8 +304,16 @@ public class AddMoodActivity extends Fragment {
                     requireContext(),
                     android.R.layout.simple_spinner_item);
             spinnerAdapter.add(this.selectedSongTitle);
-            spinnerAdapter.add("Choose a song");
-            spinnerAdapter.add("No music");
+            spinnerAdapter.add("Happy");
+            spinnerAdapter.add("Sad");
+            spinnerAdapter.add("Ashamed");
+            spinnerAdapter.add("Disgusted");
+            spinnerAdapter.add("Scared");
+            spinnerAdapter.add("Angry");
+            spinnerAdapter.add("Surprised");
+            spinnerAdapter.add("Confused");
+
+
             binding1.musicSpinner.setAdapter(spinnerAdapter);
             binding1.musicSpinner.setSelection(0);
 
