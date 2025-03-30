@@ -106,28 +106,43 @@ public class AddMoodInstrumentedTest {
      */
     @Test
     public void testAddMoodEventViaUI() {
-        SystemClock.sleep(3000);
-        // Step 1: From the first fragment, press "Get Started"
-        onView(withId(R.id.button)).perform(click());
-        // Wait a little to account for the navigation delay
-        SystemClock.sleep(3000);
+        SystemClock.sleep(4000);
+        // 1) Click on the login button from the first page
+        onView(withId(R.id.loginButton)).perform(click());
+
+
+        // Wait for the login page to load
+        SystemClock.sleep(4000);
+
+        // 2) Enter username and password
+        onView(withId(R.id.usernameLogin)).perform(typeText("testuser"));
+        onView(withId(R.id.passwordLogin)).perform(typeText("password123"));
+
+        // 3) Click the login button
+        onView(withId(R.id.loginButton)).perform(click());
+
+        // Wait for the login to complete and navigate to the next page
+        SystemClock.sleep(5000);
 
         // Step 2: Now on home_page_fragment (“SecondFragment”), tap the Add Mood button
         onView(withId(R.id.add_circle_button)).perform(click());
 
+        SystemClock.sleep(5000);
         // Step 3: Select a mood
         onView(withId(R.id.main_card)).perform(click());
+        SystemClock.sleep(5000);
         onView(withText("Happy")).perform(click());
+        SystemClock.sleep(5000);
 
         // Step 3: Add a description
         onView(withId(R.id.edit_description))
                 .perform(typeText("test mood event"), closeSoftKeyboard());
+        SystemClock.sleep(5000);
         onView(withId(R.id.next)).perform(click());
+        SystemClock.sleep(5000);
 
-        // Step 4: Fill out the second Add Mood screen
-        onView(withId(R.id.trigger_text_view))
-                .perform(typeText("test trigger"), closeSoftKeyboard());
         onView(withId(R.id.createmood)).perform(click());
+        SystemClock.sleep(5000);
 
         // Step 5: Confirm that the success dialog is displayed
         onView(withText("Your mood has been successfully uploaded."))
@@ -148,10 +163,21 @@ public class AddMoodInstrumentedTest {
      */
     @Test
     public void testInvalidDescriptionPreventsNext() {
+        SystemClock.sleep(4000);
+        // 1) Click on the login button from the first page
+        onView(withId(R.id.loginButton)).perform(click());
+
+
+        // Wait for the login page to load
+        SystemClock.sleep(4000);
+
+        // 2) Enter username and password
+        onView(withId(R.id.usernameLogin)).perform(typeText("testuser"));
+        onView(withId(R.id.passwordLogin)).perform(typeText("password123"));
+
+        // 3) Click the login button
+        onView(withId(R.id.loginButton)).perform(click());
         // 1) From the first fragment, press "Get Started"
-        onView(withId(R.id.button)).perform(click());
-        // Wait a little to account for the navigation delay
-        SystemClock.sleep(3000);
 
         // 2) Now in SecondFragment, tap the FAB
         onView(withId(R.id.add_circle_button)).perform(click());

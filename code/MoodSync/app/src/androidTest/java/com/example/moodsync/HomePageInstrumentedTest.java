@@ -101,11 +101,9 @@ public class HomePageInstrumentedTest {
     @Test
     public void testDetailsButtonShowsMoodDetails() {
         SystemClock.sleep(4000);
-
-        Log.d("bitch1", "testDetailsButtonShowsMoodDetails: ");
         // 1) Click on the login button from the first page
         onView(withId(R.id.loginButton)).perform(click());
-        Log.d("bitch2", "testDetailsButtonShowsMoodDetails: ");
+
 
         // Wait for the login page to load
         SystemClock.sleep(4000);
