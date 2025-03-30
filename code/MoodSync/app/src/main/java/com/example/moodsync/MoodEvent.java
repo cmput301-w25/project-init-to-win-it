@@ -41,7 +41,7 @@ public class MoodEvent implements Parcelable {
         // Default constructor required for Firebase
     }
 
-    public MoodEvent(String mood, String trigger, String description, String socialSituation, long date, String imageUrl, boolean isPublic, String id, String songUrl, String songTitle) {
+    public MoodEvent(String mood, String trigger, String description, String socialSituation, long date, String imageUrl, boolean isPublic, String id, String songUrl, String songTitle, String currentLocation) {
         this.mood = mood;
         this.trigger = trigger;
         this.description = description;
@@ -52,6 +52,7 @@ public class MoodEvent implements Parcelable {
         this.id = id;
         this.songUrl = songUrl;
         this.songTitle = songTitle;
+        this.location = currentLocation;
     }
     protected MoodEvent(Parcel in) {
         mood = in.readString();
@@ -86,7 +87,7 @@ public class MoodEvent implements Parcelable {
         }
     };
 
-    public MoodEvent(String selectedMood, String trigger, String moodDescription, String socialSituation, long currentTimestamp,String imageeUrl , String songUrl, String songTitle) {
+    public MoodEvent(String selectedMood, String trigger, String moodDescription, String socialSituation, long currentTimestamp,String imageeUrl , String songUrl, String songTitle , String currentLocation) {
         this.mood = selectedMood;
         this.trigger = trigger;
         this.description = moodDescription;
@@ -95,6 +96,7 @@ public class MoodEvent implements Parcelable {
         this.imageUrl = imageeUrl;
         this.songUrl = songUrl;
         this.songTitle = songTitle;
+        this.location = currentLocation;
     }
 
     @Override

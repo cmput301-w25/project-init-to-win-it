@@ -5,10 +5,12 @@ import static android.app.Activity.RESULT_OK;
 import android.animation.ObjectAnimator;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
+import android.Manifest;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -22,7 +24,25 @@ import android.renderscript.ScriptIntrinsicBlur;
 import android.view.View;
 import android.graphics.drawable.BitmapDrawable;
 import androidx.appcompat.app.AppCompatActivity;
-
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
+import com.example.moodsync.databinding.AddMoodFragmentBinding;
+import com.example.moodsync.databinding.AddMoodFragment2Binding;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.util.Arrays;
@@ -61,6 +81,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
@@ -144,7 +165,8 @@ public class AddMoodActivity extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 2;
     private Map<String, Integer> moodGradients = new HashMap<>();
     private boolean isPublic = false; // Default to private
-
+    private String currentLocation = null; //Default to no location
+    private FusedLocationProviderClient fusedLocationClient;
 
     /**
      * Creates the view for the fragment.
@@ -727,6 +749,41 @@ public class AddMoodActivity extends Fragment {
             publicButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
         });
 
+        Button locationYesButton = binding2.locationYesButton;
+        Button locationNoButton = binding2.locationNoButton;
+
+        locationYesButton.setOnClickListener(v -> {
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                return;
+            }
+
+            //Checking fusedLocationClient works
+            if (fusedLocationClient == null) {
+                fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+            }
+
+            fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
+                if (location != null) {
+                    String latLngFormatted = location.getLatitude() + "," + location.getLongitude();
+                    currentLocation = latLngFormatted;
+
+                    // Only animates button if current location given
+                    animateButtonClick(locationYesButton);
+                    locationNoButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+                }
+            });
+        });
+
+        locationNoButton.setOnClickListener(v -> {
+            currentLocation = null;
+            animateButtonClick(locationNoButton);
+            locationYesButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+        });
 
         if (getArguments() != null) {
             this.selectedMood = getArguments().getString("selectedMood", "");
@@ -761,7 +818,8 @@ public class AddMoodActivity extends Fragment {
                         isPublic,
                         username,
                         this.selectedSongUrl,
-                        this.selectedSongTitle
+                        this.selectedSongTitle,
+                        currentLocation
                 );
 
                 saveMoodEventToFirestore(moodEvent);
