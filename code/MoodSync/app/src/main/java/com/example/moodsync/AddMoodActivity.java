@@ -417,7 +417,7 @@ public class AddMoodActivity extends Fragment {
                 .show();
     }
 
-    /**
+       /**
      * Checks the size of an image.
      *
      * @param imageUri The URI of the image to check.
@@ -1092,7 +1092,6 @@ public class AddMoodActivity extends Fragment {
                 spinner.setBackgroundResource(R.drawable.edit_text_ashamed);
                 textView.setBackgroundResource(R.drawable.edit_text_ashamed);
                 button.setBackgroundResource(R.drawable.edit_text_ashamed);
-
                 editDescription.setTextColor(Color.parseColor("#5C3A21"));
                 break;
             case "Scared":
@@ -1112,7 +1111,6 @@ public class AddMoodActivity extends Fragment {
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_disgusted);
                 textView.setBackgroundResource(R.drawable.edit_text_disgusted);
                 button.setBackgroundResource(R.drawable.edit_text_disgusted);
-
                 editDescription.setTextColor(Color.parseColor("#264D33"));
                 break;
 
