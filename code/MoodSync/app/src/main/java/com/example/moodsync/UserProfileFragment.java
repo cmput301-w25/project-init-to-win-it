@@ -45,6 +45,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A fragment that displays a user's profile, including their name, bio, location,
+ * followers, following, and posts. It also allows the current user to follow or
+ * unfollow the selected user.
+ *
+ * <p>
+ * This fragment interacts with Firebase Firestore to fetch user data and mood events.
+ * It includes functionality for sending follow requests, viewing posts, and handling
+ * privacy settings for user profiles.
+ *
+ */
 public class UserProfileFragment extends Fragment {
 
     private FirebaseFirestore db;
@@ -55,6 +66,9 @@ public class UserProfileFragment extends Fragment {
     private String selectedUserId;   //selected user from search
     private ImageView profileImageView;
     private View view;
+    private TextView locationTextView;
+    private TextView bioTextView;
+    private ImageView profileImageEdit;
     private ImageView backButton;
 
     @Override
@@ -71,8 +85,11 @@ public class UserProfileFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
 
+        profileImageEdit = view.findViewById(R.id.profile_image_edit);
         nameTextView = view.findViewById(R.id.nameofuser);
         usernameTextView = view.findViewById(R.id.usernameofuser);
+        locationTextView = view.findViewById(R.id.locationofuser);
+        bioTextView = view.findViewById(R.id.bioofuser);
         followersCountTextView = view.findViewById(R.id.followers_count);
         followingCountTextView = view.findViewById(R.id.following_count);
         followButton = view.findViewById(R.id.follow_user);
@@ -97,6 +114,19 @@ public class UserProfileFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Loads the profile data of a user from Firestore and updates the UI components
+     * with the retrieved information. This method fetches user details such as name,
+     * username, profile image URL, follower count, following count, location, and bio.
+     *
+     * <p>
+     * If the user exists in Firestore, their profile details are displayed. If the user
+     * is private and not followed by the current user, a message indicating a private account
+     * is shown instead of their posts.
+     * </p>
+     *
+     * @param userId The unique ID of the user whose profile is being loaded.
+     */
     private void loadUserProfile(String userId) {
         db.collection("users").document(userId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -105,6 +135,7 @@ public class UserProfileFragment extends Fragment {
                         if (documentSnapshot.exists()) {
                             String fullName = documentSnapshot.getString("fullName");
                             String userName = documentSnapshot.getString("userName");
+                            String profileImageUrl = documentSnapshot.getString("profileImageUrl");
                             List<String> followerList = (List<String>) documentSnapshot.get("followerList");
                             List<String> followingList = (List<String>) documentSnapshot.get("followingList");
 
@@ -113,8 +144,20 @@ public class UserProfileFragment extends Fragment {
                             followersCountTextView.setText(String.valueOf(followerList != null ? followerList.size() : 0));
                             followingCountTextView.setText(String.valueOf(followingList != null ? followingList.size() : 0));
 
+                            locationTextView.setText(documentSnapshot.getString("location") != null ?
+                                    documentSnapshot.getString("location") : "Location not set");
 
-                            updateFollowButtonStateBasedOnFollowers();
+                            bioTextView.setText(documentSnapshot.getString("bio") != null ?
+                                    documentSnapshot.getString("bio") : "No bio available");
+
+                            if (profileImageUrl != null) {
+                                Glide.with(UserProfileFragment.this) // Use the outer class's context
+                                        .load(profileImageUrl)
+                                        .circleCrop()
+                                        .placeholder(R.drawable.ic_person_black_24dp)
+                                        .into(profileImageEdit);
+                            }
+                                updateFollowButtonStateBasedOnFollowers();
 
                             // Check if the current user follows the selected user
                             if (followerList != null && followerList.contains(currentUserId)) {
@@ -133,6 +176,17 @@ public class UserProfileFragment extends Fragment {
                 });
     }
 
+    /**
+     * Fetches mood events for the selected user based on their privacy settings.
+     *
+     * <p>
+     * This method queries Firestore for mood events associated with the selected user's ID.
+     * If the user's account is public or followed by the current user, their posts are fetched
+     * and displayed in a GridView.
+     * </p>
+     *
+     * @param isPublic A boolean indicating whether to fetch public mood events or not.
+     */
     private void fetchMoodEvents(boolean isPublic) {
         db.collection("mood_events")
                 .whereEqualTo("id", selectedUserId)
@@ -157,6 +211,13 @@ public class UserProfileFragment extends Fragment {
                 });
     }
 
+    /**
+     * Populates the GridView with mood events retrieved from Firestore. Each item in the GridView
+     * represents an individual mood event containing details such as an image, description,
+     * mood type, and trigger.
+     *
+     * @param moodList A list of maps containing mood event data retrieved from Firestore.
+     */
     private void loadPhotosListView(List<Map<String, Object>> moodList) {
         MoodImageAdapter adapter = new MoodImageAdapter(requireContext(), moodList);
         photos_listview.setAdapter(adapter);
@@ -167,12 +228,29 @@ public class UserProfileFragment extends Fragment {
         });
     }
 
+    /**
+     * Displays a message indicating that the selected user's account is private. This method hides
+     * the GridView containing posts and shows an alternative message in its place.
+     */
     private void showPrivateAccountMessage() {
         photos_listview.setVisibility(View.GONE); // Hide the GridView
         View privateAccountMessage = view.findViewById(R.id.private_account_message); // Add this to your XML layout
         privateAccountMessage.setVisibility(View.VISIBLE);
     }
 
+
+    /**
+     * Displays a detailed dialog for a selected post. This dialog includes information about
+     * the post such as its image, description, mood type, trigger, and comments count.
+     *
+     * <p>
+     * The dialog is styled with animations and appears at the bottom of the screen. It allows
+     * users to interact with post details or leave comments on the post.
+     * </p>
+     *
+     * @param moodData A map containing details about the selected mood event (e.g., image URL,
+     *                 description, mood type).
+     */
     private void showPostDetailDialog(Map<String, Object> moodData) {
         // Create dialog
         Dialog dialog = new Dialog(requireContext());
@@ -198,7 +276,6 @@ public class UserProfileFragment extends Fragment {
         ImageView postImage = dialog.findViewById(R.id.post_image);
         TextView statusText = dialog.findViewById(R.id.status);
         TextView triggerTextView = dialog.findViewById(R.id.trigger_text_view);
-        TextView likeCount = dialog.findViewById(R.id.like_count);
         TextView commentCount = dialog.findViewById(R.id.comment_count);
 
 
@@ -212,39 +289,25 @@ public class UserProfileFragment extends Fragment {
         moodTextView.setText((String) moodData.get("mood"));
         triggerTextView.setText((String) moodData.get("trigger"));
 
-        // Set click listeners for dialog buttons
-        MaterialButton detailsButton = dialog.findViewById(R.id.details_button);
-        detailsButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Details clicked", Toast.LENGTH_SHORT).show();
-        });
-
-        ImageButton likeButton = dialog.findViewById(R.id.like_button);
-        likeButton.setOnClickListener(v -> {
-            int currentLikes = Integer.parseInt(likeCount.getText().toString());
-            likeCount.setText(String.valueOf(currentLikes + 1));
-            Toast.makeText(requireContext(), "Liked!", Toast.LENGTH_SHORT).show();
-        });
 
         ImageButton commentButton = dialog.findViewById(R.id.comment_button);
         commentButton.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "Comment clicked", Toast.LENGTH_SHORT).show();
         });
 
-        ImageButton shareButton = dialog.findViewById(R.id.share_button);
-        shareButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Share clicked", Toast.LENGTH_SHORT).show();
-        });
-
-        ImageButton bookmarkButton = dialog.findViewById(R.id.bookmark_button);
-        bookmarkButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Bookmarked!", Toast.LENGTH_SHORT).show();
-        });
 
         // Show dialog
         dialog.show();
     }
 
-
+    /**
+     * Handles sending or canceling a follow request for the selected user. If no follow request exists,
+     * this method creates one; otherwise, it cancels an existing request by deleting it from Firestore.
+     *
+     * <p>
+     * Updates the UI to reflect whether a follow request has been sent or canceled successfully.
+     * </p>
+     */
     private void handleFollowRequest() {
         db.collection("pendingFollowerRequests")
                 .whereEqualTo("follower", currentUserId)
@@ -295,6 +358,10 @@ public class UserProfileFragment extends Fragment {
                 });
     }
 
+    /**
+     * Updates the text displayed on the follow button based on whether there is a pending follow request
+     * between the current user and the selected user. This method queries Firestore to check for pending requests.
+     */
     private void updateFollowButtonState() {
         db.collection("pendingFollowerRequests")
                 .whereEqualTo("follower", currentUserId)
@@ -313,13 +380,19 @@ public class UserProfileFragment extends Fragment {
                     }
                 });
     }
+
+    /**
+     * Updates the state of the follow button based on whether the current user follows
+     * the selected user. If they are already following, disables further interaction with
+     * the button; otherwise, checks for pending follow requests to update its text accordingly.
+     */
     private void updateFollowButtonStateBasedOnFollowers() {
         db.collection("users").document(selectedUserId).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         DocumentSnapshot documentSnapshot = task.getResult();
                         List<String> followerList = (List<String>) documentSnapshot.get("followerList");
-                        Log.d("fuck me", "updateFollowButtonStateBasedOnFollowers: " + followerList);
+                        Log.d("damn me", "updateFollowButtonStateBasedOnFollowers: " + followerList);
                         if (followerList != null && followerList.contains(currentUserId)) {
                             followButton.setText("Following");
                             followButton.setEnabled(false); // Optional: Disable the button
@@ -332,5 +405,4 @@ public class UserProfileFragment extends Fragment {
                     }
                 });
     }
-
 }

@@ -131,6 +131,12 @@
             android:background="@drawable/ic_image_black_24dp"/>
 
         <!-- Enhanced Post Actions with Material Icons -->
+
+
+        <!-- Aligns to the right -->
+
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -157,39 +163,50 @@
 
                 <TextView
                     android:id="@+id/comment_count"
-                    android:layout_width="wrap_content"
+                    android:layout_width="20dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginBottom="2dp"
                     android:text="8"
                     android:textColor="#757575"
-                    android:textSize="14sp"
-                    android:layout_marginStart="4dp"/>
+                    android:textSize="14sp" />
+                />
             </LinearLayout>
 
-            <View
+            <!-- Small Music Player -->
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginStart="12dp">
 
-            <ImageButton
-                android:id="@+id/share_button"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_share_black_24dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Share"
-                android:padding="4dp"
-                app:tint="#757575" />
+                <TextView
+                    android:id="@+id/song_title"
+                    android:layout_width="252dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="2.5dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="Song Title"
+                    android:textColor="#555555"
+                    android:textSize="16sp" />
 
-            <ImageButton
-                android:id="@+id/bookmark_button"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_bookmark_border_black_24dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Bookmark"
-                android:layout_marginStart="8dp"
-                android:padding="4dp"
-                app:tint="#757575" />
+                <ImageButton
+                    android:id="@+id/playButton"
+                    android:layout_width="28dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Play music"
+                    android:src="@drawable/sound_up"
+                    app:tint="#625C5C" />
+
+
+
+            </LinearLayout>
         </LinearLayout>
 
         <!-- Trigger Info with Icon -->

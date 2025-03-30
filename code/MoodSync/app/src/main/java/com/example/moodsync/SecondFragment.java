@@ -32,6 +32,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
+//import com.example.moodsync.databinding.HomePageFragmentBinding;
+import com.example.moodsync.databinding.HomePageFragmentBinding;
 import com.example.moodsync.databinding.HomePageFragmentBinding;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -47,7 +49,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SecondFragment extends Fragment {
+/**
+ * A fragment that serves as the main home page for the application. It displays a list of mood events,
+ * provides search functionality, and includes navigation to other parts of the app such as maps, journal,
+ * and user profiles.
+ *
+ * <p>
+ * This fragment interacts with Firebase Firestore to fetch user data, mood events, and profile images.
+ * It also includes filtering functionality to display mood events based on specific criteria such as
+ * time range, emotional state, or keyword.
+ * </p>
+ *
+ * <p>
+ * The fragment uses a RecyclerView to display mood events and supports dynamic updates based on user
+ * interactions like searching or applying filters.
+ * </p>
+ */
+public class  SecondFragment extends Fragment {
 
     private HomePageFragmentBinding binding;
     private RecyclerView moodRecyclerView;
@@ -68,9 +86,6 @@ public class SecondFragment extends Fragment {
     private Button filterApplyButton, filterCancelButton;
     private String selectedFilter = "", selectedEmotionalState = "", keywordEditTextData = "";
     private List<MoodEvent> moodEvents = new ArrayList<>();
-
-
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = HomePageFragmentBinding.inflate(inflater, container, false);
@@ -84,7 +99,6 @@ public class SecondFragment extends Fragment {
         binding.diaryButton.setOnClickListener(v ->
                 NavHostFragment.findNavController(SecondFragment.this)
                         .navigate(R.id.action_SecondFragment_to_JournalFragment));
-
         searchBar = view.findViewById(R.id.search_bar);
         pfp = view.findViewById(R.id.profile_pic);
         fetchProfileImageUrl(globalStorage.getCurrentUserId());
@@ -93,28 +107,24 @@ public class SecondFragment extends Fragment {
         // inflate the search results xml layout
         View searchResultsView = inflater.inflate(R.layout.search_results, container, false);
         searchResultsListView = searchResultsView.findViewById(R.id.search_results_listview);
-
         //filter functionality
         filterIcon = view.findViewById(R.id.filter_icon);
-
         // set adapter for the search results listview
         searchResultsAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, new ArrayList<>());
         searchResultsListView.setAdapter(searchResultsAdapter);
-
         // add the inflated search results view to the parent layout
         ((ViewGroup) view).addView(searchResultsView);
 
         // initially hide the search results, cuz empty list is lame
         searchResultsListView.setVisibility(View.INVISIBLE);
-
         // set item click listener for search results
+
         searchResultsListView.setOnItemClickListener((parent, v, position, id) -> {
             String selectedUsername = (String) parent.getItemAtPosition(position);
             Toast.makeText(getContext(), "Selected: " + selectedUsername, Toast.LENGTH_SHORT).show();
             searchResultsListView.setVisibility(View.INVISIBLE);
             searchBar.setText("");
             navigateToUserProfile(selectedUsername);
-
         });
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
             @Override
@@ -122,14 +132,12 @@ public class SecondFragment extends Fragment {
                 handleBackPress();
             }
         });
-
         // text change listener for the search bar
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
                 // yo, before text changes, nothing to see here
             }
-
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 searchText = charSequence.toString();
@@ -144,20 +152,30 @@ public class SecondFragment extends Fragment {
                     searchResultsListView.setVisibility(View.INVISIBLE);
                 }
             }
-
             @Override
             public void afterTextChanged(Editable editable) {
                 // after text changed, just chill
             }
         });
-
+//        globalStorage.updateUserList();
         return view;
     }
 
+    /**
+     * Handles the back press action for this fragment. This method can be extended
+     * to perform additional actions when the back button is pressed.
+     */
     private void handleBackPress() {
-        // If anything is too be added do it here 
+        // If anything is too be added do it here
     }
 
+
+    /**
+     * Fetches the profile image URL of a user from Firestore based on their user ID. If a valid URL is found,
+     * it loads the image into the profile picture ImageView using Glide.
+     *
+     * @param userId The unique ID of the user whose profile image is being fetched.
+     */
     private void fetchProfileImageUrl(String userId) {
         String imageUrl = globalStorage.getCurrentUser().getPfpUrl();
         if (imageUrl != null && !imageUrl.isEmpty()) {
@@ -165,6 +183,12 @@ public class SecondFragment extends Fragment {
         }
     }
 
+    /**
+     * Loads a profile image into an ImageView using Glide. Applies a circular crop transformation
+     * and sets a placeholder image while loading.
+     *
+     * @param imageUrl The URL of the profile image to load.
+     */
     private void loadProfileImage(String imageUrl) {
         Glide.with(this)
                 .load(imageUrl)
@@ -173,6 +197,12 @@ public class SecondFragment extends Fragment {
                 .into(pfp);
     }
 
+    /**
+     * Searches Firestore for users whose usernames match or start with the given search text.
+     * Updates the search results ListView with matching usernames dynamically as the user types in the search bar.
+     *
+     * @param searchText The text entered by the user in the search bar.
+     */
     private void searchFirestore(String searchText) {
         db.collection("users")
                 .whereGreaterThanOrEqualTo("userName", searchText)
@@ -190,6 +220,13 @@ public class SecondFragment extends Fragment {
                     }
                 });
     }
+
+    /**
+     * Navigates to a user's profile page based on their username. Fetches the user's ID from Firestore,
+     * stores it in global storage, and passes it as an argument to the UserProfileFragment.
+     *
+     * @param selectedUsername The username of the selected user whose profile is being viewed.
+     */
     private void navigateToUserProfile(String selectedUsername) {
         db.collection("users")
                 .whereEqualTo("userName", selectedUsername)
@@ -199,10 +236,8 @@ public class SecondFragment extends Fragment {
                         DocumentSnapshot document = task.getResult().getDocuments().get(0);
                         String userId = document.getId();
                         globalStorage.setSearchResult(userId);
-
                         Bundle args = new Bundle();
                         args.putString("selectedUserId", userId);
-
                         NavHostFragment.findNavController(SecondFragment.this)
                                 .navigate(R.id.action_SecondFragment_to_userProfileFragment, args);
                     } else {
@@ -211,40 +246,44 @@ public class SecondFragment extends Fragment {
                 });
     }
 
+    /**
+     * Updates the ListView with new search results. Adjusts its height dynamically based on
+     * the number of results (up to a maximum of 5 visible items).
+     *
+     * @param usernames A list of usernames matching the current search query.
+     */
     private void updateSearchResults(ArrayList<String> usernames) {
         searchResultsAdapter.clear();
         searchResultsAdapter.addAll(usernames);
         searchResultsAdapter.notifyDataSetChanged();
-
         // set height based on number of results (limit to max 5 visible items)
         int itemHeight = 100; // approx height per item in dp, tweak if needed
         int maxItems = Math.min(usernames.size(), 5);
         int totalHeight = dpToPx(maxItems * itemHeight);
-
         ViewGroup.LayoutParams layoutParams = searchResultsListView.getLayoutParams();
         layoutParams.height = totalHeight;
         searchResultsListView.setLayoutParams(layoutParams);
     }
 
+    /**
+     * Converts a value in density-independent pixels (dp) to pixels (px) based on screen density.
+     *
+     * @param dp The value in dp to be converted to px.
+     * @return The equivalent pixel value for the given dp value.
+     */
     private int dpToPx(int dp) {
         float density = getResources().getDisplayMetrics().density;
         return Math.round(dp * density);
     }
-
-
-
     public String getSearchText() {
         return searchText;
     }
-
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         // init firestore, bro
         db = FirebaseFirestore.getInstance();
-
         setupRecyclerView();
-
         binding.addCircleButton.setOnClickListener(v -> {
             NavHostFragment.findNavController(SecondFragment.this)
                     .navigate(R.id.action_SecondFragment_to_addMoodActivityFragment,
@@ -256,7 +295,6 @@ public class SecondFragment extends Fragment {
                                     .setPopExitAnim(R.anim.slide_out_right)
                                     .build());
         });
-
         binding.historyButton.setOnClickListener(v -> {
             NavHostFragment.findNavController(SecondFragment.this)
                     .navigate(R.id.action_SecondFragment_to_moodHistoryFragment,
@@ -268,7 +306,6 @@ public class SecondFragment extends Fragment {
                                     .setPopExitAnim(R.anim.slide_out_right)
                                     .build());
         });
-
         binding.profilePicContainer.setOnClickListener(v -> {
             NavHostFragment.findNavController(SecondFragment.this)
                     .navigate(R.id.action_SecondFragment_to_editProfileFragment,
@@ -280,11 +317,14 @@ public class SecondFragment extends Fragment {
                                     .setPopExitAnim(R.anim.slide_out_right)
                                     .build());
         });
-
-
         fetchMoodEvents();
     }
 
+
+    /**
+     * Sets up and initializes the RecyclerView used to display mood events. Configures
+     * its layout manager and adapter with an empty list initially.
+     */
     private void setupRecyclerView() {
         moodRecyclerView = binding.moodRecyclerView;
         moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -292,11 +332,16 @@ public class SecondFragment extends Fragment {
         moodRecyclerView.setAdapter(moodCardAdapter);
     }
 
-    //added this method to disply 3 most recent moods of followees
+    /**
+     * Filters mood events to display only the three most recent events for each user
+     * being followed. Sorts these events by timestamp in descending order before updating
+     * the adapter with filtered data.
+     *
+     * @param allMoodEvents A list of all mood events fetched from Firestore.
+     */
     private void filterToRecentMoods(List<MoodEvent> allMoodEvents) {
         // Group mood events by user
         Map<String, List<MoodEvent>> moodsByUser = new HashMap<>();
-
         for (MoodEvent event : allMoodEvents) {
             String userId = event.getId();
             if (!moodsByUser.containsKey(userId)) {
@@ -304,7 +349,6 @@ public class SecondFragment extends Fragment {
             }
             moodsByUser.get(userId).add(event);
         }
-
         // Sort each user's moods by timestamp (descending) and keep only the 3 most recent
         List<MoodEvent> filteredMoods = new ArrayList<>();
         for (List<MoodEvent> userMoods : moodsByUser.values()) {
@@ -326,19 +370,20 @@ public class SecondFragment extends Fragment {
     }
 
 
-    //    changed this to only display moods of followees
+    /**
+     * Fetches mood events from Firestore for users that are being followed by the current user,
+     * including their own mood events. Filters and displays these events in a RecyclerView.
+     */
     private void fetchMoodEvents() {
         Log.d("fetched", "applyFilter: ");
         // Get the logged in username from MyApplication
         MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
         String currentUsername = myApp.getLoggedInUsername();
-
         if (currentUsername == null || currentUsername.isEmpty()) {
             Log.e("SecondFragment", "No logged in user found");
             moodCardAdapter.updateMoodEvents((List<MoodEvent>) globalStorage.getMoodList());
             return;
         }
-
         // First, get the current user's document to access their followingList
         db.collection("users")
                 .whereEqualTo("userName", currentUsername)
@@ -350,8 +395,7 @@ public class SecondFragment extends Fragment {
                         if (followingUsers == null) {
                             followingUsers = new ArrayList<>();
                         }
-
-                         //Add current user to see their own posts too
+                        //Add current user to see their own posts too
                         if (!followingUsers.contains(currentUsername)) {
                             followingUsers.add(currentUsername);
                             Log.d("JJJJ", "fetchMoodEvents: "+ followingUsers);
@@ -417,21 +461,23 @@ public class SecondFragment extends Fragment {
                                     }
                                 });
                     } else {
-
                         Log.e("Firestore", "Error fetching user data", userTask.getException());
                         Toast.makeText(getContext(), "Failed to load user data", Toast.LENGTH_SHORT).show();
                     }
                 });
-        globalStorage.refreshPubList();
-
         Log.d("FUCK1", "fetchMoodEvents: "+ moodEvents);
     }
 
 
-    //filter functionality
-
+    /**
+     * Displays a popup window with filtering options for mood events. Allows users to filter
+     * by time range (e.g., most recent week), emotional state, or keyword. Applies selected filters
+     * when confirmed or resets filters when canceled.
+     *
+     * @param moodEvents A list of all mood events fetched from Firestore to be filtered.
+     */
     private void showFilterPopup(List<MoodEvent> moodEvents) {
-        Log.d("FUCK2", "fetchMoodEvents: "+ moodEvents);
+
         LayoutInflater inflater = LayoutInflater.from(getContext());
         View popupView = inflater.inflate(R.layout.filter_popup, null);
 
@@ -476,21 +522,19 @@ public class SecondFragment extends Fragment {
                     emotionalStateSpinner.setVisibility(View.GONE);
                 }
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 selectedFilter = "";
             }
         });
-
         filterApplyButton.setOnClickListener(v -> {
             popupWindow.dismiss();
             Log.d("FUCK3", "fetchMoodEvents: "+ moodEvents);
             applyFilter(moodEvents);
         });
-
         filterCancelButton.setOnClickListener(v -> {
             popupWindow.dismiss();
+            moodEvents.clear();
             fetchMoodEvents(); // Call fetchMoodEvents to reset filters and fetch all mood events
         });
 
@@ -500,6 +544,12 @@ public class SecondFragment extends Fragment {
         popupWindow.showAtLocation(view, Gravity.BOTTOM, 0, 0);
     }
 
+    /**
+     * Applies filters to a list of mood events based on user-selected criteria such as time range,
+     * emotional state, or keyword. Updates the RecyclerView with filtered results accordingly.
+     *
+     * @param moodEvents A list of all mood events fetched from Firestore to be filtered.
+     */
     private void applyFilter(List<MoodEvent> moodEvents) {
         if (selectedFilter.equals("Most Recent Week")) {
             Log.d("selected recent week", "applyFilter: ");

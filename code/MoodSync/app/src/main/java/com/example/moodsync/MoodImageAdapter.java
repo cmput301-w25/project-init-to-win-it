@@ -15,6 +15,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * A custom adapter for displaying mood-related images and emojis in a ListView.
+ * This adapter dynamically loads images using Glide or displays mood-based emojis
+ * when an image URL is unavailable.
+ *
+ * <p>
+ * The adapter takes a list of mood data, where each item contains an image URL and a mood string.
+ * It determines whether to display an image or an emoji based on the availability of the image URL.
+ * </p>
+ */
 public class MoodImageAdapter extends BaseAdapter {
     private Context context;
     private List<Map<String, Object>> moodList;
@@ -27,6 +37,12 @@ public class MoodImageAdapter extends BaseAdapter {
         this.moodList = moodList;
     }
 
+    /**
+     * Constructs a new MoodImageAdapter instance.
+     *
+     * @param context  The application or activity context.
+     * @param moodList A list of mood data, where each item contains an image URL and a mood string.
+     */
     public MoodImageAdapter(Context context, List<Map<String, Object>> moodList) {
         this.context = context;
         this.moodList = moodList;
@@ -83,6 +99,28 @@ public class MoodImageAdapter extends BaseAdapter {
         return convertView;
     }
 
+    /**
+     * Maps a given "mood" string to its corresponding emoji representation.
+     *
+     * <p>
+     * Supported moods include:
+     * <ul>
+     *   <li>"happy" -> 😊</li>
+     *   <li>"sad" -> 😢</li>
+     *   <li>"excited" -> 😃</li>
+     *   <li>"angry" -> 😠</li>
+     *   <li>"confused" -> 😕</li>
+     *   <li>"surprised" -> 😲</li>
+     *   <li>"ashamed" -> 😳</li>
+     *   <li>"scared" -> 😨</li>
+     *   <li>"disgusted" -> 🤢</li>
+     * </ul>
+     *
+     * If no matching "mood" is found, an empty string is returned.
+     *
+     * @param mood The "mood" string to map to an emoji.
+     * @return A string containing the corresponding emoji or an empty string if no match is found.
+     */
     private String getEmojiForMood(String mood) {
         switch (mood.toLowerCase()) {
             case "happy":

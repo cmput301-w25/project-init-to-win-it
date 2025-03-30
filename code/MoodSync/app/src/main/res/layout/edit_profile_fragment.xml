@@ -31,22 +31,22 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/pending_requests_button"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="5"
-            android:textColor="#F5F5DC"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:backgroundTint="#203434"
-            app:cornerRadius="20dp"
-            app:icon="@drawable/ic_notification"
-            app:iconGravity="textStart"
-            app:iconPadding="4dp"
-            app:iconTint="#F5F5DC"
-            app:strokeColor="#F5F5DC"
-            app:strokeWidth="1dp" />
+        <!--        <com.google.android.material.button.MaterialButton-->
+<!--            android:id="@+id/pending_requests_button"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="40dp"-->
+<!--            android:text="5"-->
+<!--            android:textColor="#F5F5DC"-->
+<!--            android:textSize="14sp"-->
+<!--            android:textStyle="bold"-->
+<!--            app:backgroundTint="#203434"-->
+<!--            app:cornerRadius="20dp"-->
+<!--            app:icon="@drawable/ic_notification"-->
+<!--            app:iconGravity="textStart"-->
+<!--            app:iconPadding="4dp"-->
+<!--            app:iconTint="#F5F5DC"-->
+<!--            app:strokeColor="#F5F5DC"-->
+<!--            app:strokeWidth="1dp" />-->
     </LinearLayout>
 
     <ScrollView
@@ -216,29 +216,49 @@
                                 android:textSize="14sp" />
                         </LinearLayout>
 
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
+<!--                        <com.google.android.material.button.MaterialButton-->
+<!--                            android:id="@+id/pending_button"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="5\nPending Requests"-->
+<!--                            android:textColor="#203434"-->
+<!--                            android:textSize="14sp"-->
+<!--                            app:backgroundTint="#F5F5DC"-->
+<!--                            app:cornerRadius="0dp"-->
+<!--                            app:strokeColor="#203434"-->
+<!--                            app:strokeWidth="1dp" />-->
 
-                            <TextView
-                                android:id="@+id/likes_count"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="10.5K"
-                                android:textColor="#203434"
-                                android:textSize="18sp"
-                                android:textStyle="bold" />
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="wrap_content"
+                            android:layout_height="45dp"
+                            app:cardBackgroundColor="#F5F5DC"
+                            android:id="@+id/pending_button_request"
+                            app:cardCornerRadius="0dp">
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Likes"
-                                android:textColor="#2E4545"
-                                android:textSize="14sp" />
-                        </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="130dp"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/pending_button"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="#203434"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="130dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="Pending Requests"
+                                    android:textColor="#2E4545"
+                                    android:textSize="14sp" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -262,7 +282,7 @@
                     app:tabTextColor="#A0000000"
                     app:tabSelectedTextColor="#203434"
                     app:tabIndicatorHeight="0dp"
-                    app:tabRippleColor="@android:color/transparent"
+                    app:tabRippleColor="#D3D3D3"
                     app:tabGravity="fill"
                     app:tabMode="fixed">
 
@@ -282,15 +302,18 @@
             <GridView
                 android:id="@+id/photos_listview"
                 android:layout_width="wrap_content"
-                android:layout_height="278dp"
+                android:layout_height="376dp"
+                android:layout_below="@id/tabs"
+                android:layout_alignParentBottom="true"
                 android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="8dp"
                 android:clipToPadding="false"
                 android:horizontalSpacing="8dp"
-                android:minHeight="220dp"
                 android:numColumns="3"
                 android:paddingBottom="8dp"
                 android:stretchMode="columnWidth"
                 android:verticalSpacing="8dp" />
+
 
         </LinearLayout>
     </ScrollView>

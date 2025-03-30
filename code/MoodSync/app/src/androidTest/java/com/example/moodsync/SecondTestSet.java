@@ -108,8 +108,8 @@ public class SecondTestSet {
             Log.e("InterruptedException", "Thread was interrupted");
         }
 
-        onView(withId(R.id.triggerInput)).check(matches(isDisplayed()));
-        onView(withId(R.id.triggerInput)).perform(click());
+        onView(withId(R.id.trigger_text_view)).check(matches(isDisplayed()));
+        onView(withId(R.id.trigger_text_view)).perform(click());
         try {
             Thread.sleep(3000); // Avoid using Thread.sleep() if possible
         } catch (InterruptedException e) {
@@ -117,9 +117,9 @@ public class SecondTestSet {
             Log.e("InterruptedException", "Thread was interrupted");
         }
 
-        onView(withId(R.id.triggerInput)).perform(typeText("123456789012345678901"));
+        onView(withId(R.id.trigger_text_view)).perform(typeText("123456789012345678901"));
 
-        onView(withId(R.id.triggerInput)).check(matches(withText("12345678901234567890")));
+        onView(withId(R.id.trigger_text_view)).check(matches(withText("12345678901234567890")));
     }
 
     @Test
@@ -133,11 +133,11 @@ public class SecondTestSet {
         onView(withId(R.id.next)).check(matches(isDisplayed()));
         onView(withId(R.id.next)).perform(click());
 
-        onView(withId(R.id.triggerInput)).check(matches(isDisplayed()));
-        onView(withId(R.id.triggerInput)).perform(click());
-        onView(withId(R.id.triggerInput)).perform(replaceText("word1 second three NOTFOUR"));
+        onView(withId(R.id.trigger_text_view)).check(matches(isDisplayed()));
+        onView(withId(R.id.trigger_text_view)).perform(click());
+        onView(withId(R.id.trigger_text_view)).perform(replaceText("word1 second three NOTFOUR"));
 
-        onView(withId(R.id.triggerInput)).check(matches(withText("word1 second three")));
+        onView(withId(R.id.trigger_text_view)).check(matches(withText("word1 second three")));
     }
 
     @After

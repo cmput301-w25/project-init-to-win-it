@@ -1,15 +1,13 @@
 package com.example.moodsync;
-
 import static android.app.Activity.RESULT_OK;
 import static com.example.moodsync.BitmapUtils.compressImageFromUri;
 
+import android.Manifest;
 import android.animation.ObjectAnimator;
-
-import com.example.moodsync.OnImageUploadedListener;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -31,25 +29,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-
-import com.bumptech.glide.Glide;
 import com.example.moodsync.databinding.EditMoodFragmentBinding;
 import com.example.moodsync.databinding.EditMoodFragment2Binding;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -57,12 +58,12 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -81,6 +82,8 @@ public class EditMoodActivity extends Fragment {
     private boolean isSecondLayout = false;
     private RelativeLayout mainLayout;
     static String imageUrl;
+    private String selectedSongUrl;
+    private String selectedSongTitle;
 
     private final Map<String, Integer> moodGradients = new HashMap<>();
 
@@ -94,6 +97,8 @@ public class EditMoodActivity extends Fragment {
     private CollectionReference moodEventsRef;
     private MoodEvent moodEventToEdit;
     public LocalStorage globalStorage = LocalStorage.getInstance();
+    private String currentLocation = null; //Default to no location
+    private FusedLocationProviderClient fusedLocationClient;
 
     private boolean isPublic = false; // Default to private
     /**
@@ -109,7 +114,7 @@ public class EditMoodActivity extends Fragment {
 
         FirebaseApp.initializeApp(requireContext());
         db = FirebaseFirestore.getInstance();
-
+        moodEventsRef = db.collection("mood_events");
 
         if (getArguments() != null && getArguments().getBoolean("isSecondLayout", false)) {
             isSecondLayout = true;
@@ -140,8 +145,9 @@ public class EditMoodActivity extends Fragment {
         moodGradients.put("Scared", R.drawable.scared_gradient);
         moodGradients.put("Disgusted", R.drawable.disgusted_gradient);
 
-            moodEventToEdit = globalStorage.getMoodEvent(globalStorage.getCurrentMoodForEdit());
-
+        if (getArguments() != null) {
+            moodEventToEdit = getArguments().getParcelable("moodEvent");
+        }
 
         if (moodEventToEdit == null) {
             // Handle error:  Maybe navigate back or show an error message.
@@ -155,6 +161,52 @@ public class EditMoodActivity extends Fragment {
             setupFirstLayout(view);
         }
     }
+    private void fetchSongsForMood(String collectionName) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Show loading dialog
+        AlertDialog.Builder loadingBuilder = new AlertDialog.Builder(requireContext());
+        loadingBuilder.setTitle("Loading Songs");
+        loadingBuilder.setMessage("Please wait while we fetch songs...");
+        AlertDialog loadingDialog = loadingBuilder.create();
+        loadingDialog.show();
+
+        db.collection(collectionName).get().addOnCompleteListener(task -> {
+            loadingDialog.dismiss();
+
+            if (task.isSuccessful()) {
+                List<String> songTitles = new ArrayList<>();
+                List<String> songUrls = new ArrayList<>();
+
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    String title = document.getString("title");
+                    String url = document.getString("url");
+                    String singer = document.getString("singer");
+
+                    if (title != null && url != null) {
+                        String displayTitle = (singer != null && !singer.isEmpty())
+                                ? title + " - " + singer
+                                : title;
+
+                        songTitles.add(displayTitle);
+                        songUrls.add(url);
+                    }
+                }
+
+                if (songTitles.isEmpty()) {
+                    Toast.makeText(requireContext(), "No songs found for this mood", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Show song selection dialog
+                showSongSelectionDialog(songTitles, songUrls);
+            } else {
+                Toast.makeText(requireContext(), "Failed to load songs", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showSongSelectionDialog(List<String> songTitles, List<String> songUrls) {AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_song_selection_dialog, null);builder.setView(dialogView);ListView listView = dialogView.findViewById(R.id.songListView);ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, songTitles);listView.setAdapter(adapter);AlertDialog dialog = builder.create();listView.setOnItemClickListener((parent, view, position, id) -> {this.selectedSongUrl = songUrls.get(position);this.selectedSongTitle = songTitles.get(position);ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item);spinnerAdapter.add(this.selectedSongTitle);spinnerAdapter.add("Choose a song");spinnerAdapter.add("No music");spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);binding1.musicSpinner.setAdapter(spinnerAdapter);binding1.musicSpinner.setSelection(0);Toast.makeText(requireContext(), "Selected: " + this.selectedSongTitle, Toast.LENGTH_SHORT).show();dialog.dismiss();});dialog.show();}
     /**
      * Sets up the first layout of the fragment.
      *
@@ -195,6 +247,16 @@ public class EditMoodActivity extends Fragment {
         }
 
         descriptionInput.setText(moodEventToEdit.getDescription());
+
+        if (moodEventToEdit != null && moodEventToEdit.getSongTitle() != null) {
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                    requireContext(),
+                    android.R.layout.simple_spinner_item,
+                    new String[]{moodEventToEdit.getSongTitle(), "None", "Happy", "Sad", "Angry", "Confused", "Surprised", "Ashamed", "Disgusted", "Scared"}
+            );
+            binding1.musicSpinner.setAdapter(spinnerAdapter);
+            binding1.musicSpinner.setSelection(0);
+        }
 
         moodSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -237,6 +299,27 @@ public class EditMoodActivity extends Fragment {
             }
         });
 
+
+        binding1.musicSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedOption = parent.getItemAtPosition(position).toString();
+
+                // If a mood is selected, fetch songs for that mood
+                if (!selectedOption.equals("None")) {
+                    // Convert the mood name to lowercase for collection name
+                    String collectionName = "songs_" + selectedOption.toLowerCase();
+                    fetchSongsForMood(collectionName);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
+
+
         binding1.cancel.setOnClickListener(v -> NavHostFragment.findNavController(EditMoodActivity.this)
                 .navigate(R.id.action_editMoodActivityFragment_to_moodHistoryFragment));
 
@@ -254,12 +337,108 @@ public class EditMoodActivity extends Fragment {
                 args.putBoolean("isSecondLayout", true);
                 args.putString("selectedMood", this.selectedMood);
                 args.putString("description", this.moodDescription);
+                args.putString("songTitle" , this.selectedSongTitle);
+                args.putString("songUrl" , this.selectedSongUrl);
                 args.putParcelable("moodEvent", (Parcelable) moodEventToEdit); //Pass the object to the fragment.
 
                 NavHostFragment.findNavController(EditMoodActivity.this)
                         .navigate(R.id.action_editMoodActivityFragment_to_editMoodActivityFragment2, args);
             }
         });
+
+    }
+    private void showSongSelectionDialog() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Show loading dialog
+        AlertDialog.Builder loadingBuilder = new AlertDialog.Builder(requireContext());
+        loadingBuilder.setTitle("Loading Songs");
+        loadingBuilder.setMessage("Please wait while we fetch songs...");
+        AlertDialog loadingDialog = loadingBuilder.create();
+        loadingDialog.show();
+
+        // Define collections
+        List<String> collectionNames = Arrays.asList(
+                "songs_happy", "songs_sad", "songs_angry",
+                "songs_disgusted", "songs_surprised", "songs_excited");
+
+        List<String> songTitles = new ArrayList<>();
+        List<String> songUrls = new ArrayList<>();
+        List<String> songCategories = new ArrayList<>();
+
+        final int[] completedQueries = {0};
+        final int totalQueries = collectionNames.size();
+
+        for (String collectionName : collectionNames) {
+            db.collection(collectionName).get().addOnCompleteListener(task -> {
+                completedQueries[0]++;
+
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String title = document.getString("title");
+                        String url = document.getString("url");
+                        String singer = document.getString("singer");
+
+                        if (title != null && url != null) {
+                            String displayTitle = (singer != null && !singer.isEmpty())
+                                    ? title + " - " + singer
+                                    : title;
+
+                            songTitles.add(displayTitle);
+                            songUrls.add(url);
+                            songCategories.add(collectionName.replace("songs_", ""));
+                        }
+                    }
+                }
+
+                // Check if all queries are done
+                if (completedQueries[0] >= totalQueries) {
+                    loadingDialog.dismiss();
+
+                    if (songTitles.isEmpty()) {
+                        Toast.makeText(requireContext(), "No songs found", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Create song selection dialog
+                    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                    builder.setTitle("Select a Song");
+
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            requireContext(),
+                            android.R.layout.simple_list_item_1, // Fixed layout issue
+                            songTitles);
+
+                    builder.setAdapter(adapter, (dialog, which) -> {
+                        selectedSongUrl = songUrls.get(which);
+                        selectedSongTitle = songTitles.get(which);
+
+                        // Update spinner
+                        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                                requireContext(),
+                                android.R.layout.simple_spinner_item);
+                        spinnerAdapter.add(selectedSongTitle);
+                        spinnerAdapter.add("Happy");
+                        spinnerAdapter.add("Sad");
+                        spinnerAdapter.add("Ashamed");
+                        spinnerAdapter.add("Disgusted");
+                        spinnerAdapter.add("Scared");
+                        spinnerAdapter.add("Angry");
+                        spinnerAdapter.add("Surprised");
+                        spinnerAdapter.add("Confused");
+                        binding1.musicSpinner.setAdapter(spinnerAdapter);
+                        binding1.musicSpinner.setSelection(0);
+
+                        Toast.makeText(requireContext(), "Selected: " + selectedSongTitle, Toast.LENGTH_SHORT).show();
+                    });
+
+                    builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+                    builder.show();
+                }
+            });
+
+        }
+
 
     }
 
@@ -317,6 +496,20 @@ public class EditMoodActivity extends Fragment {
             }
         }
     }
+    public interface OnMoodFetchedListener {
+        void onMoodFetched(String originalMood);
+    }
+    private void fetchOriginalMood(String documentId, OnMoodFetchedListener listener) {
+        moodEventsRef.document(documentId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                String originalMood = task.getResult().getString("mood");
+                listener.onMoodFetched(originalMood);
+            } else {
+                Log.e("FIRESTORE", "Failed to fetch original mood", task.getException());
+                listener.onMoodFetched(null); // Handle failure
+            }
+        });
+    }
 
     /**
      * Sets up the second layout, initializing the fields, mood descriptions,
@@ -337,12 +530,67 @@ public class EditMoodActivity extends Fragment {
             animateButtonClick(privateButton);
             publicButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
         });
+        Button locationYesButton = binding2.locationYesButton;
+        Button locationNoButton = binding2.locationNoButton;
+        if (moodEventToEdit.getLocation() != null && !moodEventToEdit.getLocation().isEmpty()) {
+            currentLocation = moodEventToEdit.getLocation();
+            animateButtonClick(locationYesButton);
+            locationNoButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+        } else {
+            animateButtonClick(locationNoButton);
+            locationYesButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+        }
 
+        if (moodEventToEdit.isPublic()) {
+            isPublic = true;
+            animateButtonClick(publicButton);
+            privateButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+        } else {
+            isPublic = false;
+            animateButtonClick(privateButton);
+            publicButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+        }
+
+
+        locationYesButton.setOnClickListener(v -> {
+            if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                return;
+            }
+
+            //Checking fusedLocationClient works
+            if (fusedLocationClient == null) {
+                fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+            }
+
+            fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), location -> {
+                if (location != null) {
+                    String latLngFormatted = location.getLatitude() + "," + location.getLongitude();
+                    currentLocation = latLngFormatted;
+
+                    // Only animates button if current location given
+                    animateButtonClick(locationYesButton);
+                    locationNoButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+                }
+            });
+        });
+
+        locationNoButton.setOnClickListener(v -> {
+            currentLocation = null;
+            animateButtonClick(locationNoButton);
+            locationYesButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
+        });
 
         Log.d("LIFECYCLE", "setupSecondLayout called");
         if (getArguments() != null) {
             this.selectedMood = getArguments().getString("selectedMood", "");
             this.moodDescription = getArguments().getString("description", "");
+            this.selectedSongTitle = getArguments().getString("songTitle", "");
+            this.selectedSongUrl = getArguments().getString("songUrl","");
             moodEventToEdit = getArguments().getParcelable("moodEvent"); // Get moodEvent from parameters
         }
 
@@ -383,7 +631,9 @@ public class EditMoodActivity extends Fragment {
                     imageUrl,
                     isPublic,
                     username,
-                    globalStorage.getMoodEvent(globalStorage.getCurrentMoodForEdit()).getLocation()
+                    this.selectedSongUrl,
+                    this.selectedSongTitle,
+                    currentLocation
             );
 
 
@@ -670,6 +920,8 @@ public class EditMoodActivity extends Fragment {
             }
         }
     }
+
+
     /**
      * Refreshes the list of mood events from Firestore.
      */
@@ -689,18 +941,63 @@ public class EditMoodActivity extends Fragment {
             }
         }
         refreshMoodEventsList();
-        moodEventsRef = db.collection("mood_events");
-        moodEventsRef.whereEqualTo("description", moodEventToEdit.getDescription()).get()
+        if (moodEventToEdit.getDocumentId() == null) {
+            Log.e("FIRESTORE", "Document ID is null. Cannot update.");
+            return;
+        }
+
+        // Fetch the original mood from Firestore
+        fetchOriginalMood(moodEventToEdit.getDocumentId(), originalMood -> {
+            String moodToSave = (selectedMood != null && !selectedMood.isEmpty()) ? selectedMood : originalMood;
+
+            if (moodToSave == null) {
+                Log.e("FIRESTORE", "No valid mood to save.");
+                Toast.makeText(requireContext(), "Error: No valid mood to save.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Update mood event with either user-provided or original mood
+            Map<String, Object> updatedFields = new HashMap<>();
+            updatedFields.put("mood", moodToSave);
+            updatedFields.put("description", moodEvent.getDescription());
+            updatedFields.put("trigger", moodEvent.getTrigger());
+            updatedFields.put("socialSituation", moodEvent.getSocialSituation());
+            updatedFields.put("isPublic", isPublic);
+            updatedFields.put("songUrl", selectedSongUrl);
+            updatedFields.put("songTitle", selectedSongTitle);
+
+            moodEventsRef.document(moodEventToEdit.getDocumentId()).update(updatedFields)
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d("FIRESTORE", "Mood event updated successfully!");
+                        refreshMoodEventsList();
+                        showSuccessDialogUI();
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("FIRESTORE", "Failed to update mood event", e);
+                        showErrorToast(e);
+                    });
+        });
+    }
+
+
+
+
+    /**
+     * Deletes a mood event from the Firestore database.
+     *
+     * @param moodEvent The mood event to be deleted.
+     */
+    private void deleteMoodEvent(MoodEvent moodEvent) {
+        moodEventsRef.whereEqualTo("date", moodEvent.getDate()).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            moodEventsRef.document(document.getId()).set(moodEvent)
+                            moodEventsRef.document(document.getId()).delete()
                                     .addOnSuccessListener(aVoid -> {
-                                        Log.d("FIRESTORE", "Mood event updated successfully!");
+                                        Log.d("FIRESTORE", "Mood event deleted successfully");
                                         refreshMoodEventsList();
                                     })
-                                    .addOnFailureListener(e -> Log.e("FIRESTORE", "Update failed", e));
-                            refreshMoodEventsList();
+                                    .addOnFailureListener(e -> Log.e("FIRESTORE", "Failed to delete mood event", e));
                         }
                     } else {
                         Log.e("FIRESTORE", "Mood event not found in Firestore");
@@ -864,6 +1161,7 @@ public class EditMoodActivity extends Fragment {
         View rectangleViewOrSum = binding1.rectangle2;
         TextView textView = binding1.stepIndicator;
         Button button = binding1.next;
+        Spinner spinner = binding1.musicSpinner;
 
         switch (mood) {
             case "None":
@@ -881,6 +1179,7 @@ public class EditMoodActivity extends Fragment {
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_happy);
                 button.setBackgroundResource(R.drawable.edit_text_happy);
                 textView.setBackgroundResource(R.drawable.edit_text_happy);
+                spinner.setBackgroundResource(R.drawable.edit_text_happy);
                 editDescription.setTextColor(Color.parseColor("#5A4A33"));
                 break;
             case "Sad":
@@ -889,6 +1188,7 @@ public class EditMoodActivity extends Fragment {
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_sad);
                 button.setBackgroundResource(R.drawable.edit_text_sad);
                 textView.setBackgroundResource(R.drawable.edit_text_sad);
+                spinner.setBackgroundResource(R.drawable.edit_text_happy);
                 editDescription.setTextColor(Color.parseColor("#2C3E50"));
                 break;
             case "Angry":
@@ -896,6 +1196,7 @@ public class EditMoodActivity extends Fragment {
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_angry);
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_angry);
                 button.setBackgroundResource(R.drawable.edit_text_angry);
+                spinner.setBackgroundResource(R.drawable.edit_text_angry);
                 textView.setBackgroundResource(R.drawable.edit_text_angry);
                 editDescription.setTextColor(Color.parseColor("#4D1A1A"));
                 break;
@@ -904,6 +1205,7 @@ public class EditMoodActivity extends Fragment {
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_confused);
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_confused);
                 button.setBackgroundResource(R.drawable.edit_text_confused);
+                spinner.setBackgroundResource(R.drawable.edit_text_confused);
                 textView.setBackgroundResource(R.drawable.edit_text_confused);
                 editDescription.setTextColor(Color.parseColor("#3A2D58"));
                 break;
@@ -911,6 +1213,7 @@ public class EditMoodActivity extends Fragment {
                 editDescription.setBackgroundResource(R.drawable.edit_text_surprised);
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_surprised);
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_surprised);
+                spinner.setBackgroundResource(R.drawable.edit_text_surprised);
                 button.setBackgroundResource(R.drawable.edit_text_surprised);
                 textView.setBackgroundResource(R.drawable.edit_text_surprised);
                 editDescription.setTextColor(Color.parseColor("#5D2B3E"));
@@ -919,6 +1222,7 @@ public class EditMoodActivity extends Fragment {
                 editDescription.setBackgroundResource(R.drawable.edit_text_ashamed);
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_ashamed);
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_ashamed);
+                spinner.setBackgroundResource(R.drawable.edit_text_ashamed);
                 textView.setBackgroundResource(R.drawable.edit_text_ashamed);
                 button.setBackgroundResource(R.drawable.edit_text_ashamed);
 
@@ -927,6 +1231,7 @@ public class EditMoodActivity extends Fragment {
             case "Scared":
                 editDescription.setBackgroundResource(R.drawable.edit_text_scared);
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_scared);
+                spinner.setBackgroundResource(R.drawable.edit_text_scared);
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_scared);
                 textView.setBackgroundResource(R.drawable.edit_text_scared);
                 button.setBackgroundResource(R.drawable.edit_text_scared);
@@ -934,6 +1239,7 @@ public class EditMoodActivity extends Fragment {
                 editDescription.setTextColor(Color.parseColor("#2B3F5D"));
                 break;
             case "Disgusted":
+                spinner.setBackgroundResource(R.drawable.edit_text_disgusted);
                 editDescription.setBackgroundResource(R.drawable.edit_text_disgusted);
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_disgusted);
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_disgusted);
@@ -949,6 +1255,7 @@ public class EditMoodActivity extends Fragment {
                 rectangleViewOrSum.setBackgroundResource(R.drawable.edit_text_default);
                 button.setBackgroundResource(R.drawable.edit_text_default);
                 spinnerStuff.setBackgroundResource(R.drawable.edit_text_default);
+                spinner.setBackgroundResource(R.drawable.edit_text_default);
                 editDescription.setTextColor(Color.parseColor("#204343"));
         }
     }

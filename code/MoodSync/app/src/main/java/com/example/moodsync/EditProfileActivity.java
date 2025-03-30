@@ -50,7 +50,7 @@ import java.util.UUID;
 
 public class EditProfileActivity extends Fragment {
 
-    private ImageView backButton, profileImageEdit;
+    private ImageView profileImageEdit;
     private EditText fullName, bio;
     private Button confirmButton, backButtonMaterial;
     private TextView editProfileTitle;
@@ -65,15 +65,12 @@ public class EditProfileActivity extends Fragment {
         View view = inflater.inflate(R.layout.edit_profile_page, container, false);
         db = FirebaseFirestore.getInstance();
         // Initialize views using findViewById
-        backButton = view.findViewById(R.id.back_button);
         profileImageEdit = view.findViewById(R.id.profile_image_edit);
         fullName = view.findViewById(R.id.fullName);
         bio = view.findViewById(R.id.bio);
         confirmButton = view.findViewById(R.id.confirmbutton);
         backButtonMaterial = view.findViewById(R.id.backbutton);
 
-
-        backButton.setOnClickListener(v -> navigateBack());
         backButtonMaterial.setOnClickListener(v -> navigateBack());
         confirmButton.setOnClickListener(v -> saveChanges());
         profileImageEdit.setOnClickListener(v -> showPhotoOptionsDialog());

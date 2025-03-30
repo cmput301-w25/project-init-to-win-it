@@ -484,7 +484,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     List<String> seenIDs = new ArrayList<String>(); //Getting only MOST RECENT
 
                     List<MoodEvent> recentFilteredMoods = new ArrayList<>();
-                     for (MoodEvent recentMood: mostRecentMoodsList) {
+                    for (MoodEvent recentMood: mostRecentMoodsList) {
                         if (!(seenIDs.contains(recentMood.getId()))) {
                             seenIDs.add(recentMood.getId());
                             if (recentMood.getLocation() != null){
@@ -569,6 +569,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             return null;
         }
     }
+
     public void displayRequestedMoods(List<MoodEvent> chosenArray, int mode) {
         if (chosenArray.size() == 0){
             Toast.makeText(requireContext(), "No mood locations found 😞", Toast.LENGTH_SHORT).show();
@@ -590,9 +591,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_crowd);
 
             uref.get().addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            profileImageUrl = documentSnapshot.getString("profileImageUrl");
-                        }
+                if (documentSnapshot.exists()) {
+                    profileImageUrl = documentSnapshot.getString("profileImageUrl");
+                }
             });
             try {
                 if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
@@ -615,8 +616,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             //Adding marker to map
             mMap.addMarker(new MarkerOptions()
-                                .position(location)
-                                .icon(BitmapDescriptorFactory.fromBitmap(customMarkerBitmap)));
+                    .position(location)
+                    .icon(BitmapDescriptorFactory.fromBitmap(customMarkerBitmap)));
         }
     }
 
@@ -776,7 +777,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                             moodEvent.setDocumentId(document.getId());
                                             if (moodEvent.getLocation() != null){
                                                 mostRecentMoodsList.add(moodEvent);
-
                                                 Log.d(TAG, "Adding moodEvent of mostRecent");
                                             }
                                         }

@@ -45,15 +45,14 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/bottom_nav_container"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.027">
+        app:layout_constraintVertical_bias="0.05">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/mapFilterButton"
-            android:layout_width="110dp"
-            android:layout_height="56dp"
+            android:layout_width="115dp"
+            android:layout_height="match_parent"
             android:backgroundTint="#4A7A7A"
             android:elevation="6dp"
             android:fontFamily="sans-serif-medium"
@@ -75,8 +74,7 @@
             android:background="@drawable/spinner_rounded_border"
             android:fontFamily="sans-serif"
             android:paddingStart="16dp"
-            android:visibility="invisible"
-             />
+            android:visibility="invisible" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/mapFilterClearButton"
@@ -99,17 +97,18 @@
         android:layout_height="48dp"
         android:layout_gravity="center_vertical"
         android:layout_marginHorizontal="50dp"
+        android:layout_marginTop="5dp"
         android:layout_weight="1"
         android:background="@drawable/spinner_rounded_border"
         android:fontFamily="sans-serif"
         android:paddingStart="16dp"
-        app:layout_constraintVertical_bias="0.0"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/bottom_nav_container"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
-        android:visibility="invisible"
-        android:layout_marginTop="5dp"
-        app:layout_constraintTop_toBottomOf="@+id/mapFilterFunction" />
+        app:layout_constraintTop_toBottomOf="@+id/mapFilterFunction"
+        app:layout_constraintVertical_bias="0.032" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/bottom_nav_container"

@@ -238,7 +238,7 @@
             android:id="@+id/action_editProfileFragment_self2"
             app:destination="@id/editProfileFragment" />
         <action
-                android:id="@+id/action_editProfileFragment_to_editProfileActivity"
+            android:id="@+id/action_editProfileFragment_to_editProfileActivity"
             app:destination="@id/editProfileActivity" />
     </fragment>
 
