@@ -24,6 +24,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Provides a music player interface for streaming songs from Firestore.
+ * Handles song playback, pause, resume, and UI updates for the "Now Playing" section.
+ * Integrates with Firebase Firestore to fetch and display a list of songs.
+ *
+ * <p>
+ * This fragment manages the MediaPlayer instance and provides controls for song playback.
+ * It also fetches song data from Firestore and updates the RecyclerView dynamically.
+ * </p>
+ *
+ * @see MediaPlayer
+ * @see FirebaseFirestore
+ */
 public class MoojicFragment extends Fragment {
     private MediaPlayer mediaPlayer;
     private FragmentMoojicBinding binding;
@@ -48,9 +61,17 @@ public class MoojicFragment extends Fragment {
 
         return binding.getRoot();
     }
+    /**
+     * Returns the MediaPlayer instance used for playback.
+     *
+     * @return The MediaPlayer instance.
+     */
     public MediaPlayer getMediaPlayer() {
         return mediaPlayer;
     }
+    /**
+     * Sets up the play button functionality to handle song playback, pause, and resume actions.
+     */
     private void setupplay_button() {
         // The play button should be in the now playing section, not on individual items
         // Add a play button to your fragment layout first, then:
@@ -73,13 +94,18 @@ public class MoojicFragment extends Fragment {
         });
     }
 
-
+    /**
+     * Configures the RecyclerView to display a list of songs fetched from Firestore.
+     */
     private void setupRecyclerView() {
         songAdapter = new SongsAdapter(songsList, this::playSong);
         binding.recyclerViewSongs.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerViewSongs.setAdapter(songAdapter);
     }
 
+    /**
+     * Fetches songs from Firestore and populates the RecyclerView with the retrieved data.
+     */
     private void loadSongsFromFirestore() {
         binding.progressBar.setVisibility(View.VISIBLE);
         db.collection("allsongs")
@@ -117,6 +143,12 @@ public class MoojicFragment extends Fragment {
                 });
     }
 
+    /**
+     * Plays the specified song using MediaPlayer. Handles preparation and playback events,
+     * including error handling and UI updates for "Now Playing."
+     *
+     * @param song The Song object to play.
+     */
     public void playSong(Song song) {
         try {
             currentSong = song;
@@ -168,18 +200,29 @@ public class MoojicFragment extends Fragment {
         }
     }
 
+    /**
+     * Pauses the currently playing song.
+     */
     private void pauseSong() {
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
         }
     }
 
+    /**
+     * Resumes playback of the currently paused song.
+     */
     private void resumeSong() {
         if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
             mediaPlayer.start();
         }
     }
 
+    /**
+     * Updates the UI to display information about the currently playing song in the "Now Playing" section.
+     *
+     * @param song The Song object currently being played.
+     */
     private void updateNowPlayingUI(Song song) {
         // Make sure you're using the correct view ID from your binding
         binding.titleTextView.setText(getString(R.string.now_playing, song.getTitle(), song.getSinger()));
@@ -220,6 +263,12 @@ public class MoojicFragment extends Fragment {
             mediaPlayer = null;
         }
     }
+
+    /**
+     * Plays an external Song object passed from outside this fragment. Useful for integrating with other components.
+     *
+     * @param song The external Song object to play.
+     */
     public void playExternalSong(Song song) {
         playSong(song);
     }

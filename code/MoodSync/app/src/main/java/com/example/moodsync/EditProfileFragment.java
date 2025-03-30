@@ -147,6 +147,7 @@ public class EditProfileFragment extends Fragment {
                             moodData.put("description", document.getString("description"));
                             moodData.put("mood", document.getString("mood"));
                             moodData.put("trigger", document.getString("trigger"));
+                            moodData.put("date", document.getLong("date"));
 
                             moodList.add(moodData);
                         }
@@ -168,7 +169,6 @@ public class EditProfileFragment extends Fragment {
             showPostDetailDialog(selectedMood); // Pass the selected mood data to the dialog
         });
     }
-
 
     private View getViewByPosition(int position, GridView gridView) {
         final int firstListItemPosition = gridView.getFirstVisiblePosition();
@@ -222,7 +222,7 @@ public class EditProfileFragment extends Fragment {
         // Set window attributes for bottom animation
         WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
         layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-        layoutParams.width = (int)(getResources().getDisplayMetrics().widthPixels * 1.0); // 95% of screen width
+        layoutParams.width = (int)(getResources().getDisplayMetrics().widthPixels * 1.0);
         layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
         dialog.getWindow().setAttributes(layoutParams);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -243,22 +243,122 @@ public class EditProfileFragment extends Fragment {
                 .load(moodData.get("imageUrl"))
                 .into(postImage);
 
+        // Format the timestamp to "time ago" format
+        Object dateObj = moodData.get("date");
+        if (dateObj != null) {
+            long timestamp = 0;
+            if (dateObj instanceof Long) {
+                timestamp = (Long) dateObj;
+            } else if (dateObj instanceof String) {
+                timestamp = Long.parseLong((String) dateObj);
+            }
+
+            if (timestamp > 0) {
+                String timeAgo = getTimeAgo(timestamp);
+                timeStampText.setText(timeAgo);
+            } else {
+                timeStampText.setText("Unknown time");
+            }
+        } else {
+            timeStampText.setText("Unknown time");
+        }
+
+        // Fetch and load the current profile image from Firestore
+        db.collection("users")
+                .whereEqualTo("userName", loggedInUsername)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot userDoc = queryDocumentSnapshots.getDocuments().get(0);
+                        String profileImageUrl = userDoc.getString("profileImageUrl");
+
+                        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+                            Glide.with(requireContext())
+                                    .load(profileImageUrl)
+                                    .circleCrop()
+                                    .placeholder(R.drawable.ic_person_black_24dp)
+                                    .into(profileImage);
+                        }
+                    }
+                });
+
         nameText.setText(loggedInUsername);
         statusText.setText((String) moodData.get("description"));
         moodTextView.setText((String) moodData.get("mood"));
         triggerTextView.setText((String) moodData.get("trigger"));
-
 
         ImageButton commentButton = dialog.findViewById(R.id.comment_button);
         commentButton.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "Comment clicked", Toast.LENGTH_SHORT).show();
         });
 
-
         // Show dialog
         dialog.show();
     }
 
+    private String getTimeAgo(long timeInMillis) {
+        long currentTime = System.currentTimeMillis();
+        long timeDiff = currentTime - timeInMillis;
+
+        // Convert to seconds
+        long seconds = timeDiff / 1000;
+
+        if (seconds < 60) {
+            return "just now";
+        }
+
+        // Convert to minutes
+        long minutes = seconds / 60;
+        if (minutes < 60) {
+            return minutes + (minutes == 1 ? " minute ago" : " minutes ago");
+        }
+
+        // Convert to hours
+        long hours = minutes / 60;
+        if (hours < 24) {
+            return hours + (hours == 1 ? " hour ago" : " hours ago");
+        }
+
+        // Convert to days
+        long days = hours / 24;
+        if (days < 30) {
+            return days + (days == 1 ? " day ago" : " days ago");
+        }
+
+        // Convert to months
+        long months = days / 30;
+        if (months < 12) {
+            return months + (months == 1 ? " month ago" : " months ago");
+        }
+
+        // Convert to years
+        long years = months / 12;
+        return years + (years == 1 ? " year ago" : " years ago");
+    }
+
+    private void loadProfileImage(String imageUrl) {
+        Glide.with(this)
+                .load(imageUrl)
+                .circleCrop()
+                .placeholder(R.drawable.ic_person_black_24dp)
+                .into(profileImageEdit);
+    }
+    private void fetchProfileImageUrl(String userId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String imageUrl = documentSnapshot.getString("profileImageUrl");
+                        if (imageUrl != null && !imageUrl.isEmpty()) {
+                            loadProfileImage(imageUrl);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Error fetching profile image URL", e);
+                });
+    }
     private void loadUserData() {
         if (loggedInUsername == null || loggedInUsername.isEmpty()) {
             loadDummyData();
@@ -274,6 +374,22 @@ public class EditProfileFragment extends Fragment {
                         String fullName = document.getString("fullName");
                         String username = document.getString("userName");
 
+                        // Get profile image URL from Firestore
+                        String profileImageUrl = document.getString("profileImageUrl");
+
+                        // Update the profile image using Glide
+                        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+                            Glide.with(requireContext())
+                                    .load(profileImageUrl)
+                                    .circleCrop()
+                                    .placeholder(R.drawable.ic_person_black_24dp)
+                                    .into(profileImageEdit);
+                        } else {
+                            // Set default image if no URL is available
+                            profileImageEdit.setImageResource(R.drawable.ic_person_black_24dp);
+                        }
+
+                        // Update other UI elements
                         List<String> followerList = (List<String>) document.get("followerList");
                         List<String> followingList = (List<String>) document.get("followingList");
 
@@ -287,20 +403,12 @@ public class EditProfileFragment extends Fragment {
 
                         bioTextView.setText(document.getString("bio") != null ?
                                 document.getString("bio") : "No bio available");
-
-                        Glide.with(this)
-                                .load(document.getString("profileImageUrl"))
-                                .circleCrop()
-                                .placeholder(R.drawable.ic_person_black_24dp)
-                                .into(profileImageEdit);
-
                     } else {
                         loadDummyData();
                         Log.e("EditProfileFragment", "Error getting user data: ", task.getException());
                     }
                 });
     }
-
     private void fetchPendingRequests() {
         if (loggedInUsername == null || loggedInUsername.isEmpty()) {
             pendingRequestsButton.setText("0");
