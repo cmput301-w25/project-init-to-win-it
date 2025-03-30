@@ -86,7 +86,6 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
 
         // Update button state based on current playing status
         if (currentSong != null &&
-                moodEvent.getSongUrl().trim() != null &&
                 moodEvent.getSongUrl().equals(currentSong.getUrl().trim()) &&
                 isPlaying) {
             holder.playButton.setImageResource(android.R.drawable.ic_media_pause);
