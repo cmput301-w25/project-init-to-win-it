@@ -32,6 +32,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
+//import com.example.moodsync.databinding.HomePageFragmentBinding;
+import com.example.moodsync.databinding.HomePageFragmentBinding;
 import com.example.moodsync.databinding.HomePageFragmentBinding;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentSnapshot;
