@@ -42,7 +42,76 @@
                 android:orientation="vertical">
 
                 <!-- Enhanced Post Header with Status Indicator -->
-                <RelativeLayout
+
+<!--                &lt;!&ndash; Mood Tag Banner &ndash;&gt;-->
+<!--                <RelativeLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:paddingHorizontal="16dp"-->
+<!--                    android:paddingVertical="12dp">-->
+
+<!--                    <com.google.android.material.imageview.ShapeableImageView-->
+<!--                        android:id="@+id/profile_image_edit"-->
+<!--                        android:layout_width="40dp"-->
+<!--                        android:layout_height="40dp"-->
+<!--                        android:scaleType="centerCrop"-->
+<!--                        android:src="@drawable/ic_person_black_24dp"-->
+<!--                        app:shapeAppearanceOverlay="@style/CircleImageView" />-->
+
+<!--                    <View-->
+<!--                        android:id="@+id/status_indicator"-->
+<!--                        android:layout_width="12dp"-->
+<!--                        android:layout_height="12dp"-->
+<!--                        android:layout_alignRight="@id/profile_image_edit"-->
+<!--                        android:layout_alignBottom="@id/profile_image_edit"-->
+<!--                        android:background="@drawable/circle_shape"-->
+<!--                        android:backgroundTint="#4CAF50" />-->
+
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_centerVertical="true"-->
+<!--                        android:layout_marginStart="12dp"-->
+<!--                        android:layout_toEndOf="@id/profile_image_edit"-->
+<!--                        android:orientation="vertical">-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/name"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="Username"-->
+<!--                            android:textColor="#000000"-->
+<!--                            android:textSize="15sp"-->
+<!--                            android:textStyle="bold" />-->
+
+<!--                        <TextView-->
+<!--                            android:id="@+id/time_stamp"-->
+<!--                            android:layout_width="wrap_content"-->
+<!--                            android:layout_height="wrap_content"-->
+<!--                            android:text="2 hours ago"-->
+<!--                            android:textColor="#757575"-->
+<!--                            android:textSize="12sp" />-->
+<!--                    </LinearLayout>-->
+
+<!--                    <com.google.android.material.button.MaterialButton-->
+<!--                        android:id="@+id/details_button"-->
+<!--                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_centerVertical="true"-->
+<!--                        android:minWidth="0dp"-->
+<!--                        android:minHeight="0dp"-->
+<!--                        android:paddingHorizontal="16dp"-->
+<!--                        android:paddingVertical="8dp"-->
+<!--                        android:text="Details"-->
+<!--                        android:textAllCaps="false"-->
+<!--                        android:textColor="#3F51B5"-->
+<!--                        android:textSize="12sp"-->
+<!--                        app:cornerRadius="20dp"-->
+<!--                        app:strokeColor="#3F51B5"-->
+<!--                        app:strokeWidth="1dp" />-->
+<!--                </RelativeLayout>-->
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="16dp"
@@ -54,6 +123,9 @@
                         android:layout_height="40dp"
                         android:scaleType="centerCrop"
                         android:src="@drawable/ic_person_black_24dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
                         app:shapeAppearanceOverlay="@style/CircleImageView" />
 
                     <View
@@ -63,16 +135,19 @@
                         android:layout_alignRight="@id/profile_image_edit"
                         android:layout_alignBottom="@id/profile_image_edit"
                         android:background="@drawable/circle_shape"
-                        android:backgroundTint="#4CAF50" />
+                        android:backgroundTint="#4CAF50"
+                        app:layout_constraintBottom_toBottomOf="@id/profile_image_edit"
+                        app:layout_constraintEnd_toEndOf="@id/profile_image_edit" />
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:id="@+id/username_layout"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="12dp"
-                        android:layout_toStartOf="@id/details_button"
-                        android:layout_toEndOf="@id/profile_image_edit"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/profile_image_edit"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
 
                         <TextView
                             android:id="@+id/name"
@@ -92,27 +167,8 @@
                             android:textSize="12sp" />
                     </LinearLayout>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/details_button"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:minWidth="0dp"
-                        android:minHeight="0dp"
-                        android:paddingHorizontal="16dp"
-                        android:paddingVertical="8dp"
-                        android:text="Details"
-                        android:textAllCaps="false"
-                        android:textColor="#3F51B5"
-                        android:textSize="12sp"
-                        app:cornerRadius="20dp"
-                        app:strokeColor="#3F51B5"
-                        app:strokeWidth="1dp" />
-                </RelativeLayout>
 
-                <!-- Mood Tag Banner -->
+                </androidx.constraintlayout.widget.ConstraintLayout>
                 <LinearLayout
                     android:id="@+id/mood_banner"
                     android:layout_width="match_parent"
@@ -173,24 +229,6 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <ImageButton
-                            android:id="@+id/like_button"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="Like"
-                            android:padding="4dp"
-                            android:src="@drawable/ic_thumb_up_black_24dp"
-                            app:tint="#757575" />
-
-                        <TextView
-                            android:id="@+id/like_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
-                            android:text="24"
-                            android:textColor="#757575"
-                            android:textSize="14sp" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -225,26 +263,6 @@
                         android:layout_height="1dp"
                         android:layout_weight="1" />
 
-                    <ImageButton
-                        android:id="@+id/share_button"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Share"
-                        android:padding="4dp"
-                        android:src="@drawable/ic_share_black_24dp"
-                        app:tint="#757575" />
-
-                    <ImageButton
-                        android:id="@+id/bookmark_button"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_marginStart="8dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Bookmark"
-                        android:padding="4dp"
-                        android:src="@drawable/ic_bookmark_border_black_24dp"
-                        app:tint="#757575" />
                 </LinearLayout>
 
                 <!-- Trigger Info with Icon -->

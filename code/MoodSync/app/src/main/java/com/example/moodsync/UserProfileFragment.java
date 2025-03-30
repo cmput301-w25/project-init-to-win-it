@@ -55,6 +55,9 @@ public class UserProfileFragment extends Fragment {
     private String selectedUserId;   //selected user from search
     private ImageView profileImageView;
     private View view;
+    private TextView locationTextView;
+    private TextView bioTextView;
+    private ImageView profileImageEdit;
     private ImageView backButton;
 
     @Override
@@ -71,8 +74,11 @@ public class UserProfileFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
 
+        profileImageEdit = view.findViewById(R.id.profile_image_edit);
         nameTextView = view.findViewById(R.id.nameofuser);
         usernameTextView = view.findViewById(R.id.usernameofuser);
+        locationTextView = view.findViewById(R.id.locationofuser);
+        bioTextView = view.findViewById(R.id.bioofuser);
         followersCountTextView = view.findViewById(R.id.followers_count);
         followingCountTextView = view.findViewById(R.id.following_count);
         followButton = view.findViewById(R.id.follow_user);
@@ -105,6 +111,7 @@ public class UserProfileFragment extends Fragment {
                         if (documentSnapshot.exists()) {
                             String fullName = documentSnapshot.getString("fullName");
                             String userName = documentSnapshot.getString("userName");
+                            String profileImageUrl = documentSnapshot.getString("profileImageUrl");
                             List<String> followerList = (List<String>) documentSnapshot.get("followerList");
                             List<String> followingList = (List<String>) documentSnapshot.get("followingList");
 
@@ -113,8 +120,20 @@ public class UserProfileFragment extends Fragment {
                             followersCountTextView.setText(String.valueOf(followerList != null ? followerList.size() : 0));
                             followingCountTextView.setText(String.valueOf(followingList != null ? followingList.size() : 0));
 
+                            locationTextView.setText(documentSnapshot.getString("location") != null ?
+                                    documentSnapshot.getString("location") : "Location not set");
 
-                            updateFollowButtonStateBasedOnFollowers();
+                            bioTextView.setText(documentSnapshot.getString("bio") != null ?
+                                    documentSnapshot.getString("bio") : "No bio available");
+
+                            if (profileImageUrl != null) {
+                                Glide.with(UserProfileFragment.this) // Use the outer class's context
+                                        .load(profileImageUrl)
+                                        .circleCrop()
+                                        .placeholder(R.drawable.ic_person_black_24dp)
+                                        .into(profileImageEdit);
+                            }
+                                updateFollowButtonStateBasedOnFollowers();
 
                             // Check if the current user follows the selected user
                             if (followerList != null && followerList.contains(currentUserId)) {
@@ -198,7 +217,6 @@ public class UserProfileFragment extends Fragment {
         ImageView postImage = dialog.findViewById(R.id.post_image);
         TextView statusText = dialog.findViewById(R.id.status);
         TextView triggerTextView = dialog.findViewById(R.id.trigger_text_view);
-        TextView likeCount = dialog.findViewById(R.id.like_count);
         TextView commentCount = dialog.findViewById(R.id.comment_count);
 
 
@@ -212,38 +230,16 @@ public class UserProfileFragment extends Fragment {
         moodTextView.setText((String) moodData.get("mood"));
         triggerTextView.setText((String) moodData.get("trigger"));
 
-        // Set click listeners for dialog buttons
-        MaterialButton detailsButton = dialog.findViewById(R.id.details_button);
-        detailsButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Details clicked", Toast.LENGTH_SHORT).show();
-        });
-
-        ImageButton likeButton = dialog.findViewById(R.id.like_button);
-        likeButton.setOnClickListener(v -> {
-            int currentLikes = Integer.parseInt(likeCount.getText().toString());
-            likeCount.setText(String.valueOf(currentLikes + 1));
-            Toast.makeText(requireContext(), "Liked!", Toast.LENGTH_SHORT).show();
-        });
 
         ImageButton commentButton = dialog.findViewById(R.id.comment_button);
         commentButton.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "Comment clicked", Toast.LENGTH_SHORT).show();
         });
 
-        ImageButton shareButton = dialog.findViewById(R.id.share_button);
-        shareButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Share clicked", Toast.LENGTH_SHORT).show();
-        });
-
-        ImageButton bookmarkButton = dialog.findViewById(R.id.bookmark_button);
-        bookmarkButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Bookmarked!", Toast.LENGTH_SHORT).show();
-        });
 
         // Show dialog
         dialog.show();
     }
-
 
     private void handleFollowRequest() {
         db.collection("pendingFollowerRequests")

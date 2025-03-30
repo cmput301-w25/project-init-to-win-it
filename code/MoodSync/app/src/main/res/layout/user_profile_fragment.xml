@@ -214,17 +214,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Photos"
+                    android:text="Moods"
                     android:textColor="#F5F5DC"
                     android:textSize="18sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="See All"
-                    android:textColor="#F5F5DC"
-                    android:textSize="14sp" />
             </LinearLayout>
 
             <GridView

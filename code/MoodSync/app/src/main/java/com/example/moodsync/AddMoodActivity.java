@@ -142,6 +142,8 @@ import com.google.firebase.storage.UploadTask;
 public class AddMoodActivity extends Fragment {
     private String moodDescription;
     private String selectedMood;
+
+    private String location;
     private AddMoodFragmentBinding binding1;
     private AddMoodFragment2Binding binding2;
     private boolean isSecondLayout = false;
@@ -187,7 +189,8 @@ public class AddMoodActivity extends Fragment {
         db = FirebaseFirestore.getInstance();
         moodEventsRef = db.collection("mood_events");
 
-        if (getArguments() != null && getArguments().getBoolean("isSecondLayout", false)) {
+
+                        if (getArguments() != null && getArguments().getBoolean("isSecondLayout", false)) {
             isSecondLayout = true;
             binding2 = AddMoodFragment2Binding.inflate(inflater, container, false);
             return binding2.getRoot();
