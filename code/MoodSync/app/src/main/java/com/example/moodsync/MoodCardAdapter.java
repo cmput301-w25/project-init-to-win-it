@@ -325,7 +325,6 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         }
 
     }
-
     private int getMoodColor(String mood) {
         if (mood == null) {
             return 0xFFFFFFFF; // Default white if mood is null

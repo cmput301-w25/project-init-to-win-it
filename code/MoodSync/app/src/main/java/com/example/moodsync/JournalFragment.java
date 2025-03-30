@@ -40,7 +40,7 @@ public class JournalFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = JournalFragmentBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-
+        pfp = view.findViewById(R.id.profile_pic);
         // Initialize RecyclerView with the correct ID from the XML
         journalRecyclerView = binding.moodRecyclerView;
         journalRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -81,36 +81,6 @@ public class JournalFragment extends Fragment {
     }
 
     private void fetchPrivateMoods() {
-        db.collection("mood_events")
-                .whereEqualTo("id", currentUserId)
-                .whereEqualTo("public", false)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<MoodEvent> moodEvents = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                            moodEvents.add(moodEvent);
-                        }
-
-                        // Update the adapter with the fetched mood events
-                        updateMoodAdapter(moodEvents);
-
-                        // Show empty state if no mood events
-                        if (moodEvents.isEmpty()) {
-                            emptyStateView.setVisibility(View.VISIBLE);
-                            journalRecyclerView.setVisibility(View.GONE);
-                        } else {
-                            emptyStateView.setVisibility(View.GONE);
-                            journalRecyclerView.setVisibility(View.VISIBLE);
-                        }
-                    } else {
-                        Log.e("Firestore", "Error fetching mood events", task.getException());
-                        // Show empty state on error
-                        emptyStateView.setVisibility(View.VISIBLE);
-                        journalRecyclerView.setVisibility(View.GONE);
-                    }
-                });
         updateMoodAdapter(globalStorage.getPrivList());
     }
 

@@ -30,16 +30,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
-import android.Manifest;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
 import android.graphics.ColorMatrixColorFilter;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -49,7 +42,6 @@ import android.text.InputFilter;
 import android.text.Spanned;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
@@ -69,29 +61,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestBuilder;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
-import com.example.moodsync.databinding.AddMoodFragmentBinding;
-import com.example.moodsync.databinding.AddMoodFragment2Binding;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-
-
-
 import android.content.Context;
 import java.io.File;
 import java.io.IOException;
@@ -133,12 +102,10 @@ public class AddMoodActivity extends Fragment {
     private static final int ANIMATION_DURATION = 300; // Animation duration in milliseconds
 
     private FirebaseFirestore db;
-    private long MAX_PHOTO_SIZE = 64;
     private CollectionReference moodEventsRef;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int PICK_IMAGE_REQUEST = 2;
     private Map<String, Integer> moodGradients = new HashMap<>();
-    public LocalStorage globalStorage = LocalStorage.getInstance();
     private boolean isPublic = false; // Default to private
     private String currentLocation = null; //Default to no location
     private FusedLocationProviderClient fusedLocationClient;
@@ -161,6 +128,7 @@ public class AddMoodActivity extends Fragment {
         FirebaseApp.initializeApp(requireContext());
         db = FirebaseFirestore.getInstance();
         moodEventsRef = db.collection("mood_events");
+
 
         if (getArguments() != null && getArguments().getBoolean("isSecondLayout", false)) {
             isSecondLayout = true;
@@ -638,7 +606,7 @@ public class AddMoodActivity extends Fragment {
 
         File file = new File(context.getCacheDir(), "rotated_image.jpg");
         FileOutputStream fos = new FileOutputStream(file);
-        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 10, fos);
+        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
         fos.close();
 
         return Uri.fromFile(file);
@@ -681,30 +649,25 @@ public class AddMoodActivity extends Fragment {
                 uploadImageToFirebase(processedUri, new OnImageUploadedListener() {
                     @Override
                     public void onImageUploaded(String imageUrl) {
-                        try {
-                            View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
-                            Bitmap bitmap = getBitmapFromUri(finalProcessedUri);
-                            rectangle2.setBackground(new BitmapDrawable(getResources(), bitmap));
-                            rectangle2.setClipToOutline(true);
+                        View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
+                        Bitmap bitmap = getBitmapFromUri(finalProcessedUri);
+                        rectangle2.setBackground(new BitmapDrawable(getResources(), bitmap));
+                        rectangle2.setClipToOutline(true);
 
-                            TextView text = binding1.getRoot().findViewById(R.id.add_photos);
-                            text.setText("");
+                        TextView text = binding1.getRoot().findViewById(R.id.add_photos);
+                        text.setText("");
 
-                            ImageView image = binding1.getRoot().findViewById(R.id.photos);
-                            image.setAlpha(0);
+                        ImageView image = binding1.getRoot().findViewById(R.id.photos);
+                        image.setAlpha(0);
 
-                            GradientDrawable drawable = new GradientDrawable();
-                            drawable.setCornerRadius(50);
-                            drawable.setAlpha(0);
+                        GradientDrawable drawable = new GradientDrawable();
+                        drawable.setCornerRadius(50);
+                        drawable.setAlpha(0);
 
-                            image.setBackground(drawable);
-                            image.setClipToOutline(true);
+                        image.setBackground(drawable);
+                        image.setClipToOutline(true);
 
-                            imageAddedFlag = 1;
-                        }
-                        catch(Exception e){
-
-                        }
+                        imageAddedFlag = 1;
                     }
 
                     @Override
@@ -740,7 +703,6 @@ public class AddMoodActivity extends Fragment {
      * and selecting social situations. Configures the input filter for the Reason input field.
      */
     private void setupSecondLayout() {
-        Log.d("LIFECYCLE", "setupSecondLayout called");
         Button publicButton = binding2.publicButton;
         Button privateButton = binding2.privateButton;
 
@@ -981,19 +943,9 @@ public class AddMoodActivity extends Fragment {
      * @param moodEvent The mood event to be saved in Firestore.
      */
     private void saveMoodEventToFirestore(MoodEvent moodEvent) {
-        showSuccessDialogUI();
-        Log.d("SAVE MOOD", "saveMoodEventToFirestore: "+moodEvent.getId());
         moodEventsRef.add(moodEvent)
                 .addOnSuccessListener(aVoid -> showSuccessDialogUI())
                 .addOnFailureListener(e -> showErrorToast(e));
-        if (moodEvent.isPublic()) {
-            globalStorage.insertMood(moodEvent);
-            Log.d("ADDED", "saveMoodEventToFirestore: "+moodEvent.getId());
-        }
-        else{
-            globalStorage.getPrivList().add(moodEvent);
-            Log.d("ADDED", "saveMoodEventToFirestore: "+moodEvent.getId());
-        }
     }
 
     /**
@@ -1135,7 +1087,6 @@ public class AddMoodActivity extends Fragment {
                 spinner.setBackgroundResource(R.drawable.edit_text_ashamed);
                 textView.setBackgroundResource(R.drawable.edit_text_ashamed);
                 button.setBackgroundResource(R.drawable.edit_text_ashamed);
-
                 editDescription.setTextColor(Color.parseColor("#5C3A21"));
                 break;
             case "Scared":
