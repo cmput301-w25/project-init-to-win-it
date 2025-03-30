@@ -287,11 +287,6 @@ public class AddMoodActivity extends Fragment {
         // Show dialog
         dialog.show();
     }
-
-
-
-
-
     /**
      * Sets up the first layout of the fragment.
      *
