@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -42,6 +43,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +51,7 @@ import java.util.Map;
 
 /**
  * Similar logic as UserProfileFragment or MoodCardAdapter,
- * but for the user’s own profile. Now with subcollection-based replies.
+ * but for the user's own profile. Now with subcollection-based replies.
  */
 public class EditProfileFragment extends Fragment {
 
@@ -69,6 +71,9 @@ public class EditProfileFragment extends Fragment {
     private TextView likesCountTextView;
 
     private TabLayout tabs;
+    private MediaPlayer mediaPlayer;
+    private ImageButton playButton;
+    private String currentSongUrl;
 
     private FirebaseFirestore db;
     private String loggedInUsername;
@@ -144,6 +149,7 @@ public class EditProfileFragment extends Fragment {
                             moodData.put("mood", document.getString("mood"));
                             moodData.put("trigger", document.getString("trigger"));
                             moodData.put("docId", document.getId());
+                            moodData.put("songUrl", document.getString("songUrl"));
                             moodList.add(moodData);
                         }
                         loadPhotosListView(moodList);
@@ -161,17 +167,7 @@ public class EditProfileFragment extends Fragment {
         });
     }
 
-    private View getViewByPosition(int position, GridView gridView) {
-        final int firstListItemPosition = gridView.getFirstVisiblePosition();
-        final int lastListItemPosition = firstListItemPosition + gridView.getChildCount() - 1;
 
-        if (position < firstListItemPosition || position > lastListItemPosition) {
-            return null;
-        } else {
-            final int childIndex = position - firstListItemPosition;
-            return gridView.getChildAt(childIndex);
-        }
-    }
 
     private void animateHoverUp(View view) {
         // Elevate view
@@ -202,6 +198,74 @@ public class EditProfileFragment extends Fragment {
         }, 500); // Reset after 0.5 seconds
     }
 
+    private void togglePlayback() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            pausePlayback();
+        } else if (currentSongUrl != null && !currentSongUrl.isEmpty()) {
+            playSong(currentSongUrl);
+        } else {
+            Toast.makeText(requireContext(), "No song available to play", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    private void pausePlayback() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            playButton.setImageResource(R.drawable.sound_up);
+        }
+    }
+
+    private void playSong(String songUrl) {
+        if (songUrl == null || songUrl.isEmpty()) {
+            Toast.makeText(requireContext(), "No song URL available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        currentSongUrl = songUrl;
+
+        try {
+            if (mediaPlayer == null) {
+                mediaPlayer = new MediaPlayer();
+            } else {
+                mediaPlayer.reset();
+            }
+
+            mediaPlayer.setDataSource(songUrl);
+            mediaPlayer.prepareAsync();
+
+            // Show loading indicator or change button state here if needed
+
+            mediaPlayer.setOnPreparedListener(mp -> {
+                mp.start();
+                if (playButton != null) {
+                    playButton.setImageResource(R.drawable.sound_up);
+                }
+            });
+
+            mediaPlayer.setOnCompletionListener(mp -> {
+                if (playButton != null) {
+                    playButton.setImageResource(R.drawable.sound_down);
+                }
+            });
+
+            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                Toast.makeText(requireContext(), "Error playing audio", Toast.LENGTH_SHORT).show();
+                if (playButton != null) {
+                    playButton.setImageResource(R.drawable.sound_down);
+                }
+                return true;
+            });
+        } catch (IOException e) {
+            Log.e("EditProfileFragment", "Error playing song", e);
+            Toast.makeText(requireContext(), "Error playing song: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            if (playButton != null) {
+                playButton.setImageResource(R.drawable.sound_down);
+            }
+        }
+    }
+
+
     private void showPostDetailDialog(Map<String, Object> moodData) {
         Dialog dialog = new Dialog(requireContext());
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
@@ -216,19 +280,25 @@ public class EditProfileFragment extends Fragment {
         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
 
         ShapeableImageView profileImage = dialog.findViewById(R.id.profile_image_edit);
-        TextView nameText      = dialog.findViewById(R.id.name);
+        TextView nameText     = dialog.findViewById(R.id.name);
         TextView timeStampText = dialog.findViewById(R.id.time_stamp);
         TextView moodTextView = dialog.findViewById(R.id.mood_text_view);
         ImageView postImage = dialog.findViewById(R.id.post_image);
         TextView statusText = dialog.findViewById(R.id.status);
         TextView triggerTextView = dialog.findViewById(R.id.trigger_text_view);
         TextView commentCount = dialog.findViewById(R.id.comment_count);
+        TextView songTitle = dialog.findViewById(R.id.song_title);
+
+        String docId = (String) moodData.get("docId");
+        fetchSongUrl(docId);
+
+
+
 
         Glide.with(requireContext())
                 .load(moodData.get("imageUrl"))
                 .into(postImage);
 
-        String docId = (String) moodData.get("docId");
         // Format the timestamp to "time ago" format
         Object dateObj = moodData.get("date");
         if (dateObj != null) {
@@ -272,7 +342,6 @@ public class EditProfileFragment extends Fragment {
         statusText.setText((String) moodData.get("description"));
         moodTextView.setText((String) moodData.get("mood"));
         triggerTextView.setText((String) moodData.get("trigger"));
-
         if (docId != null && !docId.isEmpty()) {
             FirebaseFirestore.getInstance()
                     .collection("mood_events")
@@ -287,16 +356,6 @@ public class EditProfileFragment extends Fragment {
                     });
         }
 
-        MaterialButton detailsButton = dialog.findViewById(R.id.details_button);
-        detailsButton.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Details clicked", Toast.LENGTH_SHORT).show());
-
-//        ImageButton likeButton = dialog.findViewById(R.id.like_button);
-//        likeButton.setOnClickListener(v -> {
-//            int currLikes = Integer.parseInt(likeCount.getText().toString());
-//            likeCount.setText(String.valueOf(currLikes + 1));
-//            Toast.makeText(requireContext(), "Liked!", Toast.LENGTH_SHORT).show();
-//        });
 
         ImageButton commentButton = dialog.findViewById(R.id.comment_button);
         commentButton.setOnClickListener(v -> {
@@ -306,16 +365,68 @@ public class EditProfileFragment extends Fragment {
                 Toast.makeText(requireContext(), "No doc ID for comments", Toast.LENGTH_SHORT).show();
             }
         });
-
-//        ImageButton shareButton = dialog.findViewById(R.id.share_button);
-//        shareButton.setOnClickListener(v ->
-//                Toast.makeText(requireContext(), "Share clicked", Toast.LENGTH_SHORT).show());
-//
-//        ImageButton bookmarkButton = dialog.findViewById(R.id.bookmark_button);
-//        bookmarkButton.setOnClickListener(v ->
-//                Toast.makeText(requireContext(), "Bookmarked!", Toast.LENGTH_SHORT).show());
-
+        playButton = dialog.findViewById(R.id.playButton);
+        if (playButton != null) {
+            playButton.setVisibility(View.VISIBLE);
+            playButton.setOnClickListener(v -> togglePlayback());
+        } else {
+            Log.e("EditProfileFragment", "Play button not found in layout");
+        }
+        if (docId != null && !docId.isEmpty()) {
+            FirebaseFirestore.getInstance()
+                    .collection("mood_events")
+                    .document(docId)
+                    .get()
+                    .addOnSuccessListener(doc -> {
+                        if (doc.exists()) {
+                            String title = doc.getString("songTitle"); // get the damn field directly
+                            songTitle.setText(title != null ? title : "No title found");
+                        } else {
+                            songTitle.setText("No song found");
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        songTitle.setText("Error fetching song");
+                    });
+        }
         dialog.show();
+    }
+
+    private void fetchSongUrl(String documentId) {
+        FirebaseFirestore.getInstance()
+                .collection("mood_events")
+                .document(documentId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String songUrl = documentSnapshot.getString("songUrl");
+                        if (songUrl != null && !songUrl.isEmpty()) {
+                            currentSongUrl = songUrl;
+                            if (playButton != null) {
+                                playButton.setVisibility(View.VISIBLE);
+                            }
+                        } else {
+                            if (playButton != null) {
+                                playButton.setVisibility(View.GONE);
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("EditProfileFragment", "Error fetching song URL", e);
+                    if (playButton != null) {
+                        playButton.setVisibility(View.GONE);
+                    }
+                });
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 
     private String getTimeAgo(long timeInMillis) {
@@ -365,22 +476,6 @@ public class EditProfileFragment extends Fragment {
                 .placeholder(R.drawable.ic_person_black_24dp)
                 .into(profileImageEdit);
     }
-    private void fetchProfileImageUrl(String userId) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users").document(userId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String imageUrl = documentSnapshot.getString("profileImageUrl");
-                        if (imageUrl != null && !imageUrl.isEmpty()) {
-                            loadProfileImage(imageUrl);
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("Firestore", "Error fetching profile image URL", e);
-                });
-    }
     private void showCommentsDialog(String docId, TextView commentCountTextView) {
         Dialog dialog = new Dialog(requireContext(), R.style.BottomSheetDialogTheme);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -391,6 +486,7 @@ public class EditProfileFragment extends Fragment {
             lp.gravity = Gravity.BOTTOM;
             lp.width   = WindowManager.LayoutParams.MATCH_PARENT;
             lp.height  = WindowManager.LayoutParams.WRAP_CONTENT;
+
             dialog.getWindow().setAttributes(lp);
             dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         }

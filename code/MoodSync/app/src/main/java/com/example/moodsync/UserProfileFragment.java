@@ -3,6 +3,7 @@ package com.example.moodsync;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Log;
@@ -40,6 +41,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +59,9 @@ import java.util.Map;
  *
  */
 public class UserProfileFragment extends Fragment {
-
+    private MediaPlayer mediaPlayer;
+    private ImageButton playButton;
+    private String currentSongUrl;
     FirebaseFirestore db;
     private Button followButton;
     private GridView photos_listview;
@@ -202,7 +206,7 @@ public class UserProfileFragment extends Fragment {
                             moodData.put("description", document.getString("description"));
                             moodData.put("mood", document.getString("mood"));
                             moodData.put("trigger", document.getString("trigger"));
-
+                            moodData.put("docId", document.getId());
                             moodList.add(moodData);
                         }
 
@@ -210,7 +214,72 @@ public class UserProfileFragment extends Fragment {
                     }
                 });
     }
+    private void togglePlayback() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            pausePlayback();
+        } else if (currentSongUrl != null && !currentSongUrl.isEmpty()) {
+            playSong(currentSongUrl);
+        } else {
+            Toast.makeText(requireContext(), "No song available to play", Toast.LENGTH_SHORT).show();
+        }
+    }
 
+
+    private void pausePlayback() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            playButton.setImageResource(R.drawable.sound_up);
+        }
+    }
+
+    private void playSong(String songUrl) {
+        if (songUrl == null || songUrl.isEmpty()) {
+            Toast.makeText(requireContext(), "No song URL available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        currentSongUrl = songUrl;
+
+        try {
+            if (mediaPlayer == null) {
+                mediaPlayer = new MediaPlayer();
+            } else {
+                mediaPlayer.reset();
+            }
+
+            mediaPlayer.setDataSource(songUrl);
+            mediaPlayer.prepareAsync();
+
+            // Show loading indicator or change button state here if needed
+
+            mediaPlayer.setOnPreparedListener(mp -> {
+                mp.start();
+                if (playButton != null) {
+                    playButton.setImageResource(R.drawable.sound_up);
+                }
+            });
+
+            mediaPlayer.setOnCompletionListener(mp -> {
+                if (playButton != null) {
+                    playButton.setImageResource(R.drawable.sound_down);
+                }
+            });
+
+            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                Toast.makeText(requireContext(), "Error playing audio", Toast.LENGTH_SHORT).show();
+                if (playButton != null) {
+                    playButton.setImageResource(R.drawable.sound_down);
+                }
+                return true;
+            });
+        } catch (IOException e) {
+            Log.e("EditProfileFragment", "Error playing song", e);
+            Toast.makeText(requireContext(), "Error playing song: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            if (playButton != null) {
+                playButton.setImageResource(R.drawable.sound_down);
+            }
+        }
+    }
     /**
      * Populates the GridView with mood events retrieved from Firestore. Each item in the GridView
      * represents an individual mood event containing details such as an image, description,
@@ -237,7 +306,39 @@ public class UserProfileFragment extends Fragment {
         View privateAccountMessage = view.findViewById(R.id.private_account_message); // Add this to your XML layout
         privateAccountMessage.setVisibility(View.VISIBLE);
     }
-
+    private void fetchSongUrl(String documentId) {
+        if (documentId == null || documentId.isEmpty()) {
+            if (playButton != null) {
+                playButton.setVisibility(View.GONE);
+            }
+            return;
+        }
+        FirebaseFirestore.getInstance()
+                .collection("mood_events")
+                .document(documentId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String songUrl = documentSnapshot.getString("songUrl");
+                        if (songUrl != null && !songUrl.isEmpty()) {
+                            currentSongUrl = songUrl;
+                            if (playButton != null) {
+                                playButton.setVisibility(View.VISIBLE);
+                            }
+                        } else {
+                            if (playButton != null) {
+                                playButton.setVisibility(View.GONE);
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("EditProfileFragment", "Error fetching song URL", e);
+                    if (playButton != null) {
+                        playButton.setVisibility(View.GONE);
+                    }
+                });
+    }
 
     /**
      * Displays a detailed dialog for a selected post. This dialog includes information about
@@ -278,7 +379,10 @@ public class UserProfileFragment extends Fragment {
         TextView triggerTextView = dialog.findViewById(R.id.trigger_text_view);
         TextView commentCount = dialog.findViewById(R.id.comment_count);
 
+        TextView songTitle = dialog.findViewById(R.id.song_title);
 
+        String docId = (String) moodData.get("docId");
+        fetchSongUrl(docId);
         // Set data from moodData map
         Glide.with(requireContext())
                 .load(moodData.get("imageUrl"))
@@ -294,7 +398,30 @@ public class UserProfileFragment extends Fragment {
         commentButton.setOnClickListener(v -> {
             Toast.makeText(requireContext(), "Comment clicked", Toast.LENGTH_SHORT).show();
         });
-
+        playButton = dialog.findViewById(R.id.playButton);
+        if (playButton != null) {
+            playButton.setVisibility(View.VISIBLE);
+            playButton.setOnClickListener(v -> togglePlayback());
+        } else {
+            Log.e("EditProfileFragment", "Play button not found in layout");
+        }
+        if (docId != null && !docId.isEmpty()) {
+            FirebaseFirestore.getInstance()
+                    .collection("mood_events")
+                    .document(docId)
+                    .get()
+                    .addOnSuccessListener(doc -> {
+                        if (doc.exists()) {
+                            String title = doc.getString("songTitle"); // get the damn field directly
+                            songTitle.setText(title != null ? title : "No title found");
+                        } else {
+                            songTitle.setText("No song found");
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        songTitle.setText("Error fetching song");
+                    });
+        }
 
         // Show dialog
         dialog.show();
