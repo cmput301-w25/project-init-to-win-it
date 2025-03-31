@@ -189,7 +189,6 @@ public class EditMoodActivity extends Fragment {
                 }
 
                 if (songTitles.isEmpty()) {
-                    Toast.makeText(requireContext(), "No songs found for this mood", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -201,7 +200,34 @@ public class EditMoodActivity extends Fragment {
         });
     }
 
-    private void showSongSelectionDialog(List<String> songTitles, List<String> songUrls) {AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_song_selection_dialog, null);builder.setView(dialogView);ListView listView = dialogView.findViewById(R.id.songListView);ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, songTitles);listView.setAdapter(adapter);AlertDialog dialog = builder.create();listView.setOnItemClickListener((parent, view, position, id) -> {this.selectedSongUrl = songUrls.get(position);this.selectedSongTitle = songTitles.get(position);ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item);spinnerAdapter.add(this.selectedSongTitle);spinnerAdapter.add("Choose a song");spinnerAdapter.add("No music");spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);binding1.musicSpinner.setAdapter(spinnerAdapter);binding1.musicSpinner.setSelection(0);Toast.makeText(requireContext(), "Selected: " + this.selectedSongTitle, Toast.LENGTH_SHORT).show();dialogView.findViewById(R.id.cancelButton).setOnClickListener(v -> dialog.dismiss());});dialog.show();}
+    private void showSongSelectionDialog(List<String> songTitles, List<String> songUrls) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_song_selection_dialog, null);
+        builder.setView(dialogView);
+        ListView listView = dialogView.findViewById(R.id.songListView);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, songTitles);
+        listView.setAdapter(adapter);
+        AlertDialog dialog = builder.create();
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            this.selectedSongUrl = songUrls.get(position);
+            this.selectedSongTitle = songTitles.get(position);
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item);
+            spinnerAdapter.add(this.selectedSongTitle);spinnerAdapter.add("None");
+            spinnerAdapter.add("Happy");
+            spinnerAdapter.add("Sad");
+            spinnerAdapter.add("Angry");
+            spinnerAdapter.add("Confused");
+            spinnerAdapter.add("Surprised");
+            spinnerAdapter.add("Ashamed");
+            spinnerAdapter.add("Scared");
+            spinnerAdapter.add("Scared");
+            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            binding1.musicSpinner.setAdapter(spinnerAdapter);
+            binding1.musicSpinner.setSelection(0);
+            dialogView.findViewById(R.id.cancelButton).setOnClickListener(v -> dialog.dismiss());
+        });
+        dialog.show();
+    }
     /**
      * Sets up the first layout of the fragment.
      *
@@ -258,7 +284,6 @@ public class EditMoodActivity extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedMood = parent.getItemAtPosition(position).toString();
                 updateBackgroundColor(selectedMood);
-                Toast.makeText(getContext(), "Selected: " + selectedMood, Toast.LENGTH_SHORT).show();
 
                 switch (selectedMood) {
                     case "Happy":
@@ -428,7 +453,6 @@ public class EditMoodActivity extends Fragment {
                         binding1.musicSpinner.setAdapter(spinnerAdapter);
                         binding1.musicSpinner.setSelection(0);
 
-                        Toast.makeText(requireContext(), "Selected: " + selectedSongTitle, Toast.LENGTH_SHORT).show();
                     });
 
                     builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
@@ -1015,7 +1039,6 @@ public class EditMoodActivity extends Fragment {
 
         updateBackgroundColor(mood);
 
-        Toast.makeText(getContext(), "Selected: " + mood, Toast.LENGTH_SHORT).show();
     }
 
     /**

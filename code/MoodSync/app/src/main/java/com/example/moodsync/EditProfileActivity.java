@@ -349,7 +349,6 @@ public class EditProfileActivity extends Fragment {
                         "profileImageUrl", imageUrl
                 )
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "Changes saved to Firestore", Toast.LENGTH_SHORT).show();
                     navigateBack();
                 })
                 .addOnFailureListener(e -> {
