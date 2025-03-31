@@ -3,7 +3,7 @@
 
 
     <style name="welcome_to_">
-        <item name="android:textSize">40sp</item>
+        <item name="android:textSize">45sp</item>
         <item name="android:letterSpacing">0.01</item>
         <item name="android:textColor">#FFFFFF</item>
     </style>
