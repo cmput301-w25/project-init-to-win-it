@@ -3,6 +3,7 @@ package com.example.moodsync;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
+import android.os.CountDownTimer;
 import android.os.Process;
 import android.util.Log;
 
@@ -152,4 +153,20 @@ public class MyApplication extends Application {
             Thread.getDefaultUncaughtExceptionHandler().uncaughtException(thread, throwable);
         }
     }
+    /**
+     * Simple 5-second timer that prints countdown to log
+     */
+    public void startFiveSecondTimer() {
+        new CountDownTimer(5000, 1000) { // 5 seconds total, 1 second intervals
+            public void onTick(long millisUntilFinished) {
+                // Called every second
+                Log.d("Timer", "Time left: " + (millisUntilFinished / 1000) + "s");
+            }
+            public void onFinish() {
+                // Called when timer completes
+                Log.d("Timer", "Timer finished!");
+            }
+        }.start();
+    }
+
 }

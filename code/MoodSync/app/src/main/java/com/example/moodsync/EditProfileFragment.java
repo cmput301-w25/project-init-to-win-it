@@ -106,10 +106,22 @@ public class EditProfileFragment extends Fragment {
         MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
         loggedInUsername = myApp.getLoggedInUsername();
 
+
         loadUserData();
         fetchPendingRequests();
 
         pendingRequestView.setOnClickListener(v -> showPendingRequestsDialog());
+
+        editProfileButton.setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            NavOptions navOptions = new NavOptions.Builder()
+                    .setEnterAnim(R.anim.slide_in_right)
+                    .setExitAnim(R.anim.slide_out_left)
+                    .setPopEnterAnim(R.anim.slide_in_left)
+                    .setPopExitAnim(R.anim.slide_out_right)
+                    .build();
+            navController.navigate(R.id.action_editProfileFragment_to_activity, null, navOptions);
+        });
 
 
         tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
