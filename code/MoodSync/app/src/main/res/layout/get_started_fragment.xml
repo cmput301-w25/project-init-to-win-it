@@ -12,8 +12,8 @@
 
     <ImageView
         android:id="@+id/centered_image"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="340dp"
+        android:layout_height="405dp"
         android:contentDescription="Centered Image"
         android:src="@drawable/main_icon"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -28,7 +28,7 @@
         android:id="@+id/welcome_to_"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:lineSpacingExtra="-10sp"
         android:text="@string/welcome_to_"
@@ -44,47 +44,17 @@
         android:id="@+id/share_your_"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="56dp"
         android:gravity="center"
         android:lineSpacingExtra="14sp"
         android:text="@string/share_your_"
         android:textAppearance="@style/share_your_"
         android:textColor="@color/white"
-        android:textSize="22dp"
+        android:textSize="23dp"
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/welcome_to_" />
-
-    <Button
-        android:id="@+id/loginButton"
-        android:layout_width="224dp"
-        android:layout_height="56dp"
-        android:layout_marginTop="50dp"
-        android:background="@drawable/rounded_text"
-        android:text="Login"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        app:backgroundTint="#9ca49c"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/share_your_" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="224dp"
-        android:layout_height="56dp"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/rounded_text"
-        android:text="Register"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        app:backgroundTint="#9ca49c"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/loginButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
