@@ -466,12 +466,12 @@ public class  SecondFragment extends Fragment {
                             followingUsers.add(currentUsername);
                             Log.d("JJJJ", "fetchMoodEvents: "+ followingUsers);
                         }
+                        globalStorage.getPrivList().clear();
 
                         // If not following anyone (just self), show only own moods
                         if (followingUsers.size() <= 1) {
                             db.collection("mood_events")
                                     .whereEqualTo("id", currentUsername)
-                                    .whereEqualTo("public", true)
                                     .get()
                                     .addOnCompleteListener(task -> {
                                         if (task.isSuccessful()) {
