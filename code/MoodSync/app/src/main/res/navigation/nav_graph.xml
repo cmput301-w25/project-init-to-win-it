@@ -52,6 +52,11 @@
         android:label="@string/second_fragment_label"
         tools:layout="@layout/home_page_fragment">
         <action
+            android:id="@+id/action_SecondFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment"
+            app:popUpTo="@id/SecondFragment"
+            app:popUpToInclusive="true"/>
+        <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
         <action
@@ -82,6 +87,11 @@
         android:name="com.example.moodsync.JournalFragment"
         android:label="Journal"
         tools:layout="@layout/journal_fragment">
+        <action
+            android:id="@+id/action_JournalFragment_to_JournalFragment"
+            app:destination="@id/JournalFragment"
+            app:popUpTo="@id/JournalFragment"
+            app:popUpToInclusive="true"/>
         <action
             android:id="@+id/action_JournalFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
@@ -150,6 +160,11 @@
         android:name="com.example.moodsync.MoodHistoryFragment"
         android:label="Mood History"
         tools:layout="@layout/mood_history_fragment">
+        <action
+            android:id="@+id/action_moodHistoryFragment_to_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment"
+            app:popUpTo="@id/moodHistoryFragment"
+            app:popUpToInclusive="true"/>
         <action
             android:id="@+id/action_moodHistoryFragment_to_editMoodFragment"
             app:destination="@id/editMoodActivityFragment" />

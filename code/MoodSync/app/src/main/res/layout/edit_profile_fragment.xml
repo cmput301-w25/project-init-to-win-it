@@ -233,19 +233,7 @@
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal">
 
-                                <ImageView
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"
-                                    android:src="@drawable/ic_location" />
 
-                                <TextView
-                                    android:id="@+id/locationofuser"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="4dp"
-                                    android:text="New York, USA"
-                                    android:textColor="#2E4545"
-                                    android:textSize="14sp" />
                             </LinearLayout>
 
                             <com.google.android.material.button.MaterialButton

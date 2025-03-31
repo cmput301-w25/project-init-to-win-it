@@ -171,5 +171,9 @@ public class JournalFragment extends Fragment {
             NavController navController = Navigation.findNavController(v);
             navController.navigate(R.id.action_JournalFragment_to_moodHistoryFragment);
         });
+        view.findViewById(R.id.diary_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_JournalFragment_to_JournalFragment);
+        });
     }
 }

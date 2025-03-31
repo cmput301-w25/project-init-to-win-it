@@ -110,6 +110,19 @@ public class MoodHistoryFragment extends Fragment {
 
 
         });
+        binding.historyButton.setOnClickListener(v -> {
+            NavHostFragment.findNavController(MoodHistoryFragment.this)
+                    .navigate(R.id.action_moodHistoryFragment_to_moodHistoryFragment,
+                            null,
+                            new NavOptions.Builder()
+                                    .setEnterAnim(R.anim.slide_in_right)
+                                    .setExitAnim(R.anim.slide_out_left)
+                                    .setPopEnterAnim(R.anim.slide_in_left)
+                                    .setPopExitAnim(R.anim.slide_out_right)
+                                    .build());
+
+
+        });
         binding.historyButton.setTextColor(getResources().getColor(R.color.green));
         binding.historyButton.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.green)));
         //Set up filterFunction

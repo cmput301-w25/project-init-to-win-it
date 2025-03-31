@@ -93,14 +93,42 @@ public class  SecondFragment extends Fragment {
         binding = HomePageFragmentBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
 
-        binding.mapButton.setOnClickListener(v ->
+        binding.mapButton.setOnClickListener(v ->{
                 NavHostFragment.findNavController(SecondFragment.this)
-                        .navigate(R.id.action_SecondFragment_to_mapsActivity)
-        );
+                        .navigate(R.id.action_SecondFragment_to_mapsActivity,
+                                null,
+                                new NavOptions.Builder()
+                                        .setEnterAnim(R.anim.slide_in_right)
+                                        .setExitAnim(R.anim.slide_out_left)
+                                        .setPopEnterAnim(R.anim.slide_in_left)
+                                        .setPopExitAnim(R.anim.slide_out_right)
+                                        .build());
+    });
 
-        binding.diaryButton.setOnClickListener(v ->
+
+        binding.diaryButton.setOnClickListener(v ->{
                 NavHostFragment.findNavController(SecondFragment.this)
-                        .navigate(R.id.action_SecondFragment_to_JournalFragment));
+                        .navigate(R.id.action_SecondFragment_to_JournalFragment,
+                                null,
+                                new NavOptions.Builder()
+                                        .setEnterAnim(R.anim.slide_in_right)
+                                        .setExitAnim(R.anim.slide_out_left)
+                                        .setPopEnterAnim(R.anim.slide_in_left)
+                                        .setPopExitAnim(R.anim.slide_out_right)
+                                        .build());
+    });
+
+        binding.homeButton.setOnClickListener(v ->{
+                NavHostFragment.findNavController(SecondFragment.this)
+                        .navigate(R.id.action_SecondFragment_to_SecondFragment,
+                                null,
+                                new NavOptions.Builder()
+                                        .setEnterAnim(R.anim.slide_in_right)
+                                        .setExitAnim(R.anim.slide_out_left)
+                                        .setPopEnterAnim(R.anim.slide_in_left)
+                                        .setPopExitAnim(R.anim.slide_out_right)
+                                        .build());
+    });
 
         searchBar = view.findViewById(R.id.search_bar);
         pfp = view.findViewById(R.id.profile_pic);
