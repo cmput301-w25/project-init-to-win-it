@@ -7,11 +7,19 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
-
+/**
+ * Custom global exception handler that gracefully handles uncaught exceptions
+ * and provides user-friendly error recovery for specific exception types.
+ */
 public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
     private final Activity activity;
     private final Thread.UncaughtExceptionHandler defaultHandler;
 
+    /**
+     * Constructs a GlobalExceptionHandler tied to a specific activity.
+     *
+     * @param activity The host activity where exceptions will be handled
+     */
     public GlobalExceptionHandler(Activity activity) {
         this.activity = activity;
         this.defaultHandler = Thread.getDefaultUncaughtExceptionHandler();
@@ -28,6 +36,16 @@ public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
         }
     }
 
+
+    /**
+     * Displays a user-friendly error dialog and restarts the application.
+     * <p>
+     * <b>Note:</b> Runs on the UI thread using a Handler to ensure proper dialog display
+     *
+     * @param thread The thread where the exception occurred
+     * @param throwable The exception that triggered the error
+     * @throws SecurityException If the PendingIntent cannot be created
+     */
     private void showErrorDialog(Thread thread, Throwable throwable) {
         try {
             // Create an intent to restart the app
