@@ -180,7 +180,7 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp"
-                app:cardBackgroundColor="#F5F5DC">
+                app:cardBackgroundColor="#EAEAD8">
 
                 <LinearLayout
                     android:layout_width="match_parent"
