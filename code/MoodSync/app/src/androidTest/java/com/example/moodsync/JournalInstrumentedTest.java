@@ -42,8 +42,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Tests the "Search Profile" feature: verifying that we can
- * search for a user and view their profile.
+ * Tests the "Journal" feature: verifying that we can
+ * navigate to the journal tab, the tab displays the users private moods and the "details" button displays the details of the mood.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest

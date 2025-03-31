@@ -38,7 +38,7 @@ import java.util.UUID;
 
 /**
  * Tests the "Mood History" feature: verifying that we can
- * navigate to the history tab and delete a mood entry.
+ * navigate to the history tab, edit and delete a mood entry.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest

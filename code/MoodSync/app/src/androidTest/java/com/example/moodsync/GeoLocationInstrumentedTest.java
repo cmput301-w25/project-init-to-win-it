@@ -40,11 +40,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
 /**
- * Tests the "Search Profile" feature: verifying that we can
- * search for a user and view their profile.
+ * Tests the "Map" feature: verifying that we can
+ * navigate to the map tab, filter button
+ * displays the filter spinner with the correct options.
  */
+
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class GeoLocationInstrumentedTest {

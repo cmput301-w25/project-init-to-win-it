@@ -155,7 +155,6 @@ public class SearchProfileInstrumentedTest {
         SystemClock.sleep(8000);
 
         // 6) Click on the search result
-//        onView(withId("testuser2")).perform(click());
         onData(allOf(is(instanceOf(String.class)), is("testuser2")))
                 .inAdapterView(withId(R.id.search_results_listview))
                 .perform(click());
