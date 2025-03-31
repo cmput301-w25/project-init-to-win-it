@@ -122,7 +122,7 @@ public class MoodHistoryFragment extends Fragment {
         //Adding data to Spinner
         filterSpinnerData = Arrays.asList("Choose Option", "Most Recent Week", "Emotional State", "Keyword");
         filterSpinnerAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, filterSpinnerData);
-        filterSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        filterSpinnerAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         filterSpinner.setAdapter(filterSpinnerAdapter);
 
         MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();

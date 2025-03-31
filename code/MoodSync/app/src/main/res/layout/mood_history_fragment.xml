@@ -60,7 +60,7 @@
             android:layout_width="100dp"
             android:layout_height="56dp"
             android:layout_marginStart="16dp"
-            android:backgroundTint="#2D4545"
+            android:backgroundTint="#4A7A7A"
             android:elevation="6dp"
             android:fontFamily="sans-serif-medium"
             android:paddingHorizontal="16dp"

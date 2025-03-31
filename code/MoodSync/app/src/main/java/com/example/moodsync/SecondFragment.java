@@ -258,16 +258,24 @@ public class  SecondFragment extends Fragment {
                         String userId = document.getId();
                         globalStorage.setSearchResult(userId);
 
-                        Bundle args = new Bundle();
-                        args.putString("selectedUserId", userId);
-
-                        NavHostFragment.findNavController(SecondFragment.this)
-                                .navigate(R.id.action_SecondFragment_to_userProfileFragment, args);
+                        // Check if the selected user is the logged-in user
+                        if (selectedUsername.equals(globalStorage.getCurrentUserId())) {
+                            // Navigate to EditProfileFragment
+                            NavHostFragment.findNavController(SecondFragment.this)
+                                    .navigate(R.id.action_SecondFragment_to_editProfileFragment);
+                        } else {
+                            // Navigate to UserProfileFragment for other users
+                            Bundle args = new Bundle();
+                            args.putString("selectedUserId", userId);
+                            NavHostFragment.findNavController(SecondFragment.this)
+                                    .navigate(R.id.action_SecondFragment_to_userProfileFragment, args);
+                        }
                     } else {
                         Toast.makeText(getContext(), "User not found", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
 
     /**
      * Updates the ListView with new search results. Adjusts its height dynamically based on
