@@ -42,10 +42,6 @@
             android:value="AIzaSyDY46H3OClaqXFyZdjwCg_sGl3t1dLdoyQ" />
 
         <activity
-            android:name=".MapsActivity"
-            android:exported="false"
-            android:label="@string/title_activity_maps" />
-        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.MoodSync">

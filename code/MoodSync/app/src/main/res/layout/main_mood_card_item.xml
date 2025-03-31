@@ -35,16 +35,6 @@
                 android:scaleType="centerCrop"
                 android:elevation="1dp"/>
 
-            <View
-                android:id="@+id/status_indicator"
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:background="@drawable/circle_shape"
-                android:layout_alignRight="@id/profile_image_edit"
-                android:layout_alignBottom="@id/profile_image_edit"
-                android:backgroundTint="#4CAF50"
-                android:elevation="2dp" />
-
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
