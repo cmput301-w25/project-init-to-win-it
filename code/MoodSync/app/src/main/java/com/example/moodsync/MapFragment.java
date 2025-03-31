@@ -569,7 +569,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void loadProfileImage(String imageurl,ImageView img){
-        Glide.with(this).load(imageurl).circleCrop().placeholder(R.drawable.ic_add_black_24dp).into(img);
+        Glide.with(this)
+                .load(imageurl)
+                .circleCrop()
+                .placeholder(R.drawable.ic_add_black_24dp)
+                .into(img);
     }
     public void displayRequestedMoods(List<MoodEvent> chosenArray, int mode) {
         if (chosenArray.size() == 0){
@@ -689,8 +693,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         TextView emj= markerView.findViewById(R.id.marker_emoji);
         TextView usrid = markerView.findViewById(R.id.marker_id);
 
-        img.setImageBitmap(imageBitmap);
-     //   loadProfileImage(globalStorage.getUserFromUName(user_id).getPfpUrl(),img);
+     loadProfileImage(globalStorage.getUserFromUName(user_id).getPfpUrl(),img);
         emj.setText(emoji);
         usrid.setText(user_id);
 

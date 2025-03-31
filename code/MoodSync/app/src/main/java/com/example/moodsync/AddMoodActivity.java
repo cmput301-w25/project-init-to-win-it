@@ -82,6 +82,7 @@ import com.google.firebase.storage.UploadTask;
 public class AddMoodActivity extends Fragment {
     private String moodDescription;
     private String selectedMood;
+    LocalStorage globalStoraqe = LocalStorage.getInstance();
 
     private String location;
     private AddMoodFragmentBinding binding1;
@@ -960,9 +961,15 @@ public class AddMoodActivity extends Fragment {
      * @param moodEvent The mood event to be saved in Firestore.
      */
     private void saveMoodEventToFirestore(MoodEvent moodEvent) {
+        showSuccessDialogUI();
         moodEventsRef.add(moodEvent)
-                .addOnSuccessListener(aVoid -> showSuccessDialogUI())
                 .addOnFailureListener(e -> showErrorToast(e));
+        if (moodEvent.isPublic()){
+            globalStoraqe.insertMood(moodEvent);
+        }
+        else{
+            globalStoraqe.getPrivList().add(moodEvent);
+        }
     }
 
     /**

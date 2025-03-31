@@ -123,11 +123,8 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         // Setup play button click listener
         holder.playButton.setOnClickListener(v -> {
             String songUrl = moodEvent.getSongUrl();
-            Log.d("song url" , "song url is " + songUrl);
             if (songUrl != null && !songUrl.isEmpty()) {
                 playSong(moodEvent, holder.playButton);
-            } else {
-                Toast.makeText(holder.itemView.getContext(), "No song available", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -206,10 +203,6 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
                     .addOnSuccessListener(snap -> {
                         for (DocumentSnapshot document : snap.getDocuments()) {
                             // Convert the document to Comment object
-                            Comment comment = document.toObject(Comment.class);
-
-                            // Add the comment to  local list for offline access
-                            globalStorage.getComments().add(comment);
                         }
                         // Set the count based on how many comments are in this doc
                         holder.commentCount.setText(String.valueOf(snap.size()));

@@ -77,6 +77,7 @@ public class EditProfileFragment extends Fragment {
 
     private FirebaseFirestore db;
     private String loggedInUsername;
+    LocalStorage globalStorage = LocalStorage.getInstance();
     private List<Map<String, String>> pendingRequests = new ArrayList<>();
 
     @Nullable
@@ -188,29 +189,20 @@ public class EditProfileFragment extends Fragment {
     }
 
     private void fetchMoodEvents(boolean isPublic) {
-        db.collection("mood_events")
-                .whereEqualTo("id", loggedInUsername)
-                .whereEqualTo("public", isPublic)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        List<Map<String, Object>> moodList = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Map<String, Object> moodData = new HashMap<>();
-                            moodData.put("imageUrl", document.getString("imageUrl"));
-                            moodData.put("description", document.getString("description"));
-                            moodData.put("mood", document.getString("mood"));
-                            moodData.put("trigger", document.getString("trigger"));
-                            moodData.put("docId", document.getId());
-                            moodData.put("songUrl", document.getString("songUrl"));
-                            moodData.put("date", document.getLong("date"));
-                            moodList.add(moodData);
-                        }
-                        loadPhotosListView(moodList);
-                    }
-                });
+        ArrayList<MoodEvent> tempList = globalStorage.getMoodsForCurrentUser(globalStorage.getCurrentUser(), isPublic);
+        List<Map<String, Object>> moodList = new ArrayList<>();
+        Map<String, Object> moodData = new HashMap<>();
+        if (!tempList.isEmpty()) {
+            for (int i = 0; i < tempList.size(); i++) {
+                moodData.put("imageUrl", tempList.get(i).getImageUrl());
+                moodData.put("description", tempList.get(i).getDescription());
+                moodData.put("mood", tempList.get(i).getMood());
+                moodData.put("trigger", tempList.get(i).getTrigger());
+                moodList.add(moodData);
+            }
+            loadPhotosListView(moodList);
+        }
     }
-
 
     private void loadPhotosListView(List<Map<String, Object>> moodList) {
         Collections.reverse(moodList);
@@ -672,6 +664,18 @@ public class EditProfileFragment extends Fragment {
             loadDummyData();
             return;
         }
+        nameTextView.setText(globalStorage.getCurrentUser().getName());
+        usernameTextView.setText("@" + globalStorage.getCurrentUser().getUsername());
+        followersCountTextView.setText(globalStorage.getCurrentUser().getFollowerList() != null ? String.valueOf(globalStorage.getCurrentUser().getFollowerList().size()) : "0");
+        followingCountTextView.setText(globalStorage.getCurrentUser().getFollowingList() != null ? String.valueOf(globalStorage.getCurrentUser().getFollowingList().size()) : "0");
+
+        bioTextView.setText(globalStorage.getCurrentUser().getBio() != null ?
+                globalStorage.getCurrentUser().getBio() : "No bio available");
+        Glide.with(this)
+                .load(globalStorage.getPfpUrl())
+                .circleCrop()
+                .placeholder(R.drawable.ic_person_black_24dp)
+                .into(profileImageEdit);
 
         db.collection("users")
                 .whereEqualTo("userName", loggedInUsername)
@@ -681,45 +685,50 @@ public class EditProfileFragment extends Fragment {
                         DocumentSnapshot document = task.getResult().getDocuments().get(0);
                         String fullName = document.getString("fullName");
                         String username = document.getString("userName");
+                        String location = document.getString("location");
+                        String bio = document.getString("bio");
 
-                        // Get profile image URL from Firestore
-                        String profileImageUrl = document.getString("profileImageUrl");
-
-                        // Update the profile image using Glide
-                        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-                            Glide.with(requireContext())
-                                    .load(profileImageUrl)
-                                    .circleCrop()
-                                    .placeholder(R.drawable.ic_person_black_24dp)
-                                    .into(profileImageEdit);
-                        } else {
-                            // Set default image if no URL is available
-                            profileImageEdit.setImageResource(R.drawable.ic_person_black_24dp);
-                        }
-
-                        // Update other UI elements
                         List<String> followerList = (List<String>) document.get("followerList");
                         List<String> followingList = (List<String>) document.get("followingList");
 
-                        nameTextView.setText(fullName);
-                        usernameTextView.setText("@" + username);
-                        followersCountTextView.setText(
-                                followerList != null ? String.valueOf(followerList.size()) : "0");
-                        followingCountTextView.setText(
-                                followingList != null ? String.valueOf(followingList.size()) : "0");
+                        globalStorage.getCurrentUser().setName(fullName);
+                        globalStorage.getCurrentUser().setUsername(username);
+                        globalStorage.getCurrentUser().setFollowerList((ArrayList<String>) followerList);
+                        globalStorage.getCurrentUser().setFollowingList((ArrayList<String>) followingList);
+                        globalStorage.getCurrentUser().setLocation(location);
+                        globalStorage.getCurrentUser().setBio(bio);
+                        globalStorage.getCurrentUser().setPfpUrl(document.getString("profileImageUrl"));
 
+                        nameTextView.setText(globalStorage.getCurrentUser().getName());
+                        usernameTextView.setText("@" + globalStorage.getCurrentUser().getUsername());
+                        followersCountTextView.setText(globalStorage.getCurrentUser().getFollowerList() != null ? String.valueOf(globalStorage.getCurrentUser().getFollowerList().size()) : "0");
+                        followingCountTextView.setText(globalStorage.getCurrentUser().getFollowingList() != null ? String.valueOf(globalStorage.getCurrentUser().getFollowingList().size()) : "0");
 
-                        bioTextView.setText(
-                                document.getString("bio") != null ?
-                                        document.getString("bio") : "No bio available");
+                        try {
+                            Glide.with(this)
+                                    .load(globalStorage.getCurrentUser().getPfpUrl())
+                                    .circleCrop()
+                                    .placeholder(R.drawable.ic_person_black_24dp)
+                                    .into(profileImageEdit);
+                        }
+                        catch (Exception e){
 
+                        }
+
+                    } else {
+                        nameTextView.setText(globalStorage.getCurrentUser().getName());
+                        usernameTextView.setText("@" + globalStorage.getCurrentUser().getUsername());
+                        followersCountTextView.setText(globalStorage.getCurrentUser().getFollowerList() != null ? String.valueOf(globalStorage.getCurrentUser().getFollowerList().size()) : "0");
+                        followingCountTextView.setText(globalStorage.getCurrentUser().getFollowingList() != null ? String.valueOf(globalStorage.getCurrentUser().getFollowingList().size()) : "0");
+
+                        bioTextView.setText(globalStorage.getCurrentUser().getBio() != null ?
+                                globalStorage.getCurrentUser().getBio() : "No bio available");
                         Glide.with(this)
-                                .load(document.getString("profileImageUrl"))
+                                .load(globalStorage.getPfpUrl())
                                 .circleCrop()
                                 .placeholder(R.drawable.ic_person_black_24dp)
                                 .into(profileImageEdit);
-                    } else {
-                        loadDummyData();
+
                         Log.e("EditProfileFragment", "Error getting user data: ", task.getException());
                     }
                 });

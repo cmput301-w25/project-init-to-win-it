@@ -195,7 +195,6 @@ public class  SecondFragment extends Fragment {
                 // after text changed, just chill
             }
         });
-//        globalStorage.updateUserList();
 
         return view;
     }
@@ -216,20 +215,10 @@ public class  SecondFragment extends Fragment {
      * @param userId The unique ID of the user whose profile image is being fetched.
      */
     private void fetchProfileImageUrl(String userId) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users").document(userId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String imageUrl = documentSnapshot.getString("profileImageUrl");
-                        if (imageUrl != null && !imageUrl.isEmpty()) {
-                            loadProfileImage(imageUrl);
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("Firestore", "Error fetching profile image URL", e);
-                });
+        String imageUrl = globalStorage.getCurrentUser().getPfpUrl();
+        if(imageUrl!=null && !imageUrl.isEmpty()){
+            loadProfileImage(imageUrl);
+        }
     }
 
     /**
@@ -277,7 +266,7 @@ public class  SecondFragment extends Fragment {
      * @param selectedUsername The username of the selected user whose profile is being viewed.
      */
     private void navigateToUserProfile(String selectedUsername) {
-        db.collection("users")
+           db.collection("users")
                 .whereEqualTo("userName", selectedUsername)
                 .get()
                 .addOnCompleteListener(task -> {
@@ -397,7 +386,7 @@ public class  SecondFragment extends Fragment {
     private void setupRecyclerView() {
         moodRecyclerView = binding.moodRecyclerView;
         moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        moodCardAdapter = new MoodCardAdapter(new ArrayList<>()); // start empty, then load data
+        moodCardAdapter = new MoodCardAdapter(globalStorage.getMoodList()); // start empty, then load data
         moodRecyclerView.setAdapter(moodCardAdapter);
     }
 
@@ -454,7 +443,7 @@ public class  SecondFragment extends Fragment {
 
         if (currentUsername == null || currentUsername.isEmpty()) {
             Log.e("SecondFragment", "No logged in user found");
-            moodCardAdapter.updateMoodEvents(new ArrayList<>());
+            moodCardAdapter.updateMoodEvents(globalStorage.getMoodList());
             return;
         }
 
@@ -486,17 +475,24 @@ public class  SecondFragment extends Fragment {
                                     .addOnCompleteListener(task -> {
                                         if (task.isSuccessful()) {
                                             List<MoodEvent> moodEvents = new ArrayList<>();
+                                            globalStorage.getPrivList().clear();
                                             for (QueryDocumentSnapshot document : task.getResult()) {
                                                 MoodEvent moodEvent = document.toObject(MoodEvent.class);
                                                 moodEvent.setDocumentId(document.getId());
                                                 moodEvents.add(moodEvent);
+                                                if (moodEvent.isPublic()){
+                                                    globalStorage.insertMood(moodEvent);
+                                                } else if (!moodEvent.isPublic() && moodEvent.getId().equals(myApp.getLoggedInUsername())){
+                                                    globalStorage.getPrivList().add(moodEvent);
+                                                }
                                             }
-                                            filterToRecentMoods(moodEvents);
+                                            filterToRecentMoods(globalStorage.getMoodList());
                                         } else {
                                             Log.e("Firestore", "Error fetching mood events", task.getException());
                                             Toast.makeText(getContext(), "Failed to load mood events", Toast.LENGTH_SHORT).show();
                                         }
                                     });
+                            globalStorage.refreshPubList();
                             return;
                         }
 
@@ -508,12 +504,19 @@ public class  SecondFragment extends Fragment {
                                 .addOnCompleteListener(task -> {
                                     if (task.isSuccessful()) {
 //                                        List<MoodEvent> moodEvents = new ArrayList<>();
+                                        globalStorage.getPrivList().clear();
                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
                                             moodEvent.setDocumentId(document.getId());
                                             moodEvents.add(moodEvent);
+                                            // Add moods to local storage
+                                            if (moodEvent.isPublic()){
+                                                globalStorage.insertMood(moodEvent);
+                                            } else if (!moodEvent.isPublic() && moodEvent.getId().equals(myApp.getLoggedInUsername())){
+                                                globalStorage.getPrivList().add(moodEvent);
+                                            }
                                         }
-                                        filterToRecentMoods(moodEvents);
+                                        filterToRecentMoods(globalStorage.getMoodList());
                                         Log.d("sex8", "fetchMoodEvents: " + moodEvents);
                                         filterIcon.setOnClickListener(v -> showFilterPopup(moodEvents));
                                     } else {
@@ -527,6 +530,7 @@ public class  SecondFragment extends Fragment {
                         Toast.makeText(getContext(), "Failed to load user data", Toast.LENGTH_SHORT).show();
                     }
                 });
+        globalStorage.refreshPubList();
         Log.d("FUCK1", "fetchMoodEvents: "+ moodEvents);
     }
 

@@ -35,12 +35,13 @@ public class LoginFragment extends Fragment {
     private TextInputEditText usernameInput, passwordInput;
     private MaterialButton loginButton;
     FirebaseFirestore db;
+    LocalStorage globalStorage = LocalStorage.getInstance();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.login, container, false);
-        LocalStorage globalStorage = LocalStorage.getInstance();
+
 
         db = FirebaseFirestore.getInstance();
 
@@ -80,7 +81,6 @@ public class LoginFragment extends Fragment {
                                     globalStorage.getUserList().add(tempUser);
                                     Log.d("ADAPTER",  " => " + tempUser.getUsername());
                                 }
-                                Log.d("User Data", document.getId() + " => " + tempUser);
                             }
                         } else {
                             Log.d("User Data", "Error fetching users: " + task.getException().getMessage());
@@ -114,6 +114,7 @@ public class LoginFragment extends Fragment {
 
                             if (storedUsername.equals(username) && storedPassword.equals(password)) {
                                 userFound = true;
+                                globalStorage.setCurrentUserId(username);
                                 break;
                             }
                         }

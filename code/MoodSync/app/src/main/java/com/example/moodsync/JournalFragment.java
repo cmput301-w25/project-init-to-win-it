@@ -61,6 +61,7 @@ public class JournalFragment extends Fragment {
         // Get the current user ID
         MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
         currentUserId = myApp.getLoggedInUsername();
+        fetchProfileImageUrl(globalStorage.getCurrentUserId());
 
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
@@ -81,36 +82,7 @@ public class JournalFragment extends Fragment {
     }
 
     private void fetchPrivateMoods() {
-        db.collection("mood_events")
-                .whereEqualTo("id", currentUserId)
-                .whereEqualTo("public", false)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<MoodEvent> moodEvents = new ArrayList<>();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                            moodEvents.add(moodEvent);
-                        }
-
-                        // Update the adapter with the fetched mood events
-                        updateMoodAdapter(moodEvents);
-
-                        // Show empty state if no mood events
-                        if (moodEvents.isEmpty()) {
-                            emptyStateView.setVisibility(View.VISIBLE);
-                            journalRecyclerView.setVisibility(View.GONE);
-                        } else {
-                            emptyStateView.setVisibility(View.GONE);
-                            journalRecyclerView.setVisibility(View.VISIBLE);
-                        }
-                    } else {
-                        Log.e("Firestore", "Error fetching mood events", task.getException());
-                        // Show empty state on error
-                        emptyStateView.setVisibility(View.VISIBLE);
-                        journalRecyclerView.setVisibility(View.GONE);
-                    }
-                });
+        updateMoodAdapter(globalStorage.getPrivList());
     }
 
     private void updateMoodAdapter(List<MoodEvent> moodEvents) {
@@ -119,20 +91,7 @@ public class JournalFragment extends Fragment {
     }
 
     private void fetchProfileImageUrl(String userId) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("users").document(userId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String imageUrl = documentSnapshot.getString("profileImageUrl");
-                        if (imageUrl != null && !imageUrl.isEmpty() && pfp != null) {
-                            loadProfileImage(imageUrl);
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("Firestore", "Error fetching profile image URL", e);
-                });
+        loadProfileImage(globalStorage.getUserFromUName(userId).getPfpUrl());
     }
 
     private void loadProfileImage(String imageUrl) {

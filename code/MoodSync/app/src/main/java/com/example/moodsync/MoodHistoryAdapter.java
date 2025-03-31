@@ -27,6 +27,7 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
     private final Context context;
     private final FirebaseFirestore db;
     private OnItemClickListener listener;
+    public LocalStorage globalStorage = LocalStorage.getInstance();
 
     public interface OnItemClickListener {
         void onItemClick(MoodHistoryItem item);
@@ -86,6 +87,7 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
+                globalStorage.setCurrentMoodForEdit(currentItem.getDate().getTime()); // Set the millis for the current mood
                 listener.onItemClick(currentItem);
             }
         });
@@ -199,12 +201,13 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
     }
 
     private void deleteMoodFromFirestore(MoodHistoryItem item, int position) {
+        moodHistoryItems.remove(position);
+        globalStorage.removeMood(item.getDate().getTime());
+        notifyItemRemoved(position);
+        notifyItemChanged(position,moodHistoryItems.size());
         db.collection("mood_events").document(item.getId())
                 .delete()
                 .addOnSuccessListener(aVoid -> {
-                    moodHistoryItems.remove(position);
-                    notifyItemRemoved(position);
-                    notifyItemRangeChanged(position, moodHistoryItems.size());
                 })
                 .addOnFailureListener(e -> {
                     // Handle the error (optional logging)

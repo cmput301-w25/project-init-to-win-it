@@ -40,6 +40,7 @@ public class MoodHistoryFragment extends Fragment {
     private List<MoodHistoryItem> moodHistoryItems = new ArrayList<>();
     private List<MoodHistoryItem> originalMoodHistoryItems = new ArrayList<>();
     private FirebaseFirestore db;
+    public LocalStorage globalStorage = LocalStorage.getInstance();
     private static final String TAG = "MoodHistoryFragment";
 
     //Variables used for Filter
@@ -167,7 +168,7 @@ public class MoodHistoryFragment extends Fragment {
 
         // Set up RecyclerView
         binding.moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        moodHistoryAdapter = new MoodHistoryAdapter(moodHistoryItems, getContext());
+        moodHistoryAdapter = new MoodHistoryAdapter(globalStorage.getMHItem(), getContext());
         binding.moodRecyclerView.setAdapter(moodHistoryAdapter);
 
         db = FirebaseFirestore.getInstance();
@@ -333,26 +334,30 @@ public class MoodHistoryFragment extends Fragment {
     }
 
     private void fetchMoodEventAndNavigate(MoodHistoryItem selectedItem) {
-        db.collection("mood_events")
-                .whereEqualTo("description", selectedItem.getDescription())
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                            moodEvent.setId(document.getId()); // Store the document ID in MoodEvent
 
-                            Bundle args = new Bundle();
-                            args.putParcelable("moodEvent", (Parcelable) moodEvent);
+        MoodEvent matchingMoodEvent = null;
+        ArrayList <MoodEvent> temp = new ArrayList<MoodEvent>();
+        temp.addAll(globalStorage.getMoodList());
+        temp.addAll(globalStorage.getPrivList());
+        Log.d("FORLOOP", "fetchMood "+selectedItem.getDate());
+        for (MoodEvent moodEvent : temp) {
+            Log.d("FORLOOP", "fetchMoodEventAndNavigate: "+moodEvent.getDate());
+            if (moodEvent.getDate() == (selectedItem.getDate().getTime())) {
+                matchingMoodEvent = moodEvent;
+                break; // Stop once we find a matching MoodEvent
+            }
+        }
+        if (matchingMoodEvent != null) {
+            // Create a Bundle and add the MoodEvent as a Parcelable
+            Bundle args = new Bundle();
+            args.putParcelable("moodEvent", (Parcelable) matchingMoodEvent);
 
-                            NavHostFragment.findNavController(MoodHistoryFragment.this)
-                                    .navigate(R.id.action_moodHistoryFragment_to_editMoodFragment, args);
-                            break; // Assuming only one MoodEvent will match the description
-                        }
-                    } else {
-                        Log.d(TAG, "Error getting MoodEvent: ", task.getException());
-                    }
-                });
+            // Navigate to the editMoodFragment with the selected MoodEvent
+            NavHostFragment.findNavController(MoodHistoryFragment.this)
+                    .navigate(R.id.action_moodHistoryFragment_to_editMoodFragment, args);
+        } else {
+            Log.d(TAG, "No matching MoodEvent found in local storage.");
+        }
     }
 
     private void fetchMoodEvents() {
@@ -388,7 +393,10 @@ public class MoodHistoryFragment extends Fragment {
                         Collections.sort(moodHistoryItems, (item1, item2) -> item2.getDate().compareTo(item1.getDate()));
                         Log.d(TAG, "Sorted items. First item date: " +
                                 (moodHistoryItems.isEmpty() ? "N/A" : moodHistoryItems.get(0).getDate()));
-
+                        globalStorage.getMHItem().clear();
+                        for (int i=0; i<moodHistoryItems.size();i++){
+                            globalStorage.getMHItem().add(moodHistoryItems.get(i));
+                        }
                         Log.d(TAG, "Number of items fetched: " + moodHistoryItems.size());
                         moodHistoryAdapter.notifyDataSetChanged();
                     } else {

@@ -86,6 +86,7 @@ public class EditMoodActivity extends Fragment {
     private String selectedSongTitle;
 
     private final Map<String, Integer> moodGradients = new HashMap<>();
+    LocalStorage globalStorage = LocalStorage.getInstance();
 
     private ImageView happyImage, sadImage, angryImage, confusedImage, surprisedImage, ashamedImage, scaredImage, disgustedImage;
     private ImageView lastSelectedImageView = null;
@@ -96,7 +97,6 @@ public class EditMoodActivity extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference moodEventsRef;
     private MoodEvent moodEventToEdit;
-    public LocalStorage globalStorage = LocalStorage.getInstance();
     private String currentLocation = null; //Default to no location
     private FusedLocationProviderClient fusedLocationClient;
 
@@ -145,9 +145,7 @@ public class EditMoodActivity extends Fragment {
         moodGradients.put("Scared", R.drawable.scared_gradient);
         moodGradients.put("Disgusted", R.drawable.disgusted_gradient);
 
-        if (getArguments() != null) {
-            moodEventToEdit = getArguments().getParcelable("moodEvent");
-        }
+        moodEventToEdit = globalStorage.getMoodEvent(globalStorage.getCurrentMoodForEdit());
 
         if (moodEventToEdit == null) {
             // Handle error:  Maybe navigate back or show an error message.
@@ -633,7 +631,7 @@ public class EditMoodActivity extends Fragment {
                     username,
                     this.selectedSongUrl,
                     this.selectedSongTitle,
-                    currentLocation
+                    globalStorage.getMoodEvent(globalStorage.getCurrentMoodForEdit()).getLocation()
             );
 
 
@@ -933,43 +931,31 @@ public class EditMoodActivity extends Fragment {
      * @param moodEvent The mood event to update.
      */
     private void updateMoodEvent(MoodEvent moodEvent) {
-        if (moodEventToEdit.getDocumentId() == null) {
-            Log.e("FIRESTORE", "Document ID is null. Cannot update.");
-            return;
-        }
-
-        // Fetch the original mood from Firestore
-        fetchOriginalMood(moodEventToEdit.getDocumentId(), originalMood -> {
-            String moodToSave = (selectedMood != null && !selectedMood.isEmpty()) ? selectedMood : originalMood;
-
-            if (moodToSave == null) {
-                Log.e("FIRESTORE", "No valid mood to save.");
-                Toast.makeText(requireContext(), "Error: No valid mood to save.", Toast.LENGTH_SHORT).show();
-                return;
+        globalStorage.updateMood(globalStorage.getCurrentMoodForEdit(),moodEvent);
+        for (int i=0; i<globalStorage.getMHItem().size();i++){
+            if (globalStorage.getMHItem().get(i).getDate().getTime()== moodEvent.getDate()){
+                MoodHistoryItem temp  = new MoodHistoryItem(moodEvent.getMood(),getEmojiForMood(moodEvent.getMood()),moodEvent.getDescription(), new Date(moodEvent.getDate()));
+                globalStorage.getMHItem().set(i,temp);
             }
-
-            // Update mood event with either user-provided or original mood
-            Map<String, Object> updatedFields = new HashMap<>();
-            updatedFields.put("mood", moodToSave);
-            updatedFields.put("description", moodEvent.getDescription());
-            updatedFields.put("trigger", moodEvent.getTrigger());
-            updatedFields.put("socialSituation", moodEvent.getSocialSituation());
-            updatedFields.put("isPublic", isPublic);
-            updatedFields.put("songUrl", selectedSongUrl);
-            updatedFields.put("songTitle", selectedSongTitle);
-            Log.d("CHECK", "updateMoodEvent: "+moodEvent.getDescription());
-
-            moodEventsRef.document(moodEventToEdit.getDocumentId()).update(updatedFields)
-                    .addOnSuccessListener(aVoid -> {
-                        Log.d("FIRESTORE", "Mood event updated successfully!");
-                        refreshMoodEventsList();
-                        showSuccessDialogUI();
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e("FIRESTORE", "Failed to update mood event", e);
-                        showErrorToast(e);
-                    });
-        });
+        }
+        refreshMoodEventsList();
+        moodEventsRef = db.collection("mood_events");
+        moodEventsRef.whereEqualTo("description", moodEventToEdit.getDescription()).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            moodEventsRef.document(document.getId()).set(moodEvent)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("FIRESTORE", "Mood event updated successfully!");
+                                        refreshMoodEventsList();
+                                    })
+                                    .addOnFailureListener(e -> Log.e("FIRESTORE", "Update failed", e));
+                            refreshMoodEventsList();
+                        }
+                    } else {
+                        Log.e("FIRESTORE", "Mood event not found in Firestore");
+                    }
+                });
     }
 
 
