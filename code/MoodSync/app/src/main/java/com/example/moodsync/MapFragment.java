@@ -134,7 +134,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         binding.historyButton.setOnClickListener(v -> {
             NavHostFragment.findNavController(MapFragment.this)
-                    .navigate(R.id.action_mapFragment_to_mapsActivity,
+                    .navigate(R.id.action_mapFragment_to_SecondFragment,
                             null,
                             new NavOptions.Builder()
                                     .setEnterAnim(R.anim.slide_in_right)

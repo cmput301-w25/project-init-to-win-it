@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -35,18 +36,21 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Similar logic as UserProfileFragment or MoodCardAdapter,
+ * but for the user’s own profile. Now with subcollection-based replies.
+ */
 public class EditProfileFragment extends Fragment {
 
     private ImageView profileImageEdit;
@@ -66,13 +70,15 @@ public class EditProfileFragment extends Fragment {
 
     private TabLayout tabs;
 
-    FirebaseFirestore db;
+    private FirebaseFirestore db;
     private String loggedInUsername;
     private List<Map<String, String>> pendingRequests = new ArrayList<>();
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.edit_profile_fragment, container, false);
 
         FirebaseApp.initializeApp(requireContext());
@@ -91,15 +97,13 @@ public class EditProfileFragment extends Fragment {
         followingCountTextView = view.findViewById(R.id.following_count);
 
         photosListView = view.findViewById(R.id.photos_listview);
-        tabs = view.findViewById(R.id.tabs);
+        tabs           = view.findViewById(R.id.tabs);
 
-        // Get logged in username
         MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
         loggedInUsername = myApp.getLoggedInUsername();
 
         loadUserData();
         fetchPendingRequests();
-
 
         editProfileButton.setOnClickListener(view1 -> {
             NavController navController = Navigation.findNavController(view1);
@@ -109,29 +113,22 @@ public class EditProfileFragment extends Fragment {
         pendingRequestView.setOnClickListener(v -> showPendingRequestsDialog());
         backButton.setOnClickListener(v -> requireActivity().onBackPressed());
 
-        // Set up tab listener
         tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                if (tab.getText().toString().equals("Public")) {
-                    fetchMoodEvents(true); // Fetch public posts
+            @Override public void onTabSelected(TabLayout.Tab tab) {
+                if ("Public".equals(tab.getText().toString())) {
+                    fetchMoodEvents(true);
                 } else {
-                    fetchMoodEvents(false); // Fetch private posts
+                    fetchMoodEvents(false);
                 }
             }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
 
-        // Load initial data (default to Public tab)
         fetchMoodEvents(true);
-
         return view;
     }
+
     private void fetchMoodEvents(boolean isPublic) {
         db.collection("mood_events")
                 .whereEqualTo("id", loggedInUsername)
@@ -140,33 +137,27 @@ public class EditProfileFragment extends Fragment {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         List<Map<String, Object>> moodList = new ArrayList<>();
-
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Map<String, Object> moodData = new HashMap<>();
                             moodData.put("imageUrl", document.getString("imageUrl"));
                             moodData.put("description", document.getString("description"));
                             moodData.put("mood", document.getString("mood"));
                             moodData.put("trigger", document.getString("trigger"));
-                            moodData.put("date", document.getLong("date"));
-
+                            moodData.put("docId", document.getId());
                             moodList.add(moodData);
                         }
-
                         loadPhotosListView(moodList);
                     }
                 });
     }
 
-
     private void loadPhotosListView(List<Map<String, Object>> moodList) {
-        // Create a custom adapter for the GridView
         MoodImageAdapter adapter = new MoodImageAdapter(requireContext(), moodList);
         photosListView.setAdapter(adapter);
 
-        // Add click listener to show details of a mood when clicked
         photosListView.setOnItemClickListener((parent, view, position, id) -> {
             Map<String, Object> selectedMood = moodList.get(position);
-            showPostDetailDialog(selectedMood); // Pass the selected mood data to the dialog
+            showPostDetailDialog(selectedMood);
         });
     }
 
@@ -212,14 +203,10 @@ public class EditProfileFragment extends Fragment {
     }
 
     private void showPostDetailDialog(Map<String, Object> moodData) {
-        // Create dialog
         Dialog dialog = new Dialog(requireContext());
-
-        // Request feature must be called before setting content view
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.post_detail_dialog);
 
-        // Set window attributes for bottom animation
         WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
         layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
         layoutParams.width = (int)(getResources().getDisplayMetrics().widthPixels * 1.0);
@@ -228,9 +215,8 @@ public class EditProfileFragment extends Fragment {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
 
-        // Initialize views from the dialog layout
         ShapeableImageView profileImage = dialog.findViewById(R.id.profile_image_edit);
-        TextView nameText = dialog.findViewById(R.id.name);
+        TextView nameText      = dialog.findViewById(R.id.name);
         TextView timeStampText = dialog.findViewById(R.id.time_stamp);
         TextView moodTextView = dialog.findViewById(R.id.mood_text_view);
         ImageView postImage = dialog.findViewById(R.id.post_image);
@@ -238,11 +224,11 @@ public class EditProfileFragment extends Fragment {
         TextView triggerTextView = dialog.findViewById(R.id.trigger_text_view);
         TextView commentCount = dialog.findViewById(R.id.comment_count);
 
-        // Set data from moodData map
         Glide.with(requireContext())
                 .load(moodData.get("imageUrl"))
                 .into(postImage);
 
+        String docId = (String) moodData.get("docId");
         // Format the timestamp to "time ago" format
         Object dateObj = moodData.get("date");
         if (dateObj != null) {
@@ -287,12 +273,48 @@ public class EditProfileFragment extends Fragment {
         moodTextView.setText((String) moodData.get("mood"));
         triggerTextView.setText((String) moodData.get("trigger"));
 
+        if (docId != null && !docId.isEmpty()) {
+            FirebaseFirestore.getInstance()
+                    .collection("mood_events")
+                    .document(docId)
+                    .collection("comments")
+                    .get()
+                    .addOnSuccessListener(snap -> {
+                        commentCount.setText(String.valueOf(snap.size()));
+                    })
+                    .addOnFailureListener(e -> {
+                        commentCount.setText("0");
+                    });
+        }
+
+        MaterialButton detailsButton = dialog.findViewById(R.id.details_button);
+        detailsButton.setOnClickListener(v ->
+                Toast.makeText(requireContext(), "Details clicked", Toast.LENGTH_SHORT).show());
+
+//        ImageButton likeButton = dialog.findViewById(R.id.like_button);
+//        likeButton.setOnClickListener(v -> {
+//            int currLikes = Integer.parseInt(likeCount.getText().toString());
+//            likeCount.setText(String.valueOf(currLikes + 1));
+//            Toast.makeText(requireContext(), "Liked!", Toast.LENGTH_SHORT).show();
+//        });
+
         ImageButton commentButton = dialog.findViewById(R.id.comment_button);
         commentButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Comment clicked", Toast.LENGTH_SHORT).show();
+            if (docId != null && !docId.isEmpty()) {
+                showCommentsDialog(docId, commentCount);
+            } else {
+                Toast.makeText(requireContext(), "No doc ID for comments", Toast.LENGTH_SHORT).show();
+            }
         });
 
-        // Show dialog
+//        ImageButton shareButton = dialog.findViewById(R.id.share_button);
+//        shareButton.setOnClickListener(v ->
+//                Toast.makeText(requireContext(), "Share clicked", Toast.LENGTH_SHORT).show());
+//
+//        ImageButton bookmarkButton = dialog.findViewById(R.id.bookmark_button);
+//        bookmarkButton.setOnClickListener(v ->
+//                Toast.makeText(requireContext(), "Bookmarked!", Toast.LENGTH_SHORT).show());
+
         dialog.show();
     }
 
@@ -359,6 +381,140 @@ public class EditProfileFragment extends Fragment {
                     Log.e("Firestore", "Error fetching profile image URL", e);
                 });
     }
+    private void showCommentsDialog(String docId, TextView commentCountTextView) {
+        Dialog dialog = new Dialog(requireContext(), R.style.BottomSheetDialogTheme);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_comments);
+
+        if (dialog.getWindow() != null) {
+            WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
+            lp.gravity = Gravity.BOTTOM;
+            lp.width   = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height  = WindowManager.LayoutParams.WRAP_CONTENT;
+            dialog.getWindow().setAttributes(lp);
+            dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        }
+
+        RecyclerView commentRecyclerView= dialog.findViewById(R.id.comment_recycler_view);
+        TextInputEditText commentInput = dialog.findViewById(R.id.comment_input_edittext);
+        Button sendButton              = dialog.findViewById(R.id.comment_send_button);
+
+        // pass docId
+        CommentAdapter adapter = new CommentAdapter(null, getContext(), docId);
+        commentRecyclerView.setAdapter(adapter);
+        commentRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        FirebaseFirestore.getInstance()
+                .collection("mood_events")
+                .document(docId)
+                .collection("comments")
+                .orderBy("timestamp")
+                .get()
+                .addOnSuccessListener(snap -> {
+                    List<Comment> topComments = new ArrayList<>();
+                    for (DocumentSnapshot ds : snap) {
+                        Comment c = ds.toObject(Comment.class);
+                        if (c != null) {
+                            c.setCommentId(ds.getId());
+                            topComments.add(c);
+                        }
+                    }
+                    adapter.setCommentList(topComments);
+                    commentCountTextView.setText(String.valueOf(topComments.size()));
+                });
+
+        final Comment[] replyingTo = {null};
+
+        adapter.setOnReplyClickListener((topLevelComment, position) -> {
+            replyingTo[0] = topLevelComment;
+            if (topLevelComment == null) {
+                commentInput.setHint("Write a comment...");
+            } else {
+                commentInput.setHint("Replying to " + topLevelComment.getUserId());
+            }
+        });
+
+        sendButton.setOnClickListener(v -> {
+            String text = (commentInput.getText() != null)
+                    ? commentInput.getText().toString().trim()
+                    : "";
+            if (text.isEmpty()) {
+                Toast.makeText(getContext(), "Please enter a comment", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            MyApplication myApp = (MyApplication) requireActivity().getApplication();
+            String currentUser   = myApp.getLoggedInUsername();
+
+            Comment newC = new Comment();
+            newC.setUserId(currentUser);
+            newC.setText(text);
+            newC.setTimestamp(System.currentTimeMillis());
+
+            if (replyingTo[0] == null) {
+                // top-level
+                FirebaseFirestore.getInstance()
+                        .collection("mood_events")
+                        .document(docId)
+                        .collection("comments")
+                        .add(newC)
+                        .addOnSuccessListener(ref -> {
+                            commentInput.setText("");
+                            commentInput.setHint("Write a comment...");
+                            reloadTopComments(docId, adapter, commentCountTextView);
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(getContext(), "Failed to post comment", Toast.LENGTH_SHORT).show();
+                        });
+            } else {
+                // subcollection reply
+                String parentId = replyingTo[0].getCommentId();
+                FirebaseFirestore.getInstance()
+                        .collection("mood_events")
+                        .document(docId)
+                        .collection("comments")
+                        .document(parentId)
+                        .collection("replies")
+                        .add(newC)
+                        .addOnSuccessListener(ref -> {
+                            replyingTo[0] = null;
+                            commentInput.setText("");
+                            commentInput.setHint("Write a comment...");
+                            reloadTopComments(docId, adapter, commentCountTextView);
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(getContext(), "Failed to post reply", Toast.LENGTH_SHORT).show();
+                        });
+            }
+        });
+
+        dialog.show();
+    }
+
+    private void reloadTopComments(String docId, CommentAdapter adapter, TextView countTextView) {
+        FirebaseFirestore.getInstance()
+                .collection("mood_events")
+                .document(docId)
+                .collection("comments")
+                .orderBy("timestamp")
+                .get()
+                .addOnSuccessListener(snap -> {
+                    List<Comment> updated = new ArrayList<>();
+                    for (DocumentSnapshot ds : snap) {
+                        Comment c = ds.toObject(Comment.class);
+                        if (c != null) {
+                            c.setCommentId(ds.getId());
+                            updated.add(c);
+                        }
+                    }
+                    adapter.setCommentList(updated);
+                    countTextView.setText(String.valueOf(updated.size()));
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to reload comments", Toast.LENGTH_SHORT).show();
+                });
+    }
+
     private void loadUserData() {
         if (loggedInUsername == null || loggedInUsername.isEmpty()) {
             loadDummyData();
@@ -395,14 +551,24 @@ public class EditProfileFragment extends Fragment {
 
                         nameTextView.setText(fullName);
                         usernameTextView.setText("@" + username);
-                        followersCountTextView.setText(followerList != null ? String.valueOf(followerList.size()) : "0");
-                        followingCountTextView.setText(followingList != null ? String.valueOf(followingList.size()) : "0");
+                        followersCountTextView.setText(
+                                followerList != null ? String.valueOf(followerList.size()) : "0");
+                        followingCountTextView.setText(
+                                followingList != null ? String.valueOf(followingList.size()) : "0");
 
-                        locationTextView.setText(document.getString("location") != null ?
-                                document.getString("location") : "Location not set");
+                        locationTextView.setText(
+                                document.getString("location") != null ?
+                                        document.getString("location") : "Location not set");
 
-                        bioTextView.setText(document.getString("bio") != null ?
-                                document.getString("bio") : "No bio available");
+                        bioTextView.setText(
+                                document.getString("bio") != null ?
+                                        document.getString("bio") : "No bio available");
+
+                        Glide.with(this)
+                                .load(document.getString("profileImageUrl"))
+                                .circleCrop()
+                                .placeholder(R.drawable.ic_person_black_24dp)
+                                .into(profileImageEdit);
                     } else {
                         loadDummyData();
                         Log.e("EditProfileFragment", "Error getting user data: ", task.getException());
@@ -780,4 +946,8 @@ public class EditProfileFragment extends Fragment {
                 username = itemView.findViewById(R.id.username);
                 acceptButton = itemView.findViewById(R.id.accept_button);
                 declineButton = itemView.findViewById(R.id.decline_button);
-                buttonsLayout = itemView.findViewById(R.id.buttons_layout);}}}}
+                buttonsLayout = itemView.findViewById(R.id.buttons_layout);
+            }
+        }
+    }
+}

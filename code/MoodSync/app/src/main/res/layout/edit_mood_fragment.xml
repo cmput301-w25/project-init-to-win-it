@@ -243,24 +243,28 @@
 
         <RelativeLayout
             android:id="@+id/add_photos_section"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="96dp"
             android:layout_below="@+id/music_spinner"
+            android:layout_alignParentBottom="true"
             android:layout_marginStart="24dp"
             android:layout_marginTop="24dp"
-            android:layout_marginEnd="24dp">
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="84dp">
 
             <View
                 android:id="@+id/rectangle_2"
                 android:layout_width="match_parent"
-                android:layout_height="84dp"
+                android:layout_height="match_parent"
                 android:background="@drawable/edit_text_background" />
 
             <TextView
                 android:id="@+id/add_photos"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent">
+
             </TextView>
+
             <ImageView
                 android:id="@+id/photos"
                 android:layout_width="48dp"
@@ -279,13 +283,15 @@
 
         <Button
             android:id="@+id/next"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="362dp"
+            android:layout_height="35dp"
             android:layout_below="@+id/add_photos_section"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="29dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginTop="-63dp"
+            android:layout_marginEnd="26dp"
             android:layout_marginBottom="16dp"
             android:background="@drawable/next_button_background"
             android:backgroundTint="#D7D2CC"
@@ -293,7 +299,7 @@
             android:text="@string/next"
             android:textAllCaps="false"
             android:textColor="#090606"
-            app:backgroundTint="#F4F2C9"
+            app:backgroundTint="#F6F6E2"
             app:cornerRadius="15dp"
             app:strokeWidth="1dp" />
 
