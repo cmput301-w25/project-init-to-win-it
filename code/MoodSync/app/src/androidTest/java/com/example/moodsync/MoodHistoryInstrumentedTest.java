@@ -97,11 +97,6 @@ public class MoodHistoryInstrumentedTest {
 
     @Test
     public void testEditMoodInHistory() {
-        SystemClock.sleep(4000);
-
-        // 1) Click on the login button from the first page
-        onView(withId(R.id.loginButton)).perform(click());
-
         // Wait for the login page to load
         SystemClock.sleep(4000);
 
@@ -138,11 +133,6 @@ public class MoodHistoryInstrumentedTest {
 
     @Test
     public void testDeleteMoodInHistory() {
-        SystemClock.sleep(4000);
-
-        // 1) Click on the login button from the first page
-        onView(withId(R.id.loginButton)).perform(click());
-
         // Wait for the login page to load
         SystemClock.sleep(4000);
 

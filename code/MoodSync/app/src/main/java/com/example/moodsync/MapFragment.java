@@ -882,7 +882,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         //Add current user to see their own posts too
                         if (!followingUsers.contains(currentUserId)) {
                             followingUsers.add(currentUserId);
-                            Log.d("JJJJ", "fetchMoodEvents: "+ followingUsers);
                         }
 
                         // If not following anyone (just self), show only own moods

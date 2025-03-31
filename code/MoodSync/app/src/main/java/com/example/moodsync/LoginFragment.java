@@ -145,7 +145,6 @@ public class LoginFragment extends Fragment {
 
                         if (userFound) {
                             ((MyApplication) getActivity().getApplication()).setLoggedInUsername(username);
-                            Toast.makeText(getContext(), "Login successful", Toast.LENGTH_SHORT).show();
                             // Navigate to SecondFragment
                             NavHostFragment.findNavController(LoginFragment.this)
                                     .navigate(R.id.action_LoginFragment_to_SecondFragment);

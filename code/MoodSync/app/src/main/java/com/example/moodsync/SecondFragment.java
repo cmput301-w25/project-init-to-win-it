@@ -195,6 +195,7 @@ public class  SecondFragment extends Fragment {
                 // after text changed, just chill
             }
         });
+//        globalStorage.updateUserList();
 
         return view;
     }
@@ -518,6 +519,7 @@ public class  SecondFragment extends Fragment {
                                         globalStorage.deletePrivDups();
                                         filterToRecentMoods(globalStorage.getMoodList());
                                         Log.d("sex8", "fetchMoodEvents: " + moodEvents);
+                                        filterToRecentMoods(moodEvents);
                                         filterIcon.setOnClickListener(v -> showFilterPopup(moodEvents));
                                     } else {
                                         Log.e("Firestore", "Error fetching mood events", task.getException());
@@ -597,7 +599,6 @@ public class  SecondFragment extends Fragment {
 
         filterApplyButton.setOnClickListener(v -> {
             popupWindow.dismiss();
-            Log.d("FUCK3", "fetchMoodEvents: "+ moodEvents);
             applyFilter(moodEvents);
         });
 
@@ -621,11 +622,9 @@ public class  SecondFragment extends Fragment {
      */
     private void applyFilter(List<MoodEvent> moodEvents) {
         if (selectedFilter.equals("Most Recent Week")) {
-            Log.d("selected recent week", "applyFilter: ");
             long currentTime = System.currentTimeMillis();
             long oneWeekInMilli = 7 * 24 * 60 * 60 * 1000;
             List<MoodEvent> filteredMoodEvents = new ArrayList<>();
-            Log.d("makichut", "applyFilter: "+ moodEvents);
             for (MoodEvent moodEvent : moodEvents) {
                 if ((currentTime - moodEvent.getDate()) <= oneWeekInMilli) {
                     filteredMoodEvents.add(moodEvent);
@@ -642,7 +641,6 @@ public class  SecondFragment extends Fragment {
                 }
             }
             filterToRecentMoods(filteredMoodEvents);
-//            moodCardAdapter.updateMoodEvents(filteredMoodEvents);
             Log.d("Filter emotional state", "Filtered to " + moodEvents + " mood: " );
         } else if (selectedFilter.equals("Keyword")) {
             Log.d("keyword", "applyFilter: ");
@@ -654,7 +652,6 @@ public class  SecondFragment extends Fragment {
                 }
             }
             filterToRecentMoods(filteredMoodEvents);
-//            moodCardAdapter.updateMoodEvents(filteredMoodEvents);
         }
     }
 

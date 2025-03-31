@@ -124,11 +124,6 @@ public class SearchProfileInstrumentedTest {
      */
     @Test
     public void testSearchAndViewProfile() {
-        SystemClock.sleep(4000);
-
-        // 1) Click on the login button from the first page
-        onView(withId(R.id.loginButton)).perform(click());
-
         // Wait for the login page to load
         SystemClock.sleep(8000);
 
@@ -168,11 +163,6 @@ public class SearchProfileInstrumentedTest {
      */
     @Test
     public void testSearchPrivateAccount() {
-        SystemClock.sleep(4000);
-
-        // 1) Click on the login button from the first page
-        onView(withId(R.id.loginButton)).perform(click());
-
         // Wait for the login page to load
         SystemClock.sleep(4000);
 

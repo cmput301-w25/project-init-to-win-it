@@ -96,19 +96,14 @@ public class AddMoodInstrumentedTest {
 
     /**
      * “Happy path” test for adding a new mood event with valid data:
-     * 1) Click "Get Started" on the first fragment to navigate to the second fragment
-     * 2) Tap the FAB (add_circle_button) to open the Add Mood flow
+     * 1) Enter the login username and password and click on the login button
+     * 2) Tap the add_circle_button to open the Add Mood flow
      * 3) In the first add_mood_fragment, type a short description and press "Next"
      * 4) In the second add_mood_fragment2, fill in the trigger and press "Create mood"
      * 5) Verify the success dialog text "Your mood has been successfully uploaded." is displayed
      */
     @Test
     public void testAddMoodEventViaUI() {
-        SystemClock.sleep(4000);
-        // 1) Click on the login button from the first page
-        onView(withId(R.id.loginButton)).perform(click());
-
-
         // Wait for the login page to load
         SystemClock.sleep(4000);
 
@@ -161,11 +156,6 @@ public class AddMoodInstrumentedTest {
      */
     @Test
     public void testInvalidDescriptionPreventsNext() {
-        SystemClock.sleep(4000);
-        // 1) Click on the login button from the first page
-        onView(withId(R.id.loginButton)).perform(click());
-
-
         // Wait for the login page to load
         SystemClock.sleep(4000);
 

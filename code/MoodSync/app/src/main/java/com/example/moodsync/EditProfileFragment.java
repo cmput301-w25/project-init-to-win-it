@@ -52,8 +52,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Similar logic as UserProfileFragment or MoodCardAdapter,
- * but for the user's own profile. Now with subcollection-based replies.
+ * Fragment for editing and managing the user's profile.
+ * Features include updating profile details, viewing stats, managing pending requests,
+ * displaying photos, and playing audio files.
+ *
+ * Key Components:
+ * - Profile Image, Name, Username, Bio: Editable user details.
+ * - Photos Grid: Displays user-uploaded photos.
+ * - Pending Requests: View/manage follow requests.
+ * - Followers, Following, Likes Count: Profile statistics.
+ * - Media Player: Play/pause audio files.
  */
 public class EditProfileFragment extends Fragment {
 
@@ -210,6 +218,13 @@ public class EditProfileFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Fetches mood events from local storage and prepares them for display.
+     * Filters events by privacy status (public/private) and converts them into
+     * a format suitable for the photos grid view adapter.
+     *
+     * @param isPublic If true, fetches public events; otherwise fetches private events
+     */
     private void fetchMoodEvents(boolean isPublic) {
         db.collection("mood_events")
                 .whereEqualTo("id", loggedInUsername)
@@ -235,6 +250,14 @@ public class EditProfileFragment extends Fragment {
     }
 
 
+    /**
+     * Configures the photos grid view with mood event data.
+     * - Displays events in reverse chronological order (newest first)
+     * - Sets click listeners to show detailed view of individual mood posts
+     *
+     * @param moodList Processed mood data containing image URLs, descriptions,
+     *                 moods, and triggers for display in the grid
+     */
     private void loadPhotosListView(List<Map<String, Object>> moodList) {
         Collections.reverse(moodList);
         MoodImageAdapter adapter = new MoodImageAdapter(requireContext(), moodList);
@@ -247,7 +270,12 @@ public class EditProfileFragment extends Fragment {
     }
 
 
-
+    /**
+     * Creates a hover animation effect for a view by elevating it and moving it upward,
+     * then resets to original position after 0.5 seconds.
+     *
+     * @param view The UI element to animate (typically a button or interactive component)
+     */
     private void animateHoverUp(View view) {
         // Elevate view
         ObjectAnimator upAnimator = ObjectAnimator.ofFloat(view, "translationZ", 0f, 8f);
@@ -277,6 +305,12 @@ public class EditProfileFragment extends Fragment {
         }, 500); // Reset after 0.5 seconds
     }
 
+    /**
+     * Toggles audio playback state between play/pause.
+     * - Plays current song if available and paused
+     * - Pauses if currently playing
+     * - Shows toast if no song is available
+     */
     private void togglePlayback() {
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             pausePlayback();
@@ -288,6 +322,10 @@ public class EditProfileFragment extends Fragment {
     }
 
 
+    /**
+     * Pauses media playback and updates play button visual state.
+     * Only affects playback if currently active.
+     */
     private void pausePlayback() {
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
@@ -295,6 +333,15 @@ public class EditProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Plays an audio file from the specified URL.
+     * - Initializes or resets the MediaPlayer.
+     * - Handles playback preparation, start, and completion.
+     * - Updates the play button's visual state during playback.
+     * - Displays error messages if playback fails.
+     *
+     * @param songUrl The URL of the song to play. If null or empty, shows a toast message.
+     */
     private void playSong(String songUrl) {
         if (songUrl == null || songUrl.isEmpty()) {
             Toast.makeText(requireContext(), "No song URL available", Toast.LENGTH_SHORT).show();
@@ -344,7 +391,15 @@ public class EditProfileFragment extends Fragment {
         }
     }
 
-
+    /**
+     * Displays a detailed dialog for a selected mood post.
+     * - Shows post details including image, description, mood, trigger, and timestamp.
+     * - Fetches and displays user profile image from Firestore.
+     * - Displays comments count and allows navigation to comments dialog.
+     * - Supports audio playback for the associated song of the post.
+     *
+     * @param moodData A map containing mood post data (image URL, description, mood, trigger, etc.).
+     */
     private void showPostDetailDialog(Map<String, Object> moodData) {
         Dialog dialog = new Dialog(requireContext());
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
@@ -477,6 +532,12 @@ public class EditProfileFragment extends Fragment {
         dialog.show();
     }
 
+    /**
+     * Fetches song URL from Firestore for a specific mood event document.
+     * Updates currentSongUrl and controls play button visibility based on availability.
+     *
+     * @param documentId Firestore document ID of the mood event to query
+     */
     private void fetchSongUrl(String documentId) {
         FirebaseFirestore.getInstance()
                 .collection("mood_events")
@@ -513,7 +574,12 @@ public class EditProfileFragment extends Fragment {
             mediaPlayer = null;
         }
     }
-
+    /**
+     * Converts timestamp to human-readable relative time string (e.g., "2 hours ago").
+     *
+     * @param timeInMillis Timestamp in milliseconds
+     * @return Formatted relative time string
+     */
     private String getTimeAgo(long timeInMillis) {
         long currentTime = System.currentTimeMillis();
         long timeDiff = currentTime - timeInMillis;
@@ -554,6 +620,12 @@ public class EditProfileFragment extends Fragment {
         return years + (years == 1 ? " year ago" : " years ago");
     }
 
+    /**
+     * Loads profile image into ImageView using Glide with circular transformation.
+     * Shows placeholder during loading and handles invalid URLs gracefully.
+     *
+     * @param imageUrl URL of the profile image to load
+     */
     private void loadProfileImage(String imageUrl) {
         Glide.with(this)
                 .load(imageUrl)
@@ -561,6 +633,16 @@ public class EditProfileFragment extends Fragment {
                 .placeholder(R.drawable.ic_person_black_24dp)
                 .into(profileImageEdit);
     }
+
+    /**
+     * Displays a dialog for viewing and posting comments on a specific mood event.
+     * - Fetches and displays top-level comments from Firestore.
+     * - Allows users to post new comments or replies to existing ones.
+     * - Updates the comment count dynamically after successful operations.
+     *
+     * @param docId               The Firestore document ID of the mood event.
+     * @param commentCountTextView A TextView to update the comment count dynamically.
+     */
     private void showCommentsDialog(String docId, TextView commentCountTextView) {
         Dialog dialog = new Dialog(requireContext(), R.style.BottomSheetDialogTheme);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -672,6 +754,14 @@ public class EditProfileFragment extends Fragment {
         dialog.show();
     }
 
+    /**
+     * Reloads the top-level comments for a specific mood event from Firestore.
+     * Updates the comment adapter and dynamically updates the comment count in the UI.
+     *
+     * @param docId          The Firestore document ID of the mood event.
+     * @param adapter        The adapter for displaying comments in a RecyclerView.
+     * @param countTextView  A TextView to display the updated comment count.
+     */
     private void reloadTopComments(String docId, CommentAdapter adapter, TextView countTextView) {
         FirebaseFirestore.getInstance()
                 .collection("mood_events")
@@ -696,6 +786,12 @@ public class EditProfileFragment extends Fragment {
                 });
     }
 
+    /**
+     * Loads and displays user data from local storage and Firestore.
+     * - Sets user details such as name, username, bio, followers, and following counts.
+     * - Loads and displays the profile picture using Glide.
+     * - Updates global storage with fetched user data from Firestore.
+     */
     private void loadUserData() {
         if (loggedInUsername == null || loggedInUsername.isEmpty()) {
             loadDummyData();
@@ -753,6 +849,12 @@ public class EditProfileFragment extends Fragment {
                     }
                 });
     }
+
+    /**
+     * Fetches pending follower requests for the logged-in user from Firestore.
+     * - Updates the pending requests list and dynamically sets the request count in the UI.
+     * - Highlights or resets the pending request card based on the number of requests.
+     */
     private void fetchPendingRequests() {
         if (loggedInUsername == null || loggedInUsername.isEmpty()) {
             pendingRequestsButton.setText("0");
@@ -794,6 +896,13 @@ public class EditProfileFragment extends Fragment {
                 });
     }
 
+    /**
+     * Displays a dialog showing all pending follow requests for the logged-in user.
+     * - Allows the user to accept or decline all requests at once.
+     * - Displays the count of pending requests and provides a RecyclerView for detailed viewing.
+     *
+     * @throws IllegalStateException If there are no pending requests, a toast message is shown instead.
+     */
     private void showPendingRequestsDialog() {
         if (pendingRequests.isEmpty()) {
             Toast.makeText(requireContext(), "No pending follow requests", Toast.LENGTH_SHORT).show();
@@ -839,6 +948,14 @@ public class EditProfileFragment extends Fragment {
         dialog.show();
     }
 
+    /**
+     * Accepts all pending follow requests for the logged-in user.
+     * - Updates the follower list of the logged-in user in Firestore.
+     * - Updates the following list of each follower in Firestore.
+     * - Deletes the accepted requests from the "pendingFollowerRequests" collection in Firestore.
+     * - Clears the local list of pending requests and updates the UI.
+     *
+     */
     private void acceptAllRequests() {
         for (Map<String, String> request : pendingRequests) {
             String requestId = request.get("id");
@@ -1014,6 +1131,12 @@ public class EditProfileFragment extends Fragment {
             return requests.size();
         }
 
+        /**
+         * Declines all pending follow requests for the logged-in user.
+         * - Deletes each request from the "pendingFollowerRequests" collection in Firestore.
+         * - Clears the local list of pending requests and updates the UI.
+         * - Displays a toast message confirming the action.
+         */
         private void acceptRequest(int position) {
             Map<String, String> request = requests.get(position);
             String requestId = request.get("id");
@@ -1046,7 +1169,6 @@ public class EditProfileFragment extends Fragment {
                                                         notifyItemRemoved(position);
                                                         notifyItemRangeChanged(position, requests.size());
                                                         pendingRequestsButton.setText(String.valueOf(requests.size()));
-                                                        Toast.makeText(requireContext(), "Request accepted", Toast.LENGTH_SHORT).show();
                                                         loadUserData();
                                                     })
                                                     .addOnFailureListener(e -> {
@@ -1088,8 +1210,12 @@ public class EditProfileFragment extends Fragment {
                     });
         }
 
-
-
+        /**
+         * Declines all pending follow requests for the logged-in user.
+         * - Deletes each request from the "pendingFollowerRequests" collection in Firestore.
+         * - Clears the local list of pending requests and updates the UI.
+         * - Displays a toast message confirming the action.
+         */
         private void declineRequest(int position) {
             Map<String, String> request = requests.get(position);
             String requestId = request.get("id");
@@ -1101,13 +1227,17 @@ public class EditProfileFragment extends Fragment {
                         notifyItemRemoved(position);
                         notifyItemRangeChanged(position, requests.size());
                         pendingRequestsButton.setText(String.valueOf(requests.size()));
-                        Toast.makeText(requireContext(), "Request declined", Toast.LENGTH_SHORT).show();
                     })
                     .addOnFailureListener(e -> {
                         Log.e("EditProfileFragment", "error deleting request", e);
                     });
         }
 
+        /**
+         * ViewHolder class for displaying individual pending follow requests in a RecyclerView.
+         * - Holds references to UI components for displaying user details and action buttons.
+         * - Provides functionality for accepting or declining follow requests.
+         */
         class ViewHolder extends RecyclerView.ViewHolder {
             ImageView userImage;
             TextView userName;
@@ -1116,6 +1246,11 @@ public class EditProfileFragment extends Fragment {
             ImageButton declineButton;
             LinearLayout buttonsLayout;
 
+            /**
+             * Constructor for initializing ViewHolder components.
+             *
+             * @param itemView The view representing an individual item in the RecyclerView.
+             */
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 userImage = itemView.findViewById(R.id.user_image);

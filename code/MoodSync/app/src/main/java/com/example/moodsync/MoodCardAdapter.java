@@ -154,21 +154,18 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
             holder.playButton.setImageResource(R.drawable.sound_down);
         }
 
-        Log.d("ADAPTER", "onBindViewHolder: " + moodEvent.getId());
         // Set the username from the mood event's ID (which is the username)
         String username = moodEvent.getId();
         holder.nameTextView.setText(username);
         holder.songTitle.setText(moodEvent.getSongTitle());
         setMoodEmoji(holder.moodEmoji, moodEvent.getMood());
         User currentUser = globalStorage.getUserFromUName(username);
-        Log.d("ADAPTER", "name: " + currentUser.getPfpUrl());
         String fullName = currentUser.getName();
         if (fullName != null && !fullName.isEmpty()) {
             holder.nameTextView.setText(fullName);
         }
         // Load profile image if available
         String profileImageUrl = currentUser.getPfpUrl();
-        Log.d("PROFILE IMAGE", "onBindViewHolder: "+profileImageUrl);
         if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
             Glide.with(holder.itemView.getContext())
                     .load(profileImageUrl)
@@ -182,7 +179,6 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
 
         // Load post image if available
         String imageUrl = moodEvent.getImageUrl();
-        Log.d("THING", "onBindViewHolder: "+ moodEvent.getImageUrl());
         if (imageUrl != null && !imageUrl.isEmpty()) {
             holder.postImageView.setVisibility(View.VISIBLE);
             Glide.with(holder.itemView.getContext())

@@ -98,10 +98,6 @@ public class EditProfileInstrumentedTest {
     public void testProfilePageDisplayAndEditButton() {
         SystemClock.sleep(4000);
 
-        // 1) Login navigation
-        onView(withId(R.id.loginButton)).perform(click());
-        SystemClock.sleep(4000);
-
         // 2) Enter credentials
         onView(withId(R.id.usernameLogin)).perform(typeText("testuser"));
         onView(withId(R.id.passwordLogin)).perform(typeText("password123"));

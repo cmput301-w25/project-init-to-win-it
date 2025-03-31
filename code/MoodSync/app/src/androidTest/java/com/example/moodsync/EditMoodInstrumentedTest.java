@@ -104,11 +104,6 @@ public class EditMoodInstrumentedTest {
      */
     @Test
     public void testAddMoodEventViaUI() {
-        SystemClock.sleep(4000);
-        // 1) Click on the login button from the first page
-        onView(withId(R.id.loginButton)).perform(click());
-
-
         // Wait for the login page to load
         SystemClock.sleep(4000);
 
@@ -161,11 +156,6 @@ public class EditMoodInstrumentedTest {
      */
     @Test
     public void testInvalidDescriptionPreventsNext() {
-        SystemClock.sleep(4000);
-        // 1) Click on the login button from the first page
-        onView(withId(R.id.loginButton)).perform(click());
-
-
         // Wait for the login page to load
         SystemClock.sleep(4000);
 

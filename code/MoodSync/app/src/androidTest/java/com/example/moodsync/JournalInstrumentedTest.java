@@ -106,11 +106,6 @@ public class JournalInstrumentedTest {
      */
     @Test
     public void testDetailsButtonShowsMoodDetails() {
-        SystemClock.sleep(4000);
-        // 1) Click on the login button from the first page
-        onView(withId(R.id.loginButton)).perform(click());
-
-
         // Wait for the login page to load
         SystemClock.sleep(4000);
 

@@ -466,7 +466,6 @@ public class UserProfileFragment extends Fragment {
 
         ImageButton commentButton = dialog.findViewById(R.id.comment_button);
         commentButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Comment clicked", Toast.LENGTH_SHORT).show();
         });
         playButton = dialog.findViewById(R.id.playButton);
         if (playButton != null) {
@@ -523,7 +522,6 @@ public class UserProfileFragment extends Fragment {
                                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                             @Override
                                             public void onSuccess(DocumentReference documentReference) {
-                                                Toast.makeText(getActivity(), "Follow request sent", Toast.LENGTH_SHORT).show();
                                                 updateFollowButtonState();
                                             }
                                         })
@@ -539,7 +537,6 @@ public class UserProfileFragment extends Fragment {
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                Toast.makeText(getActivity(), "Follow request cancelled", Toast.LENGTH_SHORT).show();
                                                 updateFollowButtonState();
                                             }
                                         })
@@ -589,13 +586,11 @@ public class UserProfileFragment extends Fragment {
                     if (task.isSuccessful() && task.getResult() != null) {
                         DocumentSnapshot documentSnapshot = task.getResult();
                         List<String> followerList = (List<String>) documentSnapshot.get("followerList");
-                        Log.d("damn me", "updateFollowButtonStateBasedOnFollowers: " + followerList);
                         if (followerList != null && followerList.contains(currentUserId)) {
                             followButton.setText("Following");
                             followButton.setEnabled(false); // Optional: Disable the button
                         } else {
                             updateFollowButtonState();
-                            Log.d("DONT HAPPEN", "updateFollowButtonStateBasedOnFollowers: ");// Call the original method for pending requests
                         }
                     } else {
                         Toast.makeText(getActivity(), "Error checking followers", Toast.LENGTH_SHORT).show();

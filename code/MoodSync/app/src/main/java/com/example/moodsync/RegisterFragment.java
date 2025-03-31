@@ -121,7 +121,6 @@ public class RegisterFragment extends Fragment {
                                         .set(userData)
                                         .addOnSuccessListener(aVoid -> {
                                             ((MyApplication) getActivity().getApplication()).setLoggedInUsername(username);
-                                            Toast.makeText(getContext(), "User registered successfully!", Toast.LENGTH_SHORT).show();
 
                                             // Navigate to SecondFragment after successful registration
                                             NavController navController = Navigation.findNavController(view);
@@ -157,9 +156,7 @@ public class RegisterFragment extends Fragment {
                                 // If doesn't exist, then add
                                 if (!globalStorage.checkIfUserExists(tempUser)){
                                     globalStorage.getUserList().add(tempUser);
-                                    Log.d("ADAPTER",  " => " + tempUser.getUsername());
                                 }
-                                Log.d("User Data", document.getId() + " => " + tempUser);
                             }
                         } else {
                             Log.d("User Data", "Error fetching users: " + task.getException().getMessage());
