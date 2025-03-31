@@ -70,6 +70,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     Button mapfilterButton;
     Button mapfilterClear;
     Spinner mapfilterSpinner;
+    LocalStorage globalStorage = LocalStorage.getInstance();
     Spinner mapfilterSpinner2;
     ArrayAdapter<String> mapfilterSpinnerAdapter;
     List<String> mapfilterSpinnerData;
@@ -567,6 +568,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    public void loadProfileImage(String imageurl,ImageView img){
+        Glide.with(this).load(imageurl).circleCrop().placeholder(R.drawable.ic_add_black_24dp).into(img);
+    }
     public void displayRequestedMoods(List<MoodEvent> chosenArray, int mode) {
         if (chosenArray.size() == 0){
             Toast.makeText(requireContext(), "No mood locations found 😞", Toast.LENGTH_SHORT).show();
@@ -686,6 +690,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         TextView usrid = markerView.findViewById(R.id.marker_id);
 
         img.setImageBitmap(imageBitmap);
+     //   loadProfileImage(globalStorage.getUserFromUName(user_id).getPfpUrl(),img);
         emj.setText(emoji);
         usrid.setText(user_id);
 

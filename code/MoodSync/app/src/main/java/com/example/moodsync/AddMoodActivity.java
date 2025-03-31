@@ -130,7 +130,7 @@ public class AddMoodActivity extends Fragment {
         moodEventsRef = db.collection("mood_events");
 
 
-                        if (getArguments() != null && getArguments().getBoolean("isSecondLayout", false)) {
+        if (getArguments() != null && getArguments().getBoolean("isSecondLayout", false)) {
             isSecondLayout = true;
             binding2 = AddMoodFragment2Binding.inflate(inflater, container, false);
             return binding2.getRoot();
@@ -226,7 +226,23 @@ public class AddMoodActivity extends Fragment {
             }
         });
     }
+    private void resetSpinner() {
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_item);
+        spinnerAdapter.add("None");
+        spinnerAdapter.add("Happy");
+        spinnerAdapter.add("Sad");
+        spinnerAdapter.add("Ashamed");
+        spinnerAdapter.add("Disgusted");
+        spinnerAdapter.add("Scared");
+        spinnerAdapter.add("Angry");
+        spinnerAdapter.add("Surprised");
+        spinnerAdapter.add("Confused");
 
+        binding1.musicSpinner.setAdapter(spinnerAdapter);
+        binding1.musicSpinner.setSelection(0); // Select "None"
+    }
     private void showSongSelectionDialog(List<String> songTitles, List<String> songUrls) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.TransparentDialog);
 
@@ -277,13 +293,14 @@ public class AddMoodActivity extends Fragment {
             binding1.musicSpinner.setAdapter(spinnerAdapter);
             binding1.musicSpinner.setSelection(0);
 
-            Toast.makeText(requireContext(), "Selected: " + this.selectedSongTitle, Toast.LENGTH_SHORT).show();
             dialog.dismiss();
         });
 
         // Set cancel button click listener
-        cancelButton.setOnClickListener(v -> dialog.dismiss());
-
+        cancelButton.setOnClickListener(v -> {
+                    resetSpinner();
+                    dialog.dismiss();
+                });
         // Show dialog
         dialog.show();
     }
@@ -320,7 +337,7 @@ public class AddMoodActivity extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedMood = parent.getItemAtPosition(position).toString();
                 updateBackgroundColor(selectedMood);
-                Toast.makeText(getContext(), "Selected: " + selectedMood, Toast.LENGTH_SHORT).show();
+
 
                 switch (selectedMood) {
                     case "Happy": selectMood("Happy", happyImage); break;
@@ -412,7 +429,7 @@ public class AddMoodActivity extends Fragment {
                 .show();
     }
 
-       /**
+    /**
      * Checks the size of an image.
      *
      * @param imageUri The URI of the image to check.
@@ -1144,7 +1161,6 @@ public class AddMoodActivity extends Fragment {
 
         updateBackgroundColor(mood);
 
-        Toast.makeText(getContext(), "Selected: " + mood, Toast.LENGTH_SHORT).show();
     }
 
     /**

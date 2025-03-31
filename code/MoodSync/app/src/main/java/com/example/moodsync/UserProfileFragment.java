@@ -43,6 +43,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,7 @@ public class UserProfileFragment extends Fragment {
     String selectedUserId;   //selected user from search
     private ImageView profileImageView;
     private View view;
-    private TextView locationTextView;
+
     private TextView bioTextView;
     private ImageView profileImageEdit;
     private ImageView backButton;
@@ -85,6 +86,32 @@ public class UserProfileFragment extends Fragment {
         backButton.setOnClickListener(view1 -> {
             NavController navController = Navigation.findNavController(view1);
             navController.navigate(R.id.action_userProfileFragment_to_SecondFragment);
+        });
+
+
+        view.findViewById(R.id.home_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_SecondFragment);
+        });
+
+        view.findViewById(R.id.map_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_mapsActivity);
+        });
+
+        view.findViewById(R.id.add_circle_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_addMoodActivityFragment);
+        });
+
+
+        view.findViewById(R.id.history_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_moodHistoryFragment);
+        });
+        view.findViewById(R.id.diary_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_JournalFragment);
         });
 
         db = FirebaseFirestore.getInstance();
@@ -147,8 +174,6 @@ public class UserProfileFragment extends Fragment {
                             followersCountTextView.setText(String.valueOf(followerList != null ? followerList.size() : 0));
                             followingCountTextView.setText(String.valueOf(followingList != null ? followingList.size() : 0));
 
-                            locationTextView.setText(documentSnapshot.getString("location") != null ?
-                                    documentSnapshot.getString("location") : "Location not set");
 
                             bioTextView.setText(documentSnapshot.getString("bio") != null ?
                                     documentSnapshot.getString("bio") : "No bio available");
@@ -287,6 +312,7 @@ public class UserProfileFragment extends Fragment {
      * @param moodList A list of maps containing mood event data retrieved from Firestore.
      */
     private void loadPhotosListView(List<Map<String, Object>> moodList) {
+        Collections.reverse(moodList);
         MoodImageAdapter adapter = new MoodImageAdapter(requireContext(), moodList);
         photos_listview.setAdapter(adapter);
 
