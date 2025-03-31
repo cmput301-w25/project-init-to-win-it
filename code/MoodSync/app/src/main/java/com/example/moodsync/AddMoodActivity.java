@@ -173,6 +173,11 @@ public class AddMoodActivity extends Fragment {
         }
     }
 
+    /**
+     * Initializes a mapping of mood names to their corresponding gradient resources.
+     * This method populates the {@code moodGradients} map with predefined mood-gradient pairs.
+     * These gradients are used to visually represent different moods in the application.
+     */
     void initMoodGradients() {
         moodGradients.put("Happy", R.drawable.happy_gradient);
         moodGradients.put("Sad", R.drawable.sad_gradient);
@@ -183,6 +188,14 @@ public class AddMoodActivity extends Fragment {
         moodGradients.put("Scared", R.drawable.scared_gradient);
         moodGradients.put("Disgusted", R.drawable.disgusted_gradient);
     }
+
+    /**
+     * Fetches songs for a specific mood by querying a Firestore collection.
+     * Displays a loading dialog while fetching the songs and shows a song selection dialog
+     * if songs are successfully retrieved.
+     *
+     * @param collectionName The name of the Firestore collection to query for songs.
+     */
     private void fetchSongsForMood(String collectionName) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -227,6 +240,10 @@ public class AddMoodActivity extends Fragment {
             }
         });
     }
+    /**
+     * Resets the music spinner to its default state with predefined mood options.
+     * The spinner will display "None" as the default selection.
+     */
     private void resetSpinner() {
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
                 requireContext(),
@@ -244,6 +261,13 @@ public class AddMoodActivity extends Fragment {
         binding1.musicSpinner.setAdapter(spinnerAdapter);
         binding1.musicSpinner.setSelection(0); // Select "None"
     }
+    /**
+     * Displays a dialog allowing the user to select a song from a list of titles.
+     * Updates the music spinner with the selected song and provides an option to cancel.
+     *
+     * @param songTitles A list of song titles to display in the dialog.
+     * @param songUrls   A list of corresponding song URLs for each title.
+     */
     private void showSongSelectionDialog(List<String> songTitles, List<String> songUrls) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.TransparentDialog);
 
@@ -510,7 +534,14 @@ public class AddMoodActivity extends Fragment {
         return outputBitmap;
     }
 
-
+    /**
+     * Compresses an image from a URI while applying blur to reduce details.
+     * Iteratively reduces JPEG quality until the image size is under 64KB.
+     *
+     * @param context The application context
+     * @param photoUri URI of the original image to compress
+     * @return Compressed File object, or null if compression fails
+     */
     private File compressImageFromUri(Context context, Uri photoUri) {
         try {
             // Convert Uri to Bitmap
@@ -576,7 +607,6 @@ public class AddMoodActivity extends Fragment {
                 compressedFile = compressImageFromUri(this.getContext(), imageUri); // Compress the image
                 if (compressedFile != null) {
                     uploadUri = Uri.fromFile(compressedFile);
-                    Log.d("COMPRESSION", "Image compressed and be rotated");
                     // Handle 90-degree rotation for compressed images
                 }
             } else {
@@ -616,6 +646,14 @@ public class AddMoodActivity extends Fragment {
         }
     }
 
+    /**
+     * Rotates an image by specified degrees and saves rotated version
+     * @param context The application context
+     * @param imageUri URI of the original image
+     * @param angle Rotation angle in degrees
+     * @return URI of the rotated image
+     * @throws IOException If file operations fail
+     */
     private Uri rotateImage(Context context, Uri imageUri, float angle) throws IOException {
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
         Matrix matrix = new Matrix();
@@ -630,15 +668,21 @@ public class AddMoodActivity extends Fragment {
         return Uri.fromFile(file);
     }
 
-    /*
-     * Handles the result of an activity, typically used for image selection or capture.
-     *
-     * @param  The request code passed to startActivityForResult(), which identifies the activity.
-     * @param resultCode The result code returned by the child activity through setResult().
-     * @param data An Intent containing the result data, or null if no data is returned.
+    /**
+     * Callback interface for image upload results
      */
     interface OnImageUploadedListener {
+        /**
+         * Called when image upload completes successfully
+         * @param imageUrl Firebase Storage URL of uploaded image
+         */
         void onImageUploaded(String imageUrl);
+
+        /**
+         * Called when image upload fails
+         * @param e Exception containing failure details
+         */
+
         void onUploadFailed(Exception e);
     }
     @Override
@@ -837,6 +881,12 @@ public class AddMoodActivity extends Fragment {
         selectedSocialSituationButton = button;
     }
 
+    /**
+     * Applies a pulsing animation effect to a button when clicked.
+     * Also updates the button's background tint to indicate selection.
+     *
+     * @param button The button view to animate
+     */
     private void animateButtonClick(Button button) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1f, 1.1f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(button, "scaleY", 1f, 1.1f, 1f);

@@ -159,6 +159,13 @@ public class EditMoodActivity extends Fragment {
             setupFirstLayout(view);
         }
     }
+    /**
+     * Fetches songs for a specific mood by querying a Firestore collection.
+     * Displays a loading dialog while fetching the songs and shows a song selection dialog
+     * if songs are successfully retrieved.
+     *
+     * @param collectionName The name of the Firestore collection to query for songs.
+     */
     private void fetchSongsForMood(String collectionName) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -204,7 +211,15 @@ public class EditMoodActivity extends Fragment {
         });
     }
 
+    /**
+     * Displays a song selection dialog with a list of song titles and URLs.
+     * Allows the user to select a song from the list and updates the music spinner accordingly.
+     *
+     * @param songTitles A list of song titles to display in the dialog.
+     * @param songUrls   A list of corresponding song URLs for each title.
+     */
     private void showSongSelectionDialog(List<String> songTitles, List<String> songUrls) {AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_song_selection_dialog, null);builder.setView(dialogView);ListView listView = dialogView.findViewById(R.id.songListView);ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, songTitles);listView.setAdapter(adapter);AlertDialog dialog = builder.create();listView.setOnItemClickListener((parent, view, position, id) -> {this.selectedSongUrl = songUrls.get(position);this.selectedSongTitle = songTitles.get(position);ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item);spinnerAdapter.add(this.selectedSongTitle);spinnerAdapter.add("Choose a song");spinnerAdapter.add("No music");spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);binding1.musicSpinner.setAdapter(spinnerAdapter);binding1.musicSpinner.setSelection(0);Toast.makeText(requireContext(), "Selected: " + this.selectedSongTitle, Toast.LENGTH_SHORT).show();dialog.dismiss();});dialog.show();}
+
     /**
      * Sets up the first layout of the fragment.
      *
@@ -345,6 +360,7 @@ public class EditMoodActivity extends Fragment {
         });
 
     }
+
     private void showSongSelectionDialog() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -454,6 +470,14 @@ public class EditMoodActivity extends Fragment {
         scaredImage.setBackgroundResource(android.R.color.transparent);
         disgustedImage.setBackgroundResource(android.R.color.transparent);
     }
+
+    /**
+     * Returns an emoji representing a specific mood.
+     * Maps mood names to their corresponding emojis.
+     *
+     * @param mood The mood name (e.g., "Happy", "Sad", etc.)
+     * @return Emoji for the given mood, or an empty string if not found.
+     */
     private String getEmojiForMood(String mood) {
         switch (mood.toLowerCase()) {
             case "happy":
@@ -494,9 +518,25 @@ public class EditMoodActivity extends Fragment {
             }
         }
     }
+
+    /**
+     * Callback interface for fetching original mood data.
+     */
     public interface OnMoodFetchedListener {
+        /**
+         * Called when the original mood is successfully fetched.
+         * @param originalMood The original mood string, or null if fetching fails.
+         */
         void onMoodFetched(String originalMood);
     }
+
+    /**
+     * Fetches the original mood from a Firestore document.
+     * Uses a callback to notify the listener of the result.
+     *
+     * @param documentId The ID of the Firestore document containing the mood.
+     * @param listener   The listener to notify with the fetched mood.
+     */
     private void fetchOriginalMood(String documentId, OnMoodFetchedListener listener) {
         moodEventsRef.document(documentId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
@@ -666,6 +706,9 @@ public class EditMoodActivity extends Fragment {
         animateButtonSelection(button);
         selectedSocialSituationButton = button;
     }
+    /**
+     * Displays a dialog offering options to add a photo from the camera or gallery.
+     */
     private void showPhotoOptionsDialog() {
         String[] options = {"Add from Camera", "Add from Photos"};
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
@@ -679,6 +722,12 @@ public class EditMoodActivity extends Fragment {
                 })
                 .show();
     }
+    /**
+     * Applies a pulsing animation effect to a button when clicked.
+     * Also updates the button's background tint to indicate selection.
+     *
+     * @param button The button view to animate.
+     */
     private void animateButtonClick(Button button) {
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(button, "scaleX", 1f, 1.1f, 1f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(button, "scaleY", 1f, 1.1f, 1f);
@@ -808,6 +857,15 @@ public class EditMoodActivity extends Fragment {
         }
     }
 
+    /**
+     * Rotates an image by a specified angle and saves the rotated version.
+     *
+     * @param context The application context.
+     * @param imageUri URI of the original image.
+     * @param angle Rotation angle in degrees.
+     * @return URI of the rotated image.
+     * @throws IOException If file operations fail.
+     */
     private Uri rotateImage(Context context, Uri imageUri, float angle) throws IOException {
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
         Matrix matrix = new Matrix();
@@ -821,14 +879,6 @@ public class EditMoodActivity extends Fragment {
 
         return Uri.fromFile(file);
     }
-
-    /*
-     * Handles the result of an activity, typically used for image selection or capture.
-     *
-     * @param  The request code passed to startActivityForResult(), which identifies the activity.
-     * @param resultCode The result code returned by the child activity through setResult().
-     * @param data An Intent containing the result data, or null if no data is returned.
-     */
 
 
     /**
@@ -872,6 +922,12 @@ public class EditMoodActivity extends Fragment {
 
         button.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.button_normal));
     }
+
+    /**
+     * Updates the image preview with a new bitmap from a given URI.
+     *
+     * @param imageUri URI of the image to display.
+     */
     private void updateImagePreview(Uri imageUri) {
         View rectangle2 = binding1.getRoot().findViewById(R.id.rectangle_2);
         rectangle2.setBackground(new BitmapDrawable(getResources(), getBitmapFromUri(photoUri)));
@@ -891,6 +947,13 @@ public class EditMoodActivity extends Fragment {
             return null;
         }
     }
+
+    /**
+     * Handles the upload of an image to Firebase Storage.
+     * Uses a callback to notify when the upload is complete.
+     *
+     * @param imageUri URI of the image to upload.
+     */
     private void handleImageUpload(Uri imageUri) {
         uploadImageToFirebase(imageUri, new OnImageUploadedListener() {
             @Override
