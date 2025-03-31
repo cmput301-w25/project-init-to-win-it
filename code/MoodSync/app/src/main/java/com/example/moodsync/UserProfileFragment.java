@@ -254,7 +254,7 @@ public class UserProfileFragment extends Fragment {
         ImageView postImage    = dialog.findViewById(R.id.post_image);
         TextView statusText    = dialog.findViewById(R.id.status);
         TextView triggerTextView = dialog.findViewById(R.id.trigger_text_view);
-        TextView likeCount     = dialog.findViewById(R.id.like_count);
+//        TextView likeCount     = dialog.findViewById(R.id.like_count);
         TextView commentCount  = dialog.findViewById(R.id.comment_count);
 
         String docId = (String) moodData.get("docId");
@@ -285,12 +285,12 @@ public class UserProfileFragment extends Fragment {
         detailsButton.setOnClickListener(v ->
                 Toast.makeText(requireContext(), "Details clicked", Toast.LENGTH_SHORT).show());
 
-        ImageButton likeButton = dialog.findViewById(R.id.like_button);
-        likeButton.setOnClickListener(v -> {
-            int cLikes = Integer.parseInt(likeCount.getText().toString());
-            likeCount.setText(String.valueOf(cLikes + 1));
-            Toast.makeText(requireContext(), "Liked!", Toast.LENGTH_SHORT).show();
-        });
+//        ImageButton likeButton = dialog.findViewById(R.id.like_button);
+//        likeButton.setOnClickListener(v -> {
+//            int cLikes = Integer.parseInt(likeCount.getText().toString());
+//            likeCount.setText(String.valueOf(cLikes + 1));
+//            Toast.makeText(requireContext(), "Liked!", Toast.LENGTH_SHORT).show();
+//        });
 
         ImageButton commentButton = dialog.findViewById(R.id.comment_button);
         commentButton.setOnClickListener(v -> {
@@ -301,13 +301,13 @@ public class UserProfileFragment extends Fragment {
             }
         });
 
-        ImageButton shareButton = dialog.findViewById(R.id.share_button);
-        shareButton.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Share clicked", Toast.LENGTH_SHORT).show());
-
-        ImageButton bookmarkButton = dialog.findViewById(R.id.bookmark_button);
-        bookmarkButton.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Bookmarked!", Toast.LENGTH_SHORT).show());
+//        ImageButton shareButton = dialog.findViewById(R.id.share_button);
+//        shareButton.setOnClickListener(v ->
+//                Toast.makeText(requireContext(), "Share clicked", Toast.LENGTH_SHORT).show());
+//
+//        ImageButton bookmarkButton = dialog.findViewById(R.id.bookmark_button);
+//        bookmarkButton.setOnClickListener(v ->
+//                Toast.makeText(requireContext(), "Bookmarked!", Toast.LENGTH_SHORT).show());
 
         dialog.show();
     }

@@ -341,9 +341,9 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
 
     public void updateMoodEvents(List<MoodEvent> newList) {
         this.moodEvents.clear();
-        this.moodEvents.addAll(newMoodEvents);
-        for (int i=0;i< newMoodEvents.size();i++) {
-            globalStorage.getMoodList().add(newMoodEvents.get(i));
+        this.moodEvents.addAll(newList);
+        for (int i=0;i< newList.size();i++) {
+            globalStorage.getMoodList().add(newList.get(i));
         }
         notifyDataSetChanged();
     }

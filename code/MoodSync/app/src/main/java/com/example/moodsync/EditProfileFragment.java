@@ -291,12 +291,12 @@ public class EditProfileFragment extends Fragment {
         detailsButton.setOnClickListener(v ->
                 Toast.makeText(requireContext(), "Details clicked", Toast.LENGTH_SHORT).show());
 
-        ImageButton likeButton = dialog.findViewById(R.id.like_button);
-        likeButton.setOnClickListener(v -> {
-            int currLikes = Integer.parseInt(likeCount.getText().toString());
-            likeCount.setText(String.valueOf(currLikes + 1));
-            Toast.makeText(requireContext(), "Liked!", Toast.LENGTH_SHORT).show();
-        });
+//        ImageButton likeButton = dialog.findViewById(R.id.like_button);
+//        likeButton.setOnClickListener(v -> {
+//            int currLikes = Integer.parseInt(likeCount.getText().toString());
+//            likeCount.setText(String.valueOf(currLikes + 1));
+//            Toast.makeText(requireContext(), "Liked!", Toast.LENGTH_SHORT).show();
+//        });
 
         ImageButton commentButton = dialog.findViewById(R.id.comment_button);
         commentButton.setOnClickListener(v -> {
@@ -307,13 +307,13 @@ public class EditProfileFragment extends Fragment {
             }
         });
 
-        ImageButton shareButton = dialog.findViewById(R.id.share_button);
-        shareButton.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Share clicked", Toast.LENGTH_SHORT).show());
-
-        ImageButton bookmarkButton = dialog.findViewById(R.id.bookmark_button);
-        bookmarkButton.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Bookmarked!", Toast.LENGTH_SHORT).show());
+//        ImageButton shareButton = dialog.findViewById(R.id.share_button);
+//        shareButton.setOnClickListener(v ->
+//                Toast.makeText(requireContext(), "Share clicked", Toast.LENGTH_SHORT).show());
+//
+//        ImageButton bookmarkButton = dialog.findViewById(R.id.bookmark_button);
+//        bookmarkButton.setOnClickListener(v ->
+//                Toast.makeText(requireContext(), "Bookmarked!", Toast.LENGTH_SHORT).show());
 
         dialog.show();
     }
