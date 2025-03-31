@@ -101,11 +101,11 @@ public class AddMoodActivity extends Fragment {
     private String selectedSongTitle;
     private static final int ANIMATION_DURATION = 300; // Animation duration in milliseconds
 
-    private FirebaseFirestore db;
-    private CollectionReference moodEventsRef;
+    FirebaseFirestore db;
+    CollectionReference moodEventsRef;
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int PICK_IMAGE_REQUEST = 2;
-    private Map<String, Integer> moodGradients = new HashMap<>();
+    Map<String, Integer> moodGradients = new HashMap<>();
     private boolean isPublic = false; // Default to private
     private String currentLocation = null; //Default to no location
     private FusedLocationProviderClient fusedLocationClient;

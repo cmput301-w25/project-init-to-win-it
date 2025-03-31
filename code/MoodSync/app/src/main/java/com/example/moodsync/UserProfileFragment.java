@@ -58,12 +58,12 @@ import java.util.Map;
  */
 public class UserProfileFragment extends Fragment {
 
-    private FirebaseFirestore db;
+    FirebaseFirestore db;
     private Button followButton;
     private GridView photos_listview;
     private TextView nameTextView, usernameTextView, followersCountTextView, followingCountTextView;
-    private String currentUserId;    //logged in user
-    private String selectedUserId;   //selected user from search
+    String currentUserId;    //logged in user
+    String selectedUserId;   //selected user from search
     private ImageView profileImageView;
     private View view;
     private TextView locationTextView;
@@ -308,7 +308,7 @@ public class UserProfileFragment extends Fragment {
      * Updates the UI to reflect whether a follow request has been sent or canceled successfully.
      * </p>
      */
-    private void handleFollowRequest() {
+    void handleFollowRequest() {
         db.collection("pendingFollowerRequests")
                 .whereEqualTo("follower", currentUserId)
                 .whereEqualTo("followee", selectedUserId)
@@ -362,7 +362,7 @@ public class UserProfileFragment extends Fragment {
      * Updates the text displayed on the follow button based on whether there is a pending follow request
      * between the current user and the selected user. This method queries Firestore to check for pending requests.
      */
-    private void updateFollowButtonState() {
+    void updateFollowButtonState() {
         db.collection("pendingFollowerRequests")
                 .whereEqualTo("follower", currentUserId)
                 .whereEqualTo("followee", selectedUserId)
@@ -386,7 +386,7 @@ public class UserProfileFragment extends Fragment {
      * the selected user. If they are already following, disables further interaction with
      * the button; otherwise, checks for pending follow requests to update its text accordingly.
      */
-    private void updateFollowButtonStateBasedOnFollowers() {
+    void updateFollowButtonStateBasedOnFollowers() {
         db.collection("users").document(selectedUserId).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {

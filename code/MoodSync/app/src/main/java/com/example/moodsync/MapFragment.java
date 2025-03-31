@@ -79,8 +79,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     String keywordEditTextData;
     private String currentUserId;
     private static final String TAG = "MapFragment";
-    private FirebaseFirestore db;
-    private List<MoodEvent> moodHistoryItems = new ArrayList<>();
+    FirebaseFirestore db;
+    List<MoodEvent> moodHistoryItems = new ArrayList<>();
     private List<MoodEvent> originalMoodHistoryItems = new ArrayList<>();
     private List<MoodEvent> moodFollowingList = new ArrayList<>();
     private List<MoodEvent> mostRecentMoodsList = new ArrayList<>();

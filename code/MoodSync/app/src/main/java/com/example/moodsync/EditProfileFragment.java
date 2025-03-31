@@ -66,7 +66,7 @@ public class EditProfileFragment extends Fragment {
 
     private TabLayout tabs;
 
-    private FirebaseFirestore db;
+    FirebaseFirestore db;
     private String loggedInUsername;
     private List<Map<String, String>> pendingRequests = new ArrayList<>();
 

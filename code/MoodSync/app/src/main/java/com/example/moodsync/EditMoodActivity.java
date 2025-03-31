@@ -89,9 +89,9 @@ public class EditMoodActivity extends Fragment {
 
     private static final int ANIMATION_DURATION = 300; // Animation duration in milliseconds
 
-    private FirebaseFirestore db;
-    private CollectionReference moodEventsRef;
-    private MoodEvent moodEventToEdit;
+    FirebaseFirestore db;
+    CollectionReference moodEventsRef;
+    MoodEvent moodEventToEdit;
     private String currentLocation = null; //Default to no location
     private FusedLocationProviderClient fusedLocationClient;
 

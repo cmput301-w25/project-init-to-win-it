@@ -34,7 +34,7 @@ public class LoginFragment extends Fragment {
 
     private TextInputEditText usernameInput, passwordInput;
     private MaterialButton loginButton;
-    private FirebaseFirestore db;
+    FirebaseFirestore db;
 
     @Nullable
     @Override
@@ -91,7 +91,7 @@ public class LoginFragment extends Fragment {
         return view;
     }
 
-    private void login() {
+    void login() {
         String username = usernameInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
 

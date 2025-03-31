@@ -69,6 +69,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.google.firebase.database)
+    testImplementation("org.mockito:mockito-core:4.8.0")
     implementation(libs.firebase.firestore)
     implementation(libs.google.firebase.storage)
     implementation("com.github.bumptech.glide:glide:4.12.0")

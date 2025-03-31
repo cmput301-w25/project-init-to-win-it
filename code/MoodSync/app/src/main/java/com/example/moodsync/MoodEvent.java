@@ -1,17 +1,10 @@
 package com.example.moodsync;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.DocumentSnapshot;
-
-import com.example.moodsync.MoodHistoryFragment;
-
-import java.util.Date;
 
 /**
  * Represents a utility class for performing arithmetic operations.
@@ -199,30 +192,8 @@ public class MoodEvent implements Parcelable {
         return location;
     }
 
-    public void setLocation(String loggedInUsername, MoodEvent moodEvent) {
-        if (loggedInUsername == null || loggedInUsername.isEmpty()) {
-            Log.e("LocationError", "No logged-in username provided.");
-            return;
-        }
-        // Reference to Firestore
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // Fetch user document from Firestore
-        db.collection("users") // Replace "users" with your actual collection name
-                .document(loggedInUsername)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        // Get the location field from the document
-                        String location = documentSnapshot.getString("location");
-
-                    } else {
-                        Log.e("LocationError", "User document does not exist for username: " + loggedInUsername);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("LocationError", "Failed to fetch user document: ", e);
-                });
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public String getPhotoPath() {

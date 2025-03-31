@@ -29,7 +29,7 @@ public class JournalFragment extends Fragment {
     private JournalFragmentBinding binding;
     private RecyclerView journalRecyclerView;
     private MoodCardAdapter moodCardAdapter;
-    private FirebaseFirestore db;
+    FirebaseFirestore db;
     private String currentUserId;
     private ImageView pfp;
     private TextView emptyStateView;
