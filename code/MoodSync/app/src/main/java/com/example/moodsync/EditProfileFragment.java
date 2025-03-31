@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -124,28 +125,63 @@ public class EditProfileFragment extends Fragment {
             @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
         view.findViewById(R.id.home_button).setOnClickListener(v -> {
+            // get the NavController
             NavController navController = Navigation.findNavController(v);
-            navController.navigate(R.id.action_editProfileFragment_to_SecondFragment);
+
+            // navigate with custom animations
+            NavOptions navOptions = new NavOptions.Builder()
+                    .setEnterAnim(R.anim.slide_in_right)
+                    .setExitAnim(R.anim.slide_out_left)
+                    .setPopEnterAnim(R.anim.slide_in_left)
+                    .setPopExitAnim(R.anim.slide_out_right)
+                    .build();
+
+            // perform navigation
+            navController.navigate(R.id.action_editProfileFragment_to_SecondFragment, null, navOptions);
         });
 
         view.findViewById(R.id.map_button).setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(v);
-            navController.navigate(R.id.action_editProfileFragment_to_mapsActivity);
+            NavOptions navOptions = new NavOptions.Builder()
+                    .setEnterAnim(R.anim.slide_in_right)
+                    .setExitAnim(R.anim.slide_out_left)
+                    .setPopEnterAnim(R.anim.slide_in_left)
+                    .setPopExitAnim(R.anim.slide_out_right)
+                    .build();
+            navController.navigate(R.id.action_editProfileFragment_to_mapsActivity, null , navOptions);
         });
 
         view.findViewById(R.id.add_circle_button).setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(v);
-            navController.navigate(R.id.action_editProfileFragment_to_addMoodActivityFragment);
+            NavOptions navOptions = new NavOptions.Builder()
+                    .setEnterAnim(R.anim.slide_in_right)
+                    .setExitAnim(R.anim.slide_out_right)
+                    .setPopEnterAnim(R.anim.slide_in_left)
+                    .setPopExitAnim(R.anim.slide_out_right)
+                    .build();
+            navController.navigate(R.id.action_editProfileFragment_to_addMoodActivityFragment, null , navOptions);
         });
 
 
         view.findViewById(R.id.history_button).setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(v);
-            navController.navigate(R.id.action_editProfileFragment_to_moodHistoryFragment);
+            NavOptions navOptions = new NavOptions.Builder()
+                    .setEnterAnim(R.anim.slide_in_right)
+                    .setExitAnim(R.anim.slide_in_right)
+                    .setPopEnterAnim(R.anim.slide_in_left)
+                    .setPopExitAnim(R.anim.slide_out_right)
+                    .build();
+            navController.navigate(R.id.action_editProfileFragment_to_moodHistoryFragment , null , navOptions);
         });
         view.findViewById(R.id.diary_button).setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(v);
-            navController.navigate(R.id.action_editProfileFragment_to_JournalFragment);
+            NavOptions navOptions = new NavOptions.Builder()
+                    .setEnterAnim(R.anim.slide_in_right)
+                    .setExitAnim(R.anim.slide_out_right)
+                    .setPopEnterAnim(R.anim.slide_in_left)
+                    .setPopExitAnim(R.anim.slide_out_right)
+                    .build();
+            navController.navigate(R.id.action_editProfileFragment_to_JournalFragment,  null , navOptions);
         });
 
         fetchMoodEvents(true);

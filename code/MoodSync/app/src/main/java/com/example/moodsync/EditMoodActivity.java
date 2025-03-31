@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -201,31 +202,64 @@ public class EditMoodActivity extends Fragment {
     }
 
     private void showSongSelectionDialog(List<String> songTitles, List<String> songUrls) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.TransparentDialog);
+
+        // Inflate custom layout
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_song_selection_dialog, null);
         builder.setView(dialogView);
+
+        // Get references to views
+        TextView titleTextView = dialogView.findViewById(R.id.dialogTitle);
         ListView listView = dialogView.findViewById(R.id.songListView);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, songTitles);
+        Button cancelButton = dialogView.findViewById(R.id.cancelButton);
+
+        // Set title
+        titleTextView.setText("Select a Song");
+
+        // Create and set adapter
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_list_item_1,
+                songTitles);
         listView.setAdapter(adapter);
+
+        // Create dialog
         AlertDialog dialog = builder.create();
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            this.selectedSongUrl = songUrls.get(position);
-            this.selectedSongTitle = songTitles.get(position);
-            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item);
-            spinnerAdapter.add(this.selectedSongTitle);spinnerAdapter.add("None");
+
+        // Make background transparent
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // Set list item click listener
+        listView.setOnItemClickListener((parent, view, which, id) -> {
+            this.selectedSongUrl = songUrls.get(which);
+            this.selectedSongTitle = songTitles.get(which);
+
+            // Update spinner
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                    requireContext(),
+                    android.R.layout.simple_spinner_item);
+            spinnerAdapter.add(this.selectedSongTitle);
             spinnerAdapter.add("Happy");
             spinnerAdapter.add("Sad");
-            spinnerAdapter.add("Angry");
-            spinnerAdapter.add("Confused");
-            spinnerAdapter.add("Surprised");
             spinnerAdapter.add("Ashamed");
+            spinnerAdapter.add("Disgusted");
             spinnerAdapter.add("Scared");
-            spinnerAdapter.add("Scared");
-            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerAdapter.add("Angry");
+            spinnerAdapter.add("Surprised");
+            spinnerAdapter.add("Confused");
+
             binding1.musicSpinner.setAdapter(spinnerAdapter);
             binding1.musicSpinner.setSelection(0);
-            dialogView.findViewById(R.id.cancelButton).setOnClickListener(v -> dialog.dismiss());
+
+            dialog.dismiss();
         });
+
+        // Set cancel button click listener
+        cancelButton.setOnClickListener(v -> {
+
+            dialog.dismiss();
+        });
+        // Show dialog
         dialog.show();
     }
     /**
