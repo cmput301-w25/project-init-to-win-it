@@ -171,7 +171,7 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp"
-                app:cardBackgroundColor="#EAEAD8">
+                app:cardBackgroundColor="#FFF8E6">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -249,7 +249,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="Photographer | Travel Enthusiast | Coffee Lover\nCapturing moments and sharing stories through my lens. Always on the lookout for the next adventure."
+                        android:text="Bio"
                         android:textColor="#203434"
                         android:textSize="14sp"
                         android:id = "@+id/bioofuser"/>

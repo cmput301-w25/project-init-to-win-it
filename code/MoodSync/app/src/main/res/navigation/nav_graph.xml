@@ -281,6 +281,9 @@
         <action
             android:id="@+id/action_editProfileFragment_to_moodHistoryFragment"
             app:destination="@id/moodHistoryFragment" />
+        <action
+            android:id="@+id/action_editProfileFragment_to_loginfragment"
+            app:destination="@id/LoginFragment" />
     </fragment>
 
 

@@ -291,32 +291,48 @@ public class UserProfileFragment extends Fragment {
             mediaPlayer.prepareAsync();
 
             // Show loading indicator or change button state here if needed
+            if (playButton != null) {
+                playButton.setImageResource(R.drawable.sound_down);  // Set to sound_down initially
+            }
 
             mediaPlayer.setOnPreparedListener(mp -> {
                 mp.start();
                 if (playButton != null) {
-                    playButton.setImageResource(R.drawable.sound_up);
+                    playButton.setImageResource(R.drawable.sound_up);  // Change to sound_up when playing
                 }
             });
 
             mediaPlayer.setOnCompletionListener(mp -> {
                 if (playButton != null) {
-                    playButton.setImageResource(R.drawable.sound_down);
+                    playButton.setImageResource(R.drawable.sound_down);  // Set back to sound_down after completion
                 }
             });
 
             mediaPlayer.setOnErrorListener((mp, what, extra) -> {
                 Toast.makeText(requireContext(), "Error playing audio", Toast.LENGTH_SHORT).show();
                 if (playButton != null) {
-                    playButton.setImageResource(R.drawable.sound_down);
+                    playButton.setImageResource(R.drawable.sound_down);  // Set to sound_down in case of error
                 }
                 return true;
             });
+
+            // Toggle play/pause when button is clicked
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
+                if (playButton != null) {
+                    playButton.setImageResource(R.drawable.sound_down);  // Change button to sound_down when paused
+                }
+            } else {
+                mediaPlayer.start();
+                if (playButton != null) {
+                    playButton.setImageResource(R.drawable.sound_up);  // Change button to sound_up when playing
+                }
+            }
         } catch (IOException e) {
             Log.e("EditProfileFragment", "Error playing song", e);
             Toast.makeText(requireContext(), "Error playing song: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             if (playButton != null) {
-                playButton.setImageResource(R.drawable.sound_down);
+                playButton.setImageResource(R.drawable.sound_down);  // Set to sound_down on error
             }
         }
     }
@@ -411,7 +427,7 @@ public class UserProfileFragment extends Fragment {
         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
 
         // Initialize views from the dialog layout
-        ShapeableImageView profileImage = dialog.findViewById(R.id.profile_image_edit);
+        ImageView profileImage = dialog.findViewById(R.id.profile_image_edit);
         TextView nameText = dialog.findViewById(R.id.name);
         TextView timeStampText = dialog.findViewById(R.id.time_stamp);
         TextView moodTextView = dialog.findViewById(R.id.mood_text_view);
@@ -423,15 +439,28 @@ public class UserProfileFragment extends Fragment {
         TextView songTitle = dialog.findViewById(R.id.song_title);
 
         String docId = (String) moodData.get("docId");
+
+
         fetchSongUrl(docId);
         // Set data from moodData map
+        // Load post image if available
+        String imageUrl = (String) moodData.get("imageUrl");
+
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            postImage.setVisibility(View.VISIBLE);
+            Glide.with(requireContext())
+                    .load(imageUrl)
+                    .centerCrop()
+                    .into(postImage);
+        } else {
+            postImage.setVisibility(View.GONE);
+        }
         Glide.with(requireContext())
                 .load(moodData.get("imageUrl"))
                 .into(postImage);
 
         nameText.setText(selectedUserId);
         statusText.setText((String) moodData.get("description"));
-        moodTextView.setText((String) moodData.get("mood"));
         triggerTextView.setText((String) moodData.get("trigger"));
 
 
@@ -472,7 +501,7 @@ public class UserProfileFragment extends Fragment {
      * Handles sending or canceling a follow request for the selected user. If no follow request exists,
      * this method creates one; otherwise, it cancels an existing request by deleting it from Firestore.
      *
-     * <p>
+     *
      * Updates the UI to reflect whether a follow request has been sent or canceled successfully.
      * </p>
      */
