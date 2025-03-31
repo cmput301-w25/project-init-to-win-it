@@ -106,11 +106,13 @@ public class AddMoodInstrumentedTest {
     public void testAddMoodEventViaUI() {
         // Wait for the login page to load
         SystemClock.sleep(4000);
-
+//        onView(withText("Cancel")).perform(click());
         // 2) Enter username and password
         onView(withId(R.id.usernameLogin)).perform(typeText("testuser"));
+        SystemClock.sleep(5000);
         onView(withId(R.id.passwordLogin)).perform(typeText("password123"));
 
+        SystemClock.sleep(5000);
         // 3) Click the login button
         onView(withId(R.id.loginButton)).perform(click());
 
