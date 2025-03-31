@@ -662,7 +662,6 @@ public class  SecondFragment extends Fragment {
 
     /**
      * Searches for users whose usernames contain or match a given search text. Returns a list of matching users.
-     *
      * @param searchText The text entered by the user in the search bar for searching users.
      * @return A list of User objects that match or contain the given search text.
      */

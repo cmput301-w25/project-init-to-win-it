@@ -1,5 +1,4 @@
 package com.example.moodsync;
-
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -48,7 +47,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 /**
  * A fragment that displays a user's profile, including their name, bio, location,
  * followers, following, and posts. It also allows the current user to follow or
@@ -72,30 +70,12 @@ public class UserProfileFragment extends Fragment {
     String selectedUserId;   //selected user from search
     private ImageView profileImageView;
     private View view;
-
     private TextView bioTextView;
     private ImageView profileImageEdit;
-    private ImageView backButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.user_profile_fragment, container, false);
-
-        // Initialize back button
-        backButton = view.findViewById(R.id.back_button);
-
-        backButton.setOnClickListener(view1 -> {
-            NavController navController = Navigation.findNavController(view1);
-            NavOptions navOptions = new NavOptions.Builder()
-                    .setEnterAnim(R.anim.slide_in_right)
-                    .setExitAnim(R.anim.slide_out_left)
-                    .setPopEnterAnim(R.anim.slide_in_left)
-                    .setPopExitAnim(R.anim.slide_out_right)
-                    .build();
-            navController.navigate(R.id.action_userProfileFragment_to_SecondFragment , null , navOptions);
-        });
-
-
         view.findViewById(R.id.home_button).setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(v);
             NavOptions navOptions = new NavOptions.Builder()
@@ -106,7 +86,6 @@ public class UserProfileFragment extends Fragment {
                     .build();
             navController.navigate(R.id.action_userProfileFragment_to_SecondFragment , null , navOptions);
         });
-
         view.findViewById(R.id.map_button).setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(v);
             NavOptions navOptions = new NavOptions.Builder()

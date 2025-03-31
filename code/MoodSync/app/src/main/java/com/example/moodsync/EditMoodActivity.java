@@ -5,6 +5,7 @@ import static com.example.moodsync.BitmapUtils.compressImageFromUri;
 import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -12,8 +13,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -28,6 +29,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -57,6 +59,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -90,9 +93,10 @@ public class EditMoodActivity extends Fragment {
 
     private static final int ANIMATION_DURATION = 300; // Animation duration in milliseconds
 
-    FirebaseFirestore db;
-    CollectionReference moodEventsRef;
-    MoodEvent moodEventToEdit;
+    private FirebaseFirestore db;
+    private CollectionReference moodEventsRef;
+    private MoodEvent moodEventToEdit;
+    public LocalStorage globalStorage = LocalStorage.getInstance();
     private String currentLocation = null; //Default to no location
     private FusedLocationProviderClient fusedLocationClient;
 
@@ -190,6 +194,7 @@ public class EditMoodActivity extends Fragment {
                 }
 
                 if (songTitles.isEmpty()) {
+                    Toast.makeText(requireContext(), "No songs found for this mood", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -201,67 +206,7 @@ public class EditMoodActivity extends Fragment {
         });
     }
 
-    private void showSongSelectionDialog(List<String> songTitles, List<String> songUrls) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(), R.style.TransparentDialog);
-
-        // Inflate custom layout
-        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_song_selection_dialog, null);
-        builder.setView(dialogView);
-
-        // Get references to views
-        TextView titleTextView = dialogView.findViewById(R.id.dialogTitle);
-        ListView listView = dialogView.findViewById(R.id.songListView);
-        Button cancelButton = dialogView.findViewById(R.id.cancelButton);
-
-        // Set title
-        titleTextView.setText("Select a Song");
-
-        // Create and set adapter
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_list_item_1,
-                songTitles);
-        listView.setAdapter(adapter);
-
-        // Create dialog
-        AlertDialog dialog = builder.create();
-
-        // Make background transparent
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        // Set list item click listener
-        listView.setOnItemClickListener((parent, view, which, id) -> {
-            this.selectedSongUrl = songUrls.get(which);
-            this.selectedSongTitle = songTitles.get(which);
-
-            // Update spinner
-            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
-                    requireContext(),
-                    android.R.layout.simple_spinner_item);
-            spinnerAdapter.add(this.selectedSongTitle);
-            spinnerAdapter.add("Happy");
-            spinnerAdapter.add("Sad");
-            spinnerAdapter.add("Ashamed");
-            spinnerAdapter.add("Disgusted");
-            spinnerAdapter.add("Scared");
-            spinnerAdapter.add("Angry");
-            spinnerAdapter.add("Surprised");
-            spinnerAdapter.add("Confused");
-
-            binding1.musicSpinner.setAdapter(spinnerAdapter);
-            binding1.musicSpinner.setSelection(0);
-
-            dialog.dismiss();
-        });
-
-        // Set cancel button click listener
-        cancelButton.setOnClickListener(v -> {
-
-            dialog.dismiss();
-        });
-        // Show dialog
-        dialog.show();
-    }
+    private void showSongSelectionDialog(List<String> songTitles, List<String> songUrls) {AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.layout_song_selection_dialog, null);builder.setView(dialogView);ListView listView = dialogView.findViewById(R.id.songListView);ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, songTitles);listView.setAdapter(adapter);AlertDialog dialog = builder.create();listView.setOnItemClickListener((parent, view, position, id) -> {this.selectedSongUrl = songUrls.get(position);this.selectedSongTitle = songTitles.get(position);ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item);spinnerAdapter.add(this.selectedSongTitle);spinnerAdapter.add("Choose a song");spinnerAdapter.add("No music");spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);binding1.musicSpinner.setAdapter(spinnerAdapter);binding1.musicSpinner.setSelection(0);Toast.makeText(requireContext(), "Selected: " + this.selectedSongTitle, Toast.LENGTH_SHORT).show();dialog.dismiss();});dialog.show();}
     /**
      * Sets up the first layout of the fragment.
      *
@@ -318,6 +263,7 @@ public class EditMoodActivity extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedMood = parent.getItemAtPosition(position).toString();
                 updateBackgroundColor(selectedMood);
+                Toast.makeText(getContext(), "Selected: " + selectedMood, Toast.LENGTH_SHORT).show();
 
                 switch (selectedMood) {
                     case "Happy":
@@ -351,7 +297,6 @@ public class EditMoodActivity extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) {
                 //do nothing
             }
-
         });
 
 
@@ -372,7 +317,6 @@ public class EditMoodActivity extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) {
                 // Do nothing
             }
-
         });
 
 
@@ -400,9 +344,7 @@ public class EditMoodActivity extends Fragment {
                 NavHostFragment.findNavController(EditMoodActivity.this)
                         .navigate(R.id.action_editMoodActivityFragment_to_editMoodActivityFragment2, args);
             }
-
         });
-
 
     }
     private void showSongSelectionDialog() {
@@ -487,6 +429,7 @@ public class EditMoodActivity extends Fragment {
                         binding1.musicSpinner.setAdapter(spinnerAdapter);
                         binding1.musicSpinner.setSelection(0);
 
+                        Toast.makeText(requireContext(), "Selected: " + selectedSongTitle, Toast.LENGTH_SHORT).show();
                     });
 
                     builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
@@ -513,6 +456,31 @@ public class EditMoodActivity extends Fragment {
         scaredImage.setBackgroundResource(android.R.color.transparent);
         disgustedImage.setBackgroundResource(android.R.color.transparent);
     }
+    private String getEmojiForMood(String mood) {
+        switch (mood.toLowerCase()) {
+            case "happy":
+                return "😊";
+            case "sad":
+                return "😢";
+            case "excited":
+                return "😃";
+            case "angry":
+                return "😠";
+            case "confused":
+                return "😕";
+            case "surprised":
+                return "😲";
+            case "ashamed":
+                return "😳";
+            case "scared":
+                return "😨";
+            case "disgusted":
+                return "🤢";
+            default:
+                return "";
+        }
+    }
+
 
     /**
      * Sets the given value on the spinner based on a string value.
@@ -791,29 +759,69 @@ public class EditMoodActivity extends Fragment {
      * @param listener The listener to notify when the upload is complete.
      */
     private void uploadImageToFirebase(Uri imageUri, OnImageUploadedListener listener) {
-        File compressedFile = compressImageFromUri(this.getContext(), imageUri);
-        Log.d("COMPRESSION","REACHED HERE");
-        Uri compressedUri = Uri.fromFile(compressedFile);
-        Log.d("COMRPESSION", String.valueOf(checkImageSize(compressedUri)));
-        String path = "mood_images/" + UUID.randomUUID().toString();
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(path);
+        try {
+            File imageFile = new File(imageUri.getPath()); // Get the image as a File
+            long imageSizeInKB = checkImageSize(imageUri); // Get image size in KB
+            File compressedFile = null;
+            Uri uploadUri = imageUri;
 
-        UploadTask uploadTask = storageRef.putFile(compressedUri);
+            if (imageSizeInKB > 64) {
+                compressedFile = compressImageFromUri(this.getContext(), imageUri); // Compress the image
+                if (compressedFile != null) {
+                    uploadUri = Uri.fromFile(compressedFile);
+                    Log.d("COMPRESSION", "Image compressed and be rotated");
+                    // Handle 90-degree rotation for compressed images
+                }
+            } else {
+                Log.d("COMPRESSION", "no compression needed");
+            }
+            if (uploadUri != null) {
+                if(compressedFile != null){
+                    uploadUri = rotateImage(this.getContext(), uploadUri, 90); // rotate image by 90 degrees
 
-        uploadTask.addOnSuccessListener(taskSnapshot -> {
-            storageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
-                imageUrl = downloadUrl.toString();
-                Log.d("FirebaseStorage", "Image URL: " + imageUrl);
+                }
 
-                listener.onImageUploaded(imageUrl); // Notify listener
-            }).addOnFailureListener(exception -> {
-                Log.e("FirebaseStorage", "Failed to get download URL: " + exception.getMessage());
-                listener.onUploadFailed(exception);
-            });
-        }).addOnFailureListener(exception -> {
-            Log.e("FirebaseStorage", "Upload failed: " + exception.getMessage());
-            listener.onUploadFailed(exception);
-        });
+                String path = "mood_images/" + UUID.randomUUID().toString();
+                StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(path);
+
+                UploadTask uploadTask = storageRef.putFile(uploadUri);
+
+                uploadTask.addOnSuccessListener(taskSnapshot -> {
+                    storageRef.getDownloadUrl().addOnSuccessListener(downloadUrl -> {
+                        imageUrl = downloadUrl.toString();
+                        Log.d("FirebaseStorage", "Image URL: " + imageUrl);
+                        listener.onImageUploaded(imageUrl);
+                    }).addOnFailureListener(exception -> {
+                        Log.e("FirebaseStorage", "Failed to get download URL: " + exception.getMessage());
+                        listener.onUploadFailed(exception);
+                    });
+                }).addOnFailureListener(exception -> {
+                    Log.e("FirebaseStorage", "Upload failed: " + exception.getMessage());
+                    listener.onUploadFailed(exception);
+                    // Add offline caching here
+                });
+            } else {
+                Log.e("FirebaseStorage", "No image available for upload");
+                listener.onUploadFailed(new Exception("No image available for upload"));
+            }
+        } catch (Exception e) {
+            Log.e("FirebaseStorage", "Error during image processing", e);
+            listener.onUploadFailed(e);
+        }
+    }
+
+    private Uri rotateImage(Context context, Uri imageUri, float angle) throws IOException {
+        Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
+        File file = new File(context.getCacheDir(), "rotated_image.jpg");
+        FileOutputStream fos = new FileOutputStream(file);
+        rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 10, fos);
+        fos.close();
+
+        return Uri.fromFile(file);
     }
 
     /*
@@ -918,21 +926,7 @@ public class EditMoodActivity extends Fragment {
      * Refreshes the list of mood events from Firestore.
      */
     private void refreshMoodEventsList() {
-        moodEventsRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                List<MoodEvent> moodEventsList = new ArrayList<>();
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                    moodEvent.setDocumentId(document.getId());
-                    moodEventsList.add(moodEvent);
-                }
-
-            } else {
-                Log.e("FIRESTORE", "Error getting documents: ", task.getException());
-            }
-        });
     }
-
     /**
      * Updates the mood event in Firestore with new data.
      *
@@ -963,6 +957,7 @@ public class EditMoodActivity extends Fragment {
             updatedFields.put("isPublic", isPublic);
             updatedFields.put("songUrl", selectedSongUrl);
             updatedFields.put("songTitle", selectedSongTitle);
+            Log.d("CHECK", "updateMoodEvent: "+moodEvent.getDescription());
 
             moodEventsRef.document(moodEventToEdit.getDocumentId()).update(updatedFields)
                     .addOnSuccessListener(aVoid -> {
@@ -998,11 +993,10 @@ public class EditMoodActivity extends Fragment {
                                     .addOnFailureListener(e -> Log.e("FIRESTORE", "Failed to delete mood event", e));
                         }
                     } else {
-                        Log.e("FIRESTORE", "Mood event not found for deletion");
+                        Log.e("FIRESTORE", "Mood event not found in Firestore");
                     }
                 });
     }
-
     /**
      * Displays a success dialog UI for a mood event action and navigates to the mood history after a delay.
      */
@@ -1032,11 +1026,11 @@ public class EditMoodActivity extends Fragment {
         if (navController.getCurrentDestination().getId() == R.id.editMoodActivityFragment ||
                 navController.getCurrentDestination().getId() == R.id.editMoodActivityFragment2) {
             try {
-                navController.navigate(R.id.action_editMoodActivityFragment_to_moodHistoryFragment);
+                navController.navigate(R.id.action_editMoodActivityFragment2_to_moodHistoryFragment);
             } catch (IllegalArgumentException e) {
                 Log.e("Navigation", "Failed to navigate: " + e.getMessage());
                 // Fallback navigation if needed
-                navController.navigate(R.id.moodHistoryFragment);
+                navController.navigate(R.id.SecondFragment);
             }
         }
     }
@@ -1073,6 +1067,7 @@ public class EditMoodActivity extends Fragment {
 
         updateBackgroundColor(mood);
 
+        Toast.makeText(getContext(), "Selected: " + mood, Toast.LENGTH_SHORT).show();
     }
 
     /**

@@ -172,12 +172,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         //Adding data to Spinners
         mapfilterSpinnerData = Arrays.asList("Choose Option", "Filtered Following List", "Filtered Mood History", "Most Recent Mood");
         mapfilterSpinnerAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, mapfilterSpinnerData);
-        mapfilterSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        mapfilterSpinnerAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         mapfilterSpinner.setAdapter(mapfilterSpinnerAdapter);
 
         mapfilterSpinner2Data = Arrays.asList("Choose Option", "No Filter", "Most Recent Week", "Emotional State", "Keyword");
         mapfilterSpinner2Adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, mapfilterSpinner2Data);
-        mapfilterSpinner2Adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        mapfilterSpinner2Adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         mapfilterSpinner2.setAdapter(mapfilterSpinner2Adapter);
 
         //Set up Filter Data

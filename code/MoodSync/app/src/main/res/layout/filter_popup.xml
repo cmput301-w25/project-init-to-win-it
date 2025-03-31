@@ -117,13 +117,13 @@
                 android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_weight="1"
+                android:backgroundTint="#203434"
+                android:elevation="4dp"
                 android:text="Filter"
-                android:textColor="@android:color/black"
-                android:textSize="16sp"
                 android:textAllCaps="false"
-                android:visibility="visible"
-                android:backgroundTint="#007bff"
-                android:elevation="4dp" />
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:visibility="visible" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

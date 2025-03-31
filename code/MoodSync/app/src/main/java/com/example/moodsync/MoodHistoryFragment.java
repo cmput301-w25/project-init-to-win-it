@@ -269,7 +269,7 @@ public class MoodHistoryFragment extends Fragment {
                                 keywordEditTextData = keywordEditTextDialog.getText().toString();
                                 List<MoodHistoryItem> filteredMoodHistory = new ArrayList<>();
                                 for (MoodHistoryItem moodht: moodHistoryItems) {
-                                    if (moodht.getDescription().contains(keywordEditTextData)) {
+                                    if (moodht.getDescription().toLowerCase().contains(keywordEditTextData.toLowerCase())) {
                                         filteredMoodHistory.add(moodht);
                                     } else if (keywordEditTextData.equals("Choose Option")){
                                         filteredMoodHistory.add(moodht);

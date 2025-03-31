@@ -61,7 +61,6 @@ public class EditProfileFragment extends Fragment {
     private TextView nameTextView;
     private TextView usernameTextView;
     private TextView bioTextView;
-    private ImageView backButton;
     private GridView photosListView;
     private MaterialButton editProfileButton;
     private TextView pendingRequestsButton;
@@ -94,7 +93,7 @@ public class EditProfileFragment extends Fragment {
         nameTextView = view.findViewById(R.id.nameofuser);
         usernameTextView = view.findViewById(R.id.usernameofuser);
         bioTextView = view.findViewById(R.id.bioofuser);
-        backButton = view.findViewById(R.id.back_button);
+
         editProfileButton = view.findViewById(R.id.edit_profile_button);
         pendingRequestsButton = view.findViewById(R.id.pending_button);
         pendingRequestView = view.findViewById(R.id.pending_button_request);
@@ -111,7 +110,7 @@ public class EditProfileFragment extends Fragment {
         fetchPendingRequests();
 
         pendingRequestView.setOnClickListener(v -> showPendingRequestsDialog());
-        backButton.setOnClickListener(v -> requireActivity().onBackPressed());
+
 
         tabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override public void onTabSelected(TabLayout.Tab tab) {

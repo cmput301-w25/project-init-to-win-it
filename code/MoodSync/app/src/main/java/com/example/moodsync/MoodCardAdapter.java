@@ -246,13 +246,13 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
                     // Pause the song
                     mediaPlayer.pause();
                     isPlaying = false;
-                    playButton.setImageResource(R.drawable.sound_up);
+                    playButton.setImageResource(R.drawable.sound_down);
                     Log.d("MoodCardAdapter", "MediaPlayer paused");
                 } else {
                     // Resume the song
                     mediaPlayer.start();
                     isPlaying = true;
-                    playButton.setImageResource(R.drawable.sound_down);
+                    playButton.setImageResource(R.drawable.sound_up);
                     Log.d("MoodCardAdapter", "MediaPlayer resumed");
                 }
                 return;
@@ -281,7 +281,7 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
             mediaPlayer.setOnPreparedListener(mp -> {
                 mp.start();
                 isPlaying = true;
-                playButton.setImageResource(R.drawable.sound_down);
+                playButton.setImageResource(R.drawable.sound_up);
                 Log.d("MoodCardAdapter", "MediaPlayer started playing");
             });
 
@@ -405,11 +405,11 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
     }
 
     public void updateMoodEvents(List<MoodEvent> newMoodEvents) {
-        this.moodEvents.clear();
-        this.moodEvents.addAll(newMoodEvents);
-        for (int i=0;i< newMoodEvents.size();i++) {
-            globalStorage.getMoodList().add(newMoodEvents.get(i));
-        }
+        // Clear existing items first
+        moodEvents.clear();
+        // Add all new items
+        moodEvents.addAll(newMoodEvents);
+        // Notify adapter of changes
         notifyDataSetChanged();
     }
 
