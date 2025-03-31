@@ -90,8 +90,7 @@ public class AddMoodActivity extends Fragment {
     private RelativeLayout mainLayout;
     private Uri photoUri;
     static String imageUrl;
-
-
+    public LocalStorage globalStorage = LocalStorage.getInstance();
     private ImageView happyImage, sadImage, angryImage, confusedImage, surprisedImage, ashamedImage, scaredImage, disgustedImage;
     private ImageView lastSelectedImageView = null;
     private Button selectedSocialSituationButton = null;
@@ -943,32 +942,10 @@ public class AddMoodActivity extends Fragment {
      * @param moodEvent The mood event to be saved in Firestore.
      */
     private void saveMoodEventToFirestore(MoodEvent moodEvent) {
+        showSuccessDialogUI();
         moodEventsRef.add(moodEvent)
-                .addOnSuccessListener(aVoid -> showSuccessDialogUI())
                 .addOnFailureListener(e -> showErrorToast(e));
-    }
-
-    /**
-     * Deletes a mood event from Firestore based on the date.
-     *
-     * @param moodEvent The mood event to be deleted.
-     */
-    private void deleteMoodEvent(MoodEvent moodEvent) {
-        moodEventsRef.whereEqualTo("date", moodEvent.getDate()).get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            moodEventsRef.document(document.getId()).delete()
-                                    .addOnSuccessListener(aVoid -> {
-                                        Log.d("FIRESTORE", "Mood event deleted successfully");
-                                        refreshMoodEventsList();
-                                    })
-                                    .addOnFailureListener(e -> Log.e("FIRESTORE", "Failed to delete mood event", e));
-                        }
-                    } else {
-                        Log.e("FIRESTORE", "Mood event not found for deletion");
-                    }
-                });
+        globalStorage.insertMood(moodEvent);
     }
     /**
      * Displays a custom success dialog to the user and dismisses it after 2 seconds.
