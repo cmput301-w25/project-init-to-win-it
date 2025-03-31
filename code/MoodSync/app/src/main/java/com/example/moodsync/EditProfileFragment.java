@@ -59,7 +59,6 @@ public class EditProfileFragment extends Fragment {
     private ImageView profileImageEdit;
     private TextView nameTextView;
     private TextView usernameTextView;
-    private TextView locationTextView;
     private TextView bioTextView;
     private ImageView backButton;
     private GridView photosListView;
@@ -110,11 +109,6 @@ public class EditProfileFragment extends Fragment {
         loadUserData();
         fetchPendingRequests();
 
-        editProfileButton.setOnClickListener(view1 -> {
-            NavController navController = Navigation.findNavController(view1);
-            navController.navigate(R.id.action_editProfileFragment_to_editProfileActivity);
-        });
-
         pendingRequestView.setOnClickListener(v -> showPendingRequestsDialog());
         backButton.setOnClickListener(v -> requireActivity().onBackPressed());
 
@@ -128,6 +122,30 @@ public class EditProfileFragment extends Fragment {
             }
             @Override public void onTabUnselected(TabLayout.Tab tab) {}
             @Override public void onTabReselected(TabLayout.Tab tab) {}
+        });
+        view.findViewById(R.id.home_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_editProfileFragment_to_SecondFragment);
+        });
+
+        view.findViewById(R.id.map_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_editProfileFragment_to_mapsActivity);
+        });
+
+        view.findViewById(R.id.add_circle_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_editProfileFragment_to_addMoodActivityFragment);
+        });
+
+
+        view.findViewById(R.id.history_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_editProfileFragment_to_moodHistoryFragment);
+        });
+        view.findViewById(R.id.diary_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_editProfileFragment_to_JournalFragment);
         });
 
         fetchMoodEvents(true);
@@ -156,6 +174,7 @@ public class EditProfileFragment extends Fragment {
                     }
                 });
     }
+
 
     private void loadPhotosListView(List<Map<String, Object>> moodList) {
         Collections.reverse(moodList);
@@ -654,7 +673,6 @@ public class EditProfileFragment extends Fragment {
                                 followingList != null ? String.valueOf(followingList.size()) : "0");
 
 
-
                         bioTextView.setText(
                                 document.getString("bio") != null ?
                                         document.getString("bio") : "No bio available");
@@ -856,7 +874,6 @@ public class EditProfileFragment extends Fragment {
         profileImageEdit.setImageResource(R.drawable.arijitsingh);
         nameTextView.setText("John Doe");
         usernameTextView.setText("@johndoe");
-        locationTextView.setText("New York, USA");
         bioTextView.setText("Photographer | Travel Enthusiast | Coffee Lover\nCapturing moments and sharing stories through my lens. Always on the lookout for the next adventure.");
 
         if (followersCountTextView != null) followersCountTextView.setText("0");

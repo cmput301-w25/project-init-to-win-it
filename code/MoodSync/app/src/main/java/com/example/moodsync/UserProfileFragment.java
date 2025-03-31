@@ -71,7 +71,7 @@ public class UserProfileFragment extends Fragment {
     String selectedUserId;   //selected user from search
     private ImageView profileImageView;
     private View view;
-    private TextView locationTextView;
+
     private TextView bioTextView;
     private ImageView profileImageEdit;
     private ImageView backButton;
@@ -86,6 +86,32 @@ public class UserProfileFragment extends Fragment {
         backButton.setOnClickListener(view1 -> {
             NavController navController = Navigation.findNavController(view1);
             navController.navigate(R.id.action_userProfileFragment_to_SecondFragment);
+        });
+
+
+        view.findViewById(R.id.home_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_SecondFragment);
+        });
+
+        view.findViewById(R.id.map_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_mapsActivity);
+        });
+
+        view.findViewById(R.id.add_circle_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_addMoodActivityFragment);
+        });
+
+
+        view.findViewById(R.id.history_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_moodHistoryFragment);
+        });
+        view.findViewById(R.id.diary_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_JournalFragment);
         });
 
         db = FirebaseFirestore.getInstance();
@@ -147,7 +173,6 @@ public class UserProfileFragment extends Fragment {
                             usernameTextView.setText("@" + userName);
                             followersCountTextView.setText(String.valueOf(followerList != null ? followerList.size() : 0));
                             followingCountTextView.setText(String.valueOf(followingList != null ? followingList.size() : 0));
-
 
 
                             bioTextView.setText(documentSnapshot.getString("bio") != null ?

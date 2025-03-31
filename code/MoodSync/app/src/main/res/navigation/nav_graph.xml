@@ -214,7 +214,6 @@
         android:name="com.example.moodsync.UserProfileFragment"
         android:label="User Profile"
         tools:layout="@layout/user_profile_fragment">
-
         <argument
             android:name="selectedUserId"
             app:argType="string"
@@ -222,7 +221,23 @@
         <action
             android:id="@+id/action_userProfileFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_editMoodFragment"
+            app:destination="@id/editMoodActivityFragment" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_mapsActivity"
+            app:destination="@id/mapFragment" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_addMoodActivityFragment"
+            app:destination="@id/addMoodActivityFragment" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_JournalFragment"
+            app:destination="@id/JournalFragment" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/editProfileActivity"
         android:name="com.example.moodsync.EditProfileActivity"
@@ -233,6 +248,7 @@
             app:destination="@id/SecondFragment" />
         <action android:id="@id/goToEditProfileFragment"
             app:destination="@id/editProfileFragment"/>
+
     </fragment>
 
     <fragment
@@ -249,9 +265,22 @@
         <action
             android:id="@+id/action_editProfileFragment_self2"
             app:destination="@id/editProfileFragment" />
+
         <action
-            android:id="@+id/action_editProfileFragment_to_editProfileActivity"
-            app:destination="@id/editProfileActivity" />
+            android:id="@+id/action_editProfileFragment_to_editMoodFragment"
+            app:destination="@id/editMoodActivityFragment" />
+        <action
+            android:id="@+id/action_editProfileFragment_to_mapsActivity"
+            app:destination="@id/mapFragment"/>
+        <action
+            android:id="@+id/action_editProfileFragment_to_addMoodActivityFragment"
+            app:destination="@id/addMoodActivityFragment" />
+        <action
+            android:id="@+id/action_editProfileFragment_to_JournalFragment"
+            app:destination="@id/JournalFragment" />
+        <action
+            android:id="@+id/action_editProfileFragment_to_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
     </fragment>
 
 
