@@ -97,6 +97,7 @@ public class EditMoodActivity extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference moodEventsRef;
     private MoodEvent moodEventToEdit;
+    public long oldTime;
     private String currentLocation = null; //Default to no location
     private FusedLocationProviderClient fusedLocationClient;
 
@@ -260,6 +261,7 @@ public class EditMoodActivity extends Fragment {
         }
 
         descriptionInput.setText(moodEventToEdit.getDescription());
+        oldTime = moodEventToEdit.getDate();
 
         if (moodEventToEdit != null && moodEventToEdit.getSongTitle() != null) {
             ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
@@ -649,6 +651,7 @@ public class EditMoodActivity extends Fragment {
                 selectSocialSituation(binding2.ss4);
             }
         }
+        oldTime = moodEventToEdit.getDate();
 
         binding2.createmood.setOnClickListener(v -> {
 
@@ -659,13 +662,12 @@ public class EditMoodActivity extends Fragment {
 
             String username = ((MyApplication) requireActivity().getApplication()).getLoggedInUsername();
 
-            long currentTimestamp = System.currentTimeMillis();
             MoodEvent moodEvent = new MoodEvent(
                     this.selectedMood,
                     trigger,
                     this.moodDescription,
                     socialSituation,
-                    currentTimestamp, // Pass the timestamp to the MoodEvent
+                    oldTime, // Pass the timestamp to the MoodEvent
                     imageUrl,
                     isPublic,
                     username,
@@ -678,7 +680,6 @@ public class EditMoodActivity extends Fragment {
             Log.d("FIREBASE", "Saving: " + moodEvent);
 
             updateMoodEvent(moodEvent);
-
             showSuccessDialogUI();
         });
 
@@ -1075,7 +1076,7 @@ public class EditMoodActivity extends Fragment {
         if (navController.getCurrentDestination().getId() == R.id.editMoodActivityFragment ||
                 navController.getCurrentDestination().getId() == R.id.editMoodActivityFragment2) {
             try {
-                navController.navigate(R.id.action_editMoodActivityFragment2_to_moodHistoryFragment);
+                navController.navigate(R.id.action_editMoodActivityFragment2_to_SecondFragment);
             } catch (IllegalArgumentException e) {
                 Log.e("Navigation", "Failed to navigate: " + e.getMessage());
                 // Fallback navigation if needed
