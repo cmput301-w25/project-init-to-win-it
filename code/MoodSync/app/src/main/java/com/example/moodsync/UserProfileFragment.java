@@ -43,6 +43,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -286,6 +287,7 @@ public class UserProfileFragment extends Fragment {
      * @param moodList A list of maps containing mood event data retrieved from Firestore.
      */
     private void loadPhotosListView(List<Map<String, Object>> moodList) {
+        Collections.reverse(moodList);
         MoodImageAdapter adapter = new MoodImageAdapter(requireContext(), moodList);
         photos_listview.setAdapter(adapter);
 

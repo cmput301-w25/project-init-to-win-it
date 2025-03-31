@@ -45,6 +45,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -157,6 +158,7 @@ public class EditProfileFragment extends Fragment {
     }
 
     private void loadPhotosListView(List<Map<String, Object>> moodList) {
+        Collections.reverse(moodList);
         MoodImageAdapter adapter = new MoodImageAdapter(requireContext(), moodList);
         photosListView.setAdapter(adapter);
 
