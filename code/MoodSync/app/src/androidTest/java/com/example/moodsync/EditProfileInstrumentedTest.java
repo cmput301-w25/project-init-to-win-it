@@ -36,8 +36,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Tests the "Add Mood" feature: verifying that we can
- * navigate to the add mood tab and can add moods.
+ * Tests the "Edit profile" feature: verifying that we can
+ * navigate to the edit profile tab from the profile page.
  */
 
 @RunWith(AndroidJUnit4.class)
