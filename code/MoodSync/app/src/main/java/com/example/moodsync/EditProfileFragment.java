@@ -412,6 +412,8 @@ public class EditProfileFragment extends Fragment {
     private void fetchPendingRequests() {
         if (loggedInUsername == null || loggedInUsername.isEmpty()) {
             pendingRequestsButton.setText("0");
+            // Reset background color if no requests
+            pendingRequestView.setCardBackgroundColor(Color.parseColor("#F5F5DC"));
             return;
         }
 
@@ -424,6 +426,14 @@ public class EditProfileFragment extends Fragment {
                         int count = task.getResult().size();
                         pendingRequestsButton.setText(String.valueOf(count));
 
+                        if (count > 0) {
+                            // Highlight the card if there are pending requests
+                            pendingRequestView.setCardBackgroundColor(Color.parseColor("#C6E2B5")); // Greenish highlight
+                        } else {
+                            // Reset background color if no requests
+                            pendingRequestView.setCardBackgroundColor(Color.parseColor("#F5F5DC"));
+                        }
+
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Map<String, String> request = new HashMap<>();
                             request.put("id", document.getId());
@@ -434,6 +444,8 @@ public class EditProfileFragment extends Fragment {
                     } else {
                         Log.e("EditProfileFragment", "Error getting pending requests: ", task.getException());
                         pendingRequestsButton.setText("0");
+                        // Reset background color if error occurs
+                        pendingRequestView.setCardBackgroundColor(Color.parseColor("#F5F5DC"));
                     }
                 });
     }
@@ -732,6 +744,9 @@ public class EditProfileFragment extends Fragment {
                         }
                     });
         }
+
+
+
         private void declineRequest(int position) {
             Map<String, String> request = requests.get(position);
             String requestId = request.get("id");
