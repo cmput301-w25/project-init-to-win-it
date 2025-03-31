@@ -72,7 +72,54 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
     public void onBindViewHolder(@NonNull MoodCardViewHolder holder, int position) {
         MoodEvent moodEvent = moodEvents.get(position);
         holder.songTitle.setText(moodEvent.getSongTitle());
+        Boolean isPublic = moodEvent.isPublic();
 
+        // If isPublic is null, default to true for backward compatibility
+        if (isPublic == null) {
+            isPublic = true;
+        }
+
+        // Set visibility of comment-related views based on public status
+        if (!isPublic) {
+            holder.commentButton.setVisibility(View.GONE);
+            holder.commentCount.setVisibility(View.GONE);
+        } else {
+            holder.commentButton.setVisibility(View.VISIBLE);
+            holder.commentCount.setVisibility(View.VISIBLE);
+
+            // Set comment count (only if public)
+            String docId = moodEvent.getDocumentId();
+            if (docId != null && !docId.isEmpty()) {
+                db.collection("mood_events")
+                        .document(docId)
+                        .collection("comments")
+                        .get()
+                        .addOnSuccessListener(snap -> {
+                            for (DocumentSnapshot document : snap.getDocuments()) {
+                                Comment comment = document.toObject(Comment.class);
+                                globalStorage.getComments().add(comment);
+                            }
+                            holder.commentCount.setText(String.valueOf(snap.size()));
+                        })
+                        .addOnFailureListener(e -> {
+                            holder.commentCount.setText(String.valueOf(globalStorage.getComments().size()));
+                        });
+            }
+
+            // Handle "Comments" button click (only if public)
+            holder.commentButton.setOnClickListener(v -> {
+                showCommentsDialog(holder.itemView.getContext(), moodEvent, holder.commentCount);
+            });
+        }
+        String songUrl1 = moodEvent.getSongUrl();
+        if (songUrl1 == null || songUrl1.isEmpty()) {
+            holder.playButton.setVisibility(View.INVISIBLE);
+            holder.songTitle.setVisibility(View.GONE);
+        } else {
+            holder.playButton.setVisibility(View.VISIBLE);
+            holder.songTitle.setVisibility(View.VISIBLE);
+            holder.songTitle.setText(moodEvent.getSongTitle());
+        }
         // Setup play button click listener
         holder.playButton.setOnClickListener(v -> {
             String songUrl = moodEvent.getSongUrl();
