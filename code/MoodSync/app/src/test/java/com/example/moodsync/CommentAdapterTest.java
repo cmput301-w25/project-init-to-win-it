@@ -6,15 +6,21 @@ import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
 
+import android.content.Context;
+import android.view.ContextThemeWrapper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+
 public class CommentAdapterTest {
 
     private CommentAdapter adapter;
     private List<Comment> testComments;
+    private Context context;
+    private String moodDocId;
 
     @Before
     public void setUp() {
@@ -22,7 +28,7 @@ public class CommentAdapterTest {
                 new Comment("C1", "user1", "Great post!", 1672531200000L),
                 new Comment("C2", "user2", "Nice work!", 1672617600000L)
         );
-        adapter = new CommentAdapter(testComments);
+        adapter = new CommentAdapter(testComments, context, moodDocId);
     }
 
     @Test

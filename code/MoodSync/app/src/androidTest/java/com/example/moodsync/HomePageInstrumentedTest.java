@@ -1,12 +1,21 @@
 package com.example.moodsync;
 
+import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasMinimumChildCount;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static java.util.EnumSet.allOf;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.is;
 
 import android.os.SystemClock;
 import android.util.Log;
@@ -18,6 +27,7 @@ import androidx.test.filters.LargeTest;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -78,6 +88,22 @@ public class HomePageInstrumentedTest {
         );
         moodsRef.add(seededEvent);
 
+        MoodEvent seededEvent1 = new MoodEvent(
+                "Sad", // mood
+                "Got fired today", // trigger
+                "Feeling miserable and hopeless", // description
+                "Alone", // socialSituation
+                System.currentTimeMillis(), // date
+                "https://image-url", // imageUrl
+                true, // isPublic,
+                "testuser", // id
+                "https://storage.googleapis.com/inittowinit-1188f.firebasestorage.app/songs1/Adam%20Dib%20-%20After%20the%20Bunker%20-%20No%20Backing%20Vocals%20.mp3?Expires=1774785984&GoogleAccessId=firebase-adminsdk-fbsvc%40inittowinit-1188f.iam.gserviceaccount.com&Signature=SbPcDm346A72dfI2Y7IfCSn8kb84RbAMNsOdWexrf7P8dKqdLdPh%2BWeEKJ8fPCWQELYpqvHhRAojX2ttFzeY9fWnFSHLel2RfnO34JdutXS526MRS%2B6x1zu0IfRGQGpt5sD%2F57l25dWRFOvvhJL2eAmeFSWhtYSIMv%2Bd%2FyJ85F0afs9VfgBQWsGIBCcFPdqY2PpooY1E4hmZEXJbYFvdugypQ0fUOlriILQe%2FpeKgt8m1yocZljYJLrTIvflJjsQ2KAX1bRa02P7qMKkgHcXYgGOt6uxjE5s4BexgyFcz0kTnFEkJ4o%2BW2r04xIeMhaJPK5MNgmccsnutcuY%2ByTsFg%3D%3D", // songUrl
+                "Adam Dib - After the Bunker - No Backing Vocals", // songTitle
+                "53.526264,-113.5170344" // currentLocation
+        );
+        moodsRef.add(seededEvent1);
+
+
         CollectionReference usersRef = db.collection("users");
         Map<String, Object> userData = new HashMap<>();
         userData.put("fullName", "Test User");
@@ -90,7 +116,6 @@ public class HomePageInstrumentedTest {
         userData.put("followingList", new ArrayList<>());
         userData.put("commentList", new ArrayList<>());
         usersRef.add(userData);
-        Log.d("bitch", "seedDatabase: ");
     }
 
 
@@ -118,16 +143,11 @@ public class HomePageInstrumentedTest {
         // Wait for the login to complete and navigate to the next page
         SystemClock.sleep(5000);
 
-        // 2) The home page should show the seeded mood
-//        onView(withText("Mood: Happy"))
-//                .check(matches(isDisplayed()));
-
-
-        // 3) Tap "Details" button
+        // 4) Tap "Details" button
         onView(withId(R.id.details_button)).perform(click());
 
         SystemClock.sleep(4000);
-        // 4) Now check that the details bottom-sheet is displayed with correct info
+        // 5) Now check that the details bottom-sheet is displayed with correct info
         onView(withText("Mood Details"))
                 .check(matches(isDisplayed()));
         onView(withText("Mood: Happy"))
@@ -141,6 +161,96 @@ public class HomePageInstrumentedTest {
         onView(withText("Location: 53.526264,-113.5170344"))
                 .check(matches(isDisplayed()));
     }
+
+    /**
+     * Test that the filter button in the second fragment displays the
+     * filter spinner with the correct options.
+     */
+    @Test
+    public void testMoodEventFiltering() {
+        SystemClock.sleep(4000);
+
+        // 1) Login navigation
+        onView(withId(R.id.loginButton)).perform(click());
+        SystemClock.sleep(4000);
+
+        // 2) Enter credentials
+        onView(withId(R.id.usernameLogin)).perform(typeText("testuser"));
+        onView(withId(R.id.passwordLogin)).perform(typeText("password123"));
+        onView(withId(R.id.loginButton)).perform(click());
+        SystemClock.sleep(1000);
+
+        // 3) Open filter dialog
+        onView(withId(R.id.filter_icon)).perform(click()); // Open filter popup
+        Log.d("Filter-icon bitch", "testMoodEventFiltering: ");
+        SystemClock.sleep(7000);
+
+        // 4) Verify filter spinner options
+        onView(withId(R.id.filterSpinner)).perform(click());
+        SystemClock.sleep(1000);
+
+        String[] expectedFilters = {
+                "Most Recent Week",
+                "Emotional State",
+                "Keyword"
+        };
+
+        for (String filter : expectedFilters) {
+            onData(allOf(isA(String.class), CoreMatchers.is(filter)))
+                    .check(matches(isDisplayed()));
+        }
+
+        // 5) Test Emotional State filter
+        onData(allOf(isA(String.class), CoreMatchers.is("Emotional State")))
+                .perform(click());
+        SystemClock.sleep(1000);
+
+// Verify emotional state spinner appears
+        onView(withId(R.id.emotionalStateSpinner)).check(matches(isDisplayed()));
+
+// Select Happy from emotional state spinner
+        onView(withId(R.id.emotionalStateSpinner)).perform(click());
+        onData(allOf(isA(String.class), CoreMatchers.is("Happy")))
+                .perform(click());
+        SystemClock.sleep(1000);
+
+// Apply filter
+        onView(withId(R.id.filterApplyButton)).perform(click());
+        SystemClock.sleep(3000);
+
+// Verify filtered results
+        onView(withText("Got a new job")) // Verify seeded event is shown
+                .check(matches(isDisplayed()));
+
+// 6) Test Keyword filter
+        onView(withId(R.id.filter_icon)).perform(click());
+        SystemClock.sleep(7000);
+
+        onView(withId(R.id.filterSpinner)).perform(click());
+        onData(allOf(isA(String.class), CoreMatchers.is("Keyword")))
+                .perform(click());
+        SystemClock.sleep(1000);
+
+        // Enter keyword and apply
+        onView(withId(R.id.keywordEditText)).perform(typeText("job"));
+        onView(withId(R.id.filterApplyButton)).perform(click());
+        SystemClock.sleep(3000);
+
+        // Verify keyword filtered results
+        onView(withText("Got a new job"))
+                .check(matches(isDisplayed()));
+
+        // 7) Test filter clearing
+        onView(withId(R.id.filter_icon)).perform(click());
+        SystemClock.sleep(1000);
+        onView(withId(R.id.filterCancelButton)).perform(click());
+        SystemClock.sleep(3000);
+
+        // Verify all items are shown after clear
+        onView(withId(R.id.mood_recycler_view))
+                .check(matches(hasMinimumChildCount(1)));
+    }
+
 
     /**
      * After each test, clear out the Firestore emulator’s data so that

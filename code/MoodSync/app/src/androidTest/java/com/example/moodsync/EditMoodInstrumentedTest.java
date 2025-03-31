@@ -36,13 +36,13 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Tests the "Add Mood" feature: verifying that we can
- * navigate to the add mood tab and can add moods.
+ * Tests the "Edit Mood" feature: verifying that we can
+ * navigate to the edit mood tab and can add moods.
  */
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class AddMoodInstrumentedTest {
+public class EditMoodInstrumentedTest {
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =

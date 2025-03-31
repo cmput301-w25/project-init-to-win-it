@@ -42,7 +42,7 @@ import java.util.UUID;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class AddMoodInstrumentedTest {
+public class EditProfileInstrumentedTest {
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =
@@ -94,104 +94,41 @@ public class AddMoodInstrumentedTest {
         usersRef.add(userData);
     }
 
-    /**
-     * “Happy path” test for adding a new mood event with valid data:
-     * 1) Click "Get Started" on the first fragment to navigate to the second fragment
-     * 2) Tap the FAB (add_circle_button) to open the Add Mood flow
-     * 3) In the first add_mood_fragment, type a short description and press "Next"
-     * 4) In the second add_mood_fragment2, fill in the trigger and press "Create mood"
-     * 5) Verify the success dialog text "Your mood has been successfully uploaded." is displayed
-     */
     @Test
-    public void testAddMoodEventViaUI() {
+    public void testProfilePageDisplayAndEditButton() {
         SystemClock.sleep(4000);
-        // 1) Click on the login button from the first page
+
+        // 1) Login navigation
         onView(withId(R.id.loginButton)).perform(click());
-
-
-        // Wait for the login page to load
         SystemClock.sleep(4000);
 
-        // 2) Enter username and password
+        // 2) Enter credentials
         onView(withId(R.id.usernameLogin)).perform(typeText("testuser"));
         onView(withId(R.id.passwordLogin)).perform(typeText("password123"));
-
-        // 3) Click the login button
         onView(withId(R.id.loginButton)).perform(click());
+        SystemClock.sleep(7000);
 
-        // Wait for the login to complete and navigate to the next page
-        SystemClock.sleep(5000);
-
-        // Step 2: Now on home_page_fragment (“SecondFragment”), tap the Add Mood button
-        onView(withId(R.id.add_circle_button)).perform(click());
-
-        SystemClock.sleep(5000);
-        // Step 3: Select a mood
-        onView(withId(R.id.main_card)).perform(click());
-        SystemClock.sleep(5000);
-        onView(withText("Happy")).perform(click());
-        SystemClock.sleep(5000);
-
-        // Step 3: Add a description
-        onView(withId(R.id.edit_description))
-                .perform(typeText("test mood event"), closeSoftKeyboard());
-        SystemClock.sleep(5000);
-        onView(withId(R.id.next)).perform(click());
-        SystemClock.sleep(5000);
-
-        onView(withId(R.id.createmood)).perform(click());
-        SystemClock.sleep(5000);
-
-        // Step 5: Confirm that the success dialog is displayed
-        onView(withText("Your mood has been successfully uploaded."))
-                .check(matches(isDisplayed()));
-        // Wait a little to allow the success dialog to disappear
+        // 3) Navigate to profile via profile picture
+        onView(withId(R.id.profile_pic)).perform(click());
         SystemClock.sleep(3000);
+
+        // 4) Verify profile elements
+        onView(withId(R.id.profile_image_edit)).check(matches(isDisplayed()));
+        onView(withId(R.id.nameofuser)).check(matches(withText("Test User")));
+        onView(withId(R.id.usernameofuser)).check(matches(withText("@testuser")));
+        onView(withId(R.id.bioofuser)).check(matches(withText(""))); // Verify empty bio
+        onView(withId(R.id.followers_count)).check(matches(withText("0")));
+        onView(withId(R.id.following_count)).check(matches(withText("0")));
+        onView(withId(R.id.pending_button)).check(matches(withText("0")));
+
+        // 5) Click edit profile button
+        onView(withId(R.id.edit_profile_button))
+                .check(matches(isDisplayed()))
+                .perform(click());
+        SystemClock.sleep(2000);
+
     }
 
-    /**
-     * “Unhappy path” test for an invalid description:
-     * In this case, the user enters a description that is longer than 20 characters
-     * or more than 3 words, which violates the input rules in AddMoodActivity.
-     * We check that we remain on page 1 by verifying the second screen’s
-     * unique EditText (triggerInput) does NOT exist.
-     *
-     * This means the app blocked navigation to the second page (and presumably
-     * showed a toast or some other message).
-     */
-    @Test
-    public void testInvalidDescriptionPreventsNext() {
-        SystemClock.sleep(4000);
-        // 1) Click on the login button from the first page
-        onView(withId(R.id.loginButton)).perform(click());
-
-
-        // Wait for the login page to load
-        SystemClock.sleep(4000);
-
-        // 2) Enter username and password
-        onView(withId(R.id.usernameLogin)).perform(typeText("testuser"));
-        onView(withId(R.id.passwordLogin)).perform(typeText("password123"));
-
-        // 3) Click the login button
-        onView(withId(R.id.loginButton)).perform(click());
-        // 1) From the first fragment, press "Get Started"
-
-        // 2) Now in SecondFragment, tap the FAB
-        onView(withId(R.id.add_circle_button)).perform(click());
-
-        // 3) Enter a >20 char & >3 words description to trigger the validation error
-        onView(withId(R.id.edit_description))
-                .perform(typeText("a really long description"), closeSoftKeyboard());
-
-        // 4) Press next; the app should NOT proceed due to invalid input
-        onView(withId(R.id.next)).perform(click());
-
-        // 5) Verify that we did NOT navigate to the second page
-        //    by checking that the second screen’s 'triggerInput' does not exist
-        onView(withId(R.id.trigger_text_view))
-                .check(doesNotExist());
-    }
 
     /**
      * After each test, clear out the Firestore emulator’s data so that
