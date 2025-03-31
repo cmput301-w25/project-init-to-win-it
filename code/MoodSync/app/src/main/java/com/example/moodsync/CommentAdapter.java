@@ -20,8 +20,10 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Displays top-level comments from mood_events/{docId}/comments
- * and fetches subcollection {commentId}/replies for each when user clicks 'Show more.'
+ * Adapter for displaying top-level comments and their replies in a RecyclerView.
+ * - Fetches top-level comments from Firestore.
+ * - Dynamically loads replies from subcollections when requested by the user.
+ * - Supports user interactions such as replying to comments and toggling visibility of replies.
  */
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
 
@@ -41,22 +43,47 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
     private OnReplyClickListener replyClickListener;
 
+    /**
+     * Sets a listener for handling reply button clicks on comments.
+     * - When the "Reply" button is clicked, this listener notifies the parent (e.g., a fragment or activity)
+     *   about which comment is being replied to.
+     * - When the "Cancel" button is clicked, this listener notifies the parent that the reply action was canceled.
+     *
+     * @param listener An implementation of {@link OnReplyClickListener} to handle reply actions.
+     */
     public void setOnReplyClickListener(OnReplyClickListener listener) {
         this.replyClickListener = listener;
     }
 
-    // We'll pass 'moodDocId' in so this adapter can load subcollection replies
+    /**
+     * Constructs a new CommentAdapter.
+     *
+     * @param initialComments The initial list of top-level comments to display.
+     * @param context         The context for accessing resources and creating views.
+     * @param moodDocId       The Firestore document ID of the mood event to fetch comments for.
+     */
     public CommentAdapter(List<Comment> initialComments, Context context, String moodDocId) {
         this.commentList = initialComments;
         this.context     = context;
         this.moodDocId   = moodDocId;
     }
 
+    /**
+     * Updates the adapter's comment list and refreshes the RecyclerView.
+     *
+     * @param newList The new list of comments to display.
+     */
     public void setCommentList(List<Comment> newList) {
         this.commentList = newList;
         notifyDataSetChanged();
     }
 
+    /**
+     * Retrieves a comment at a specific position in the list.
+     *
+     * @param position The position of the comment in the list.
+     * @return The comment at the specified position, or null if the position is invalid.
+     */
     public Comment getItem(int position) {
         if (commentList != null && position >= 0 && position < commentList.size()) {
             return commentList.get(position);
@@ -143,7 +170,10 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     }
 
     /**
-     * Load all replies from subcollection: mood_events/{docId}/comments/{commentId}/replies
+     * Loads replies for a specific top-level comment from Firestore and updates the reply adapter.
+     *
+     * @param parentComment The top-level comment whose replies are being loaded.
+     * @param replyAdapter  The ReplyAdapter used to display replies in a nested RecyclerView.
      */
     private void loadRepliesForComment(Comment parentComment, ReplyAdapter replyAdapter) {
         if (parentComment.getCommentId() == null) {
@@ -173,6 +203,11 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                 });
     }
 
+    /**
+     * ViewHolder for managing individual comment items in the RecyclerView.
+     * - Displays user details, comment content, and timestamp.
+     * - Provides buttons for replying to comments and toggling visibility of replies.
+     */
     static class CommentViewHolder extends RecyclerView.ViewHolder {
         TextView userTextView, timeTextView, contentTextView;
         TextView replyButton, showRepliesButton;
@@ -196,6 +231,11 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             repliesRecyclerView.setVisibility(View.GONE);
         }
 
+        /**
+         * Binds a comment's data to the UI components in this ViewHolder.
+         *
+         * @param comment The comment whose data will be displayed. If null, clears all fields.
+         */
         void bind(Comment comment) {
             if (comment == null) {
                 userTextView.setText("");
@@ -212,7 +252,12 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             showRepliesButton.setText("Show more");
             repliesRecyclerView.setVisibility(View.GONE);
         }
-
+        /**
+         * Formats a timestamp into a human-readable date and time string.
+         *
+         * @param timeMillis The timestamp in milliseconds since epoch.
+         * @return A formatted date and time string (e.g., "31 Mar 2025, 05:46 AM").
+         */
         private String formatTimestamp(long timeMillis) {
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault());
             return sdf.format(new Date(timeMillis));

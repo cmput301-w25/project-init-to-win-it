@@ -19,9 +19,20 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
-
+/**
+ * Utility class for performing operations related to Bitmaps.
+ * - Provides methods for loading, blurring, and compressing images.
+ * - Uses libraries like Glide and RenderScript for efficient image processing.
+ */
 public class BitmapUtils {
-
+    /**
+     * Asynchronously fetches a Bitmap from a given image URL using Glide.
+     * - Returns a CompletableFuture that resolves with the loaded Bitmap or fails with an exception.
+     *
+     * @param context  The context for Glide to load the image.
+     * @param imageUrl The URL of the image to load as a Bitmap.
+     * @return A CompletableFuture containing the loaded Bitmap or an exception if loading fails.
+     */
     public static CompletableFuture<Bitmap> getBitmapFromUrl(Context context, String imageUrl) {
         CompletableFuture<Bitmap> future = new CompletableFuture<>();
 
@@ -47,7 +58,14 @@ public class BitmapUtils {
 
         return future;
     }
-
+    /**
+     * Applies a Gaussian blur effect to a given Bitmap using RenderScript.
+     * - Downscales the image for faster processing and applies the blur effect.
+     *
+     * @param context The context required for initializing RenderScript.
+     * @param image   The original Bitmap to be blurred.
+     * @return A new Bitmap with the blur effect applied.
+     */
     public static Bitmap blurBitmap(Context context, Bitmap image) {
         // Adjust the scale and blur radius as needed.
         final float BITMAP_SCALE = 0.5f; // Downscale for faster processing and more blur.
@@ -71,6 +89,15 @@ public class BitmapUtils {
         return outputBitmap;
     }
 
+/**
+ * Compresses an image from a given URI and saves it as a temporary file in the cache directory.
+ * - Optionally applies a blur effect to reduce details before compression.
+ * - Adjusts compression quality dynamically to ensure the file size is below a specified limit.
+ *
+ * @param context  The context required for accessing content resolver and cache directory.
+ * @param photoUri The URI of the image to compress.
+ * @return A File object representing the compressed image, or null if compressio
+ * */
 
     public static File compressImageFromUri(Context context, Uri photoUri) {
         try {

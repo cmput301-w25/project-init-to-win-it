@@ -48,6 +48,12 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
+/**
+ * EditProfileActivity is a Fragment that allows users to edit their profile information.
+ * - Provides functionality for updating the profile image, full name, and bio.
+ * - Includes buttons for confirming changes and navigating back.
+ * - Integrates Firebase Firestore for saving updated profile data.
+ */
 public class EditProfileActivity extends Fragment {
 
     private ImageView profileImageEdit;
@@ -81,6 +87,14 @@ public class EditProfileActivity extends Fragment {
         return view;
     }
 
+    /**
+     * Fetches the user's profile information from Firestore using their user ID.
+     * - Retrieves the user's full name, bio, and profile image URL.
+     * - Updates the UI elements (e.g., fullName, bio, profileImageEdit) with the fetched data.
+     * - Ensures UI updates are performed only if the fragment is still attached to its activity.
+     *
+     * @param userId The Firestore document ID of the user whose profile information is being fetched.
+     */
     private void fetchProfileInformation(String userId) {
         if (userId != null) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -115,12 +129,23 @@ public class EditProfileActivity extends Fragment {
         }
     }
 
-
+    /**
+     * Navigates back to the previous screen or closes the current fragment.
+     * - Uses the activity's `onBackPressed` method to handle navigation.
+     */
     private void navigateBack() {
         // Navigate back or close the fragment
         requireActivity().onBackPressed();
     }
 
+    /**
+     * Loads a profile image into the ImageView using Glide.
+     * - Applies a circular crop transformation to the image.
+     * - Displays a placeholder image while loading or if the URL is invalid.
+     * - Ensures image loading is performed only if the fragment is still attached to its activity.
+     *
+     * @param imageUrl The URL of the profile image to load into the ImageView.
+     */
     private void loadProfileImage(String imageUrl) {
         if (isAdded() && getActivity() != null) {
             Glide.with(requireContext())
@@ -131,6 +156,11 @@ public class EditProfileActivity extends Fragment {
         }
     }
 
+    /**
+     * Displays a dialog with options for adding a profile photo.
+     * - Provides two options: "Add from Camera" and "Add from Photos".
+     * - Calls appropriate methods (`openCamera` or `openGallery`) based on the user's selection.
+     */
     private void showPhotoOptionsDialog() {
         String[] options = {"Add from Camera", "Add from Photos"};
         new AlertDialog.Builder(requireContext())
@@ -156,6 +186,13 @@ public class EditProfileActivity extends Fragment {
         }
     }
 
+    /**
+     * Handles uploading an image to Firebase Storage and updates the UI upon completion.
+     * - Uploads the selected image to Firebase using a custom listener for success or failure callbacks.
+     * - Updates the profile image preview upon successful upload.
+     *
+     * @param imageUri The URI of the image to be uploaded.
+     */
     private void handleImageUpload(Uri imageUri) {
         uploadImageToFirebase(imageUri, new OnImageUploadedListener() {
             @Override
@@ -171,6 +208,13 @@ public class EditProfileActivity extends Fragment {
         });
     }
 
+    /**
+     * Updates the profile image preview in the UI with the provided image URI.
+     * - Uses Glide to load and display the image in the `profileImageEdit` ImageView.
+     * - Ensures that updates are performed only if the fragment is still attached to its activity.
+     *
+     * @param imageUri The URI of the image to display in the profile preview.
+     */
     private void updateImagePreview(Uri imageUri) {
         if (isAdded() && getActivity() != null) {
             Glide.with(requireContext())
@@ -179,9 +223,18 @@ public class EditProfileActivity extends Fragment {
         }
     }
 
+    /**
+     * Custom bitmap transformation for rotating images using Glide.
+     * Applies a specified rotation angle to the bitmap while maintaining image dimensions.
+     */
+
     public static class RotateTransformation extends BitmapTransformation {
         private float rotateRotationAngle = 0f;
 
+        /**
+         * Constructs a rotation transformation with the specified angle.
+         * @param rotateRotationAngle The rotation angle in degrees (0-360)
+         */
         public RotateTransformation(float rotateRotationAngle) {
             this.rotateRotationAngle = rotateRotationAngle;
         }
@@ -200,10 +253,9 @@ public class EditProfileActivity extends Fragment {
     }
 
     /**
-     * Checks the size of an image.
-     *
-     * @param imageUri The URI of the image to check.
-     * @return The size of the image in kilobytes.
+     * Calculates the size of an image file from its URI
+     * @param imageUri URI of the image to check
+     * @return Size in kilobytes (KB). Returns 0 if size cannot be determined
      */
     private long checkImageSize(Uri imageUri) {
         Cursor cursor = requireContext().getContentResolver().query(imageUri, null, null, null, null);
@@ -221,7 +273,10 @@ public class EditProfileActivity extends Fragment {
     }
 
     /**
-     * Opens the camera to capture an image.
+     * Launches device camera to capture a new photo
+     * - Creates temporary file for camera output
+     * - Starts camera activity with MediaStore.ACTION_IMAGE_CAPTURE intent
+     * - Stores result in photoUri class variable
      */
     private void openCamera() {
 
@@ -237,7 +292,10 @@ public class EditProfileActivity extends Fragment {
     }
 
     /**
-     * Creates a new image file.
+     * Creates a new image file in the Pictures directory
+     * - Generates unique filename with timestamp
+     * - Sets MIME type to image/jpeg
+     * - Updates photoUri class variable with new file's URI
      */
     private void createImageFile() {
         ContentValues contentValues = new ContentValues();
@@ -247,9 +305,9 @@ public class EditProfileActivity extends Fragment {
 
         photoUri = requireActivity().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
     }
-
     /**
-     * Opens the gallery to select an image.
+     * Launches gallery/image picker interface
+     * Starts activity with Intent.ACTION_PICK for MediaStore.Images.Media.EXTERNAL_CONTENT_URI
      */
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -314,7 +372,15 @@ public class EditProfileActivity extends Fragment {
         }
     }
 
-
+    /**
+     * Rotates an image by a specified angle and saves it as a new file in the cache directory.
+     *
+     * @param context   The context used to access content resolver and cache directory.
+     * @param imageUri  The URI of the original image to rotate.
+     * @param angle     The rotation angle in degrees (e.g., 90, 180, 270).
+     * @return          The URI of the newly created rotated image file.
+     * @throws IOException If an error occurs during bitmap operations or file creation.
+     */
     private Uri rotateImage(Context context, Uri imageUri, float angle) throws IOException {
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
         Matrix matrix = new Matrix();
@@ -328,6 +394,15 @@ public class EditProfileActivity extends Fragment {
 
         return Uri.fromFile(file);
     }
+
+    /**
+     * Saves updated profile information to Firestore.
+     * - Validates that name and bio fields are not empty.
+     * - Updates the user document with new fullName, bio, and profileImageUrl values.
+     * - Navigates back on success or displays error messages for failures.
+     *
+     * @throws IllegalStateException If no valid user ID is available in local storage.
+     */
     private void saveChanges() {
         String name = fullName.getText().toString().trim();
         String biography = bio.getText().toString().trim();

@@ -6,6 +6,12 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+/**
+ * BaseActivity is an abstract class that extends AppCompatActivity.
+ * - Provides common functionality for managing the current activity reference within the application.
+ * - Handles app restart scenarios and lifecycle events such as onCreate, onResume, onPause, and onDestroy.
+ * - Ensures proper cleanup of activity references to avoid memory leaks.
+ */
 public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
@@ -38,7 +44,10 @@ public abstract class BaseActivity extends AppCompatActivity {
         clearCurrentActivityReference();
         super.onDestroy();
     }
-
+    /**
+     * Clears the reference to the current activity in the application instance.
+     * - Ensures that only this activity's reference is cleared if it matches the current activity in the application.
+     */
     private void clearCurrentActivityReference() {
         Activity currentActivity = ((MyApplication) getApplication()).getCurrentActivity();
         if (currentActivity != null && currentActivity.equals(this)) {
