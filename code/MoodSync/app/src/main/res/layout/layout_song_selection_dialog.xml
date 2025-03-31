@@ -45,14 +45,14 @@ android:background="#F6F6E2">
     android:listSelector="@drawable/list_item_selector"
     android:maxHeight="350dp"/>
 
-<com.google.android.material.button.MaterialButton
-    android:id="@+id/cancelButton"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="CANCEL"
-    android:textColor="#FFFFFF"
-    android:layout_marginTop="16dp"
-    app:cornerRadius="8dp"
-    app:backgroundTint="#203434"/>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/cancelButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="CANCEL"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="#203434"
+        app:cornerRadius="8dp" />
 </LinearLayout>
     </androidx.cardview.widget.CardView>

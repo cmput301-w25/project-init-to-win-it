@@ -147,8 +147,7 @@ public class UserProfileFragment extends Fragment {
                             followersCountTextView.setText(String.valueOf(followerList != null ? followerList.size() : 0));
                             followingCountTextView.setText(String.valueOf(followingList != null ? followingList.size() : 0));
 
-                            locationTextView.setText(documentSnapshot.getString("location") != null ?
-                                    documentSnapshot.getString("location") : "Location not set");
+
 
                             bioTextView.setText(documentSnapshot.getString("bio") != null ?
                                     documentSnapshot.getString("bio") : "No bio available");

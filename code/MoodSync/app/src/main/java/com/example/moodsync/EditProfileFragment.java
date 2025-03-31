@@ -651,9 +651,7 @@ public class EditProfileFragment extends Fragment {
                         followingCountTextView.setText(
                                 followingList != null ? String.valueOf(followingList.size()) : "0");
 
-                        locationTextView.setText(
-                                document.getString("location") != null ?
-                                        document.getString("location") : "Location not set");
+
 
                         bioTextView.setText(
                                 document.getString("bio") != null ?
