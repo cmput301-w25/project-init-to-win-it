@@ -1,0 +1,19 @@
+<!-- spinner_bg.xml in drawable folder -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <layer-list>
+            <item>
+                <shape android:shape="rectangle" android:padding="8dp">
+                    <solid android:color="#4A7A7A"/>
+                    <corners android:radius="4dp" />
+                    <padding android:bottom="3dp" android:left="3dp"
+                        android:right="5dp" android:top="3dp" />
+                </shape>
+            </item>
+            <item>
+                <bitmap android:gravity="center_vertical|right"
+                    android:src="@drawable/ic_dropdown_arrow" />
+            </item>
+        </layer-list>
+    </item>
+</selector>

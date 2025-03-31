@@ -1,195 +1,214 @@
 package com.example.moodsync;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.os.Bundle;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.os.Handler;
+import android.os.Looper;
+
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AnimationUtils;
 import android.view.animation.OvershootInterpolator;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.moodsync.databinding.GetStartedFragmentBinding;
-
 /**
- * FirstFragment serves as the starting screen with animated UI elements and a navigation button.
+ * FirstFragment serves as the introductory screen of the application.
+ * It features animated UI elements such as images and text, creating a welcoming experience for users.
+ * After completing the animations, it navigates to the LoginFragment.
+ *
+ * <p>Key Features:</p>
+ * <ul>
+ *     <li>Animated image and text elements.</li>
+ *     <li>Custom navigation with transition animations.</li>
+ *     <li>Safety checks to ensure proper fragment lifecycle handling.</li>
+ * </ul>
  */
 public class FirstFragment extends Fragment {
 
     private GetStartedFragmentBinding binding;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private static final int INTRO_ANIM_DURATION = 3000; // 3 seconds
 
-    /**
-     * Inflates the fragment layout and initializes view binding.
-     *
-     * @param inflater The LayoutInflater object that can inflate views in the fragment.
-     * @param container The parent view that the fragment's UI is attached to.
-     * @param savedInstanceState Previous saved state data.
-     * @return The root view of the fragment's layout.
-     */
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
-    ) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         binding = GetStartedFragmentBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
-    /**
-     * Called immediately after the view is created. Applies animations and sets up click listeners.
-     *
-     * @param view The created view.
-     * @param savedInstanceState Previous saved state data.
-     */
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        applyAnimations();
-
-        // btn click anims for transition to next frag
-        binding.button.setOnClickListener(v -> v.animate()
-                .scaleX(0.95f)
-                .scaleY(0.95f)
-                .setDuration(100)
-                .withEndAction(() -> {
-                    if (binding == null) return;
-                    v.animate()
-                            .scaleX(1f)
-                            .scaleY(1f)
-                            .setDuration(100)
-                            .withEndAction(() -> {
-                                if (!isAdded()) return;
-                                NavHostFragment.findNavController(FirstFragment.this)
-                                        .navigate(R.id.action_FirstFragment_to_SecondFragment);
-                            });
-                }));
+        setupInitialState();
+        startIntroAnimation();
     }
 
     /**
-     * Applies fade-in and movement animations to the screen's UI elements.
+     * Sets up the initial state of UI elements by hiding them and preparing them for animations.
      */
-    private void applyAnimations() {
-        if (!isAdded() || getContext() == null || binding == null) {
-            return;
-        }
+    private void setupInitialState() {
+        if (!isSafe()) return;
 
-        // intializing the screen. there was this nice video on animations in java
+        // Hide all elements initially
+        binding.centeredImage.setAlpha(0f);
+        binding.welcomeTo.setAlpha(0f);
+        binding.shareYour.setAlpha(0f);
+    }
+
+    /**
+     * Starts an introductory animation sequence for UI elements, including scaling, rotation, and fading effects.
+     * After completing animations, navigates to the LoginFragment with custom transitions.
+     */
+    private void startIntroAnimation() {
+        if (!isSafe()) return;
+
+        // Initial state - fully transparent and slightly smaller
         binding.centeredImage.setAlpha(0f);
         binding.centeredImage.setScaleX(0.8f);
         binding.centeredImage.setScaleY(0.8f);
+        binding.centeredImage.setRotation(-5f); // Slight initial tilt for dynamism
 
-        binding.welcomeTo.setAlpha(0f);
-        binding.welcomeTo.setTranslationY(50f);
-
-        binding.shareYour.setAlpha(0f);
-        binding.shareYour.setTranslationY(50f);
-
-        binding.button.setAlpha(0f);
-        binding.button.setTranslationY(50f);
-
-        // its a full sequence with animations
+        // 3-stage welcoming animation sequence
         binding.centeredImage.animate()
                 .alpha(1f)
                 .scaleX(1f)
                 .scaleY(1f)
-                .setDuration(800)
-                .setInterpolator(new OvershootInterpolator(1.2f))
+                .rotation(0f) // Corrects the initial tilt
+                .setDuration(1200) // Initial pop-in duration
+                .setInterpolator(AnimationUtils.loadInterpolator(
+                        requireContext(), android.R.interpolator.bounce))
                 .withEndAction(() -> {
-                    if (!isAdded() || getContext() == null || binding == null) {
-                        return;
-                    }
+                    if (!isSafe()) return;
 
-                    //some floating animation i found on stack overflow
-                    startFloatingAnimation();
+                    // Secondary "breathing" effect
+                    binding.centeredImage.animate()
+                            .scaleX(1.05f)
+                            .scaleY(1.05f)
+                            .setDuration(600)
+                            .setInterpolator(AnimationUtils.loadInterpolator(
+                                    requireContext(), android.R.interpolator.linear_out_slow_in))
+                            .withEndAction(() -> {
+                                if (!isSafe()) return;
+
+                                // Final settle animation
+                                binding.centeredImage.animate()
+                                        .scaleX(1f)
+                                        .scaleY(1f)
+                                        .setDuration(600)
+                                        .setInterpolator(AnimationUtils.loadInterpolator(
+                                                requireContext(), android.R.interpolator.fast_out_slow_in))
+                                        .withEndAction(() -> {
+                                            if (!isSafe()) return;
+
+                                            animateWelcomeGlow();
+                                            animateWelcomeText();
+
+                                            // Navigate after full sequence
+                                            handler.postDelayed(() -> {
+                                                if (isSafe()) {
+                                                    NavHostFragment.findNavController(FirstFragment.this)
+                                                            .navigate(R.id.action_FirstFragment_to_LoginFragment,
+                                                                    null,
+                                                                    new NavOptions.Builder()
+                                                                            .setEnterAnim(R.anim.slide_in_right)
+                                                                            .setExitAnim(R.anim.slide_out_left)
+                                                                            .setPopEnterAnim(R.anim.slide_in_left)
+                                                                            .setPopExitAnim(R.anim.slide_out_right)
+                                                                            .build());
+                                                }
+                                            }, 1500);
+                                        });
+                            });
                 });
+    }
 
-        // starting anim
+    /**
+     * Adds a subtle pulsing glow effect to the centered image using an ObjectAnimator.
+     */
+    private void animateWelcomeGlow() {
+        // Add subtle pulsing glow effect
+        ObjectAnimator glowAnim = ObjectAnimator.ofFloat(binding.centeredImage,
+                "alpha", 1f, 0.9f, 1f);
+        glowAnim.setDuration(2000);
+        glowAnim.setRepeatCount(ValueAnimator.INFINITE);
+        glowAnim.setRepeatMode(ValueAnimator.REVERSE);
+        glowAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+        glowAnim.start();
+    }
+
+    /**
+     * Animates welcome text elements with fade-in, scale-up, and translation effects for a dynamic entrance.
+     */
+    private void animateWelcomeText() {
+        // Fade in welcome text with staggered entrance
+        binding.welcomeTo.setAlpha(0f);
+        binding.shareYour.setAlpha(0f);
+
+        binding.welcomeTo.setScaleX(0.9f);
+        binding.shareYour.setScaleX(0.9f);
+
+        binding.welcomeTo.setScaleY(0.9f);
+        binding.shareYour.setScaleY(0.9f);
+
+        binding.welcomeTo.setTranslationY(20f);
+        binding.shareYour.setTranslationY(20f);
+
+
         binding.welcomeTo.animate()
                 .alpha(1f)
-                .translationY(0)
+                .scaleX(1f)
+                .scaleY(1f)
+                .translationY(0f)
                 .setDuration(800)
-                .setStartDelay(400);
+                .setInterpolator(new OvershootInterpolator(1.2f))
+                .setStartDelay(300);
 
-        // share anim
         binding.shareYour.animate()
                 .alpha(1f)
-                .translationY(0)
+                .scaleX(1f)
+                .scaleY(1f)
+                .translationY(0f)
                 .setDuration(800)
-                .setStartDelay(600);
-
-        // button anim
-        binding.button.animate()
-                .alpha(1f)
-                .translationY(0)
-                .setDuration(800)
-                .setStartDelay(800);
+                .setInterpolator(new OvershootInterpolator(1.2f))
+                .setStartDelay(300);
     }
 
-    /**
-     * Starts a looping floating animation for the centered image.
-     */
-    private void startFloatingAnimation() {
-        if (!isAdded() || getContext() == null || binding == null) {
-            return;
-        }
 
-        binding.centeredImage.animate()
-                .translationYBy(15f)
-                .setDuration(2000)
-                .setInterpolator(AnimationUtils.loadInterpolator(
-                        getContext(), android.R.interpolator.linear_out_slow_in))
-                .withEndAction(() -> {
-                    if (!isAdded() || getContext() == null || binding == null) {
-                        return;
-                    }
-                    binding.centeredImage.animate()
-                            .translationYBy(-15f)
-                            .setDuration(2000)
-                            .setInterpolator(AnimationUtils.loadInterpolator(
-                                    getContext(), android.R.interpolator.fast_out_slow_in))
-                            .withEndAction(this::startFloatingAnimation);
-                });
+    /**
+     * Checks if the fragment is in a safe state (added to activity, context is non-null, and binding is initialized).
+     *
+     * @return True if the fragment is in a safe state; false otherwise.
+     */
+    private boolean isSafe() {
+        return isAdded() && getContext() != null && binding != null;
     }
 
-    /**
-     * Cancels any ongoing animations when the fragment is paused.
-     */
     @Override
     public void onPause() {
         super.onPause();
         if (binding != null) {
-            if (binding.centeredImage != null) binding.centeredImage.clearAnimation();
-            if (binding.welcomeTo != null) binding.welcomeTo.clearAnimation();
-            if (binding.shareYour != null) binding.shareYour.clearAnimation();
-            if (binding.button != null) binding.button.clearAnimation();
+            binding.centeredImage.clearAnimation();
+            binding.welcomeTo.clearAnimation();
+            binding.shareYour.clearAnimation();
         }
     }
 
-    /**
-     * Cancels and clears all animations and releases view binding references when the view is destroyed.
-     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         if (binding != null) {
-            if (binding.centeredImage != null) {
-                binding.centeredImage.animate().cancel();
-                binding.centeredImage.clearAnimation();
-            }
-            if (binding.welcomeTo != null) {
-                binding.welcomeTo.animate().cancel();
-                binding.welcomeTo.clearAnimation();
-            }
-            if (binding.shareYour != null) {
-                binding.shareYour.animate().cancel();
-                binding.shareYour.clearAnimation();
-            }
-            if (binding.button != null) {
-                binding.button.animate().cancel();
-                binding.button.clearAnimation();
-            }
+            binding.centeredImage.animate().cancel();
+            binding.welcomeTo.animate().cancel();
+            binding.shareYour.animate().cancel();
         }
         binding = null;
     }

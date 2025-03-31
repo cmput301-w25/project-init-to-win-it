@@ -30,14 +30,16 @@ import org.junit.runner.RunWith;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
- * Espresso instrumented tests for MoodSync, using the Firestore emulator.
- *
- * These tests simulate a user’s journey from the first “Get Started” screen,
- * through the home (second) fragment, into the add‐mood flow,
- * and finally verifying success or blocking behavior depending on the input.
+ * Tests the "Add Mood" feature: verifying that we can
+ * navigate to the add mood tab and can add moods.
  */
+
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class AddMoodInstrumentedTest {
@@ -63,49 +65,79 @@ public class AddMoodInstrumentedTest {
         CollectionReference moodsRef = db.collection("mood_events");
 
         // Add a "seed" mood event so that the home page's list shows it
-        MoodEvent seed = new MoodEvent(
-                "Happy",
-                "Baseline Trigger",
-                "Seeded baseline event",
-                "With friends",
-                System.currentTimeMillis(),
-                "https://image-url"
+        MoodEvent seededEvent = new MoodEvent(
+                "Happy", // mood
+                "Got a new job", // trigger
+                "Feeling excited and grateful", // description
+                "With friends", // socialSituation
+                System.currentTimeMillis(), // date
+                "https://image-url", // imageUrl
+                true, // isPublic,
+                "testuser", // id
+                "https://storage.googleapis.com/inittowinit-1188f.firebasestorage.app/songs1/Adam%20Dib%20-%20After%20the%20Bunker%20-%20No%20Backing%20Vocals%20.mp3?Expires=1774785984&GoogleAccessId=firebase-adminsdk-fbsvc%40inittowinit-1188f.iam.gserviceaccount.com&Signature=SbPcDm346A72dfI2Y7IfCSn8kb84RbAMNsOdWexrf7P8dKqdLdPh%2BWeEKJ8fPCWQELYpqvHhRAojX2ttFzeY9fWnFSHLel2RfnO34JdutXS526MRS%2B6x1zu0IfRGQGpt5sD%2F57l25dWRFOvvhJL2eAmeFSWhtYSIMv%2Bd%2FyJ85F0afs9VfgBQWsGIBCcFPdqY2PpooY1E4hmZEXJbYFvdugypQ0fUOlriILQe%2FpeKgt8m1yocZljYJLrTIvflJjsQ2KAX1bRa02P7qMKkgHcXYgGOt6uxjE5s4BexgyFcz0kTnFEkJ4o%2BW2r04xIeMhaJPK5MNgmccsnutcuY%2ByTsFg%3D%3D", // songUrl
+                "Adam Dib - After the Bunker - No Backing Vocals", // songTitle
+                "53.526264,-113.5170344" // currentLocation
         );
-        moodsRef.add(seed);
+        moodsRef.add(seededEvent);
+
+        CollectionReference usersRef = db.collection("users");
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("fullName", "Test User");
+        userData.put("userName", "testuser");
+        userData.put("password", "password123");
+        userData.put("profileImageUrl", "");
+        userData.put("location", "");
+        userData.put("bio", "");
+        userData.put("followerList", new ArrayList<>());
+        userData.put("followingList", new ArrayList<>());
+        userData.put("commentList", new ArrayList<>());
+        usersRef.add(userData);
     }
 
     /**
      * “Happy path” test for adding a new mood event with valid data:
-     * 1) Click "Get Started" on the first fragment to navigate to the second fragment
-     * 2) Tap the FAB (add_circle_button) to open the Add Mood flow
+     * 1) Enter the login username and password and click on the login button
+     * 2) Tap the add_circle_button to open the Add Mood flow
      * 3) In the first add_mood_fragment, type a short description and press "Next"
      * 4) In the second add_mood_fragment2, fill in the trigger and press "Create mood"
      * 5) Verify the success dialog text "Your mood has been successfully uploaded." is displayed
      */
     @Test
     public void testAddMoodEventViaUI() {
-        SystemClock.sleep(3000);
-        // Step 1: From the first fragment, press "Get Started"
-        onView(withId(R.id.button)).perform(click());
-        // Wait a little to account for the navigation delay
-        SystemClock.sleep(3000);
+        // Wait for the login page to load
+        SystemClock.sleep(4000);
+//        onView(withText("Cancel")).perform(click());
+        // 2) Enter username and password
+        onView(withId(R.id.usernameLogin)).perform(typeText("testuser"));
+        SystemClock.sleep(5000);
+        onView(withId(R.id.passwordLogin)).perform(typeText("password123"));
+
+        SystemClock.sleep(5000);
+        // 3) Click the login button
+        onView(withId(R.id.loginButton)).perform(click());
+
+        // Wait for the login to complete and navigate to the next page
+        SystemClock.sleep(5000);
 
         // Step 2: Now on home_page_fragment (“SecondFragment”), tap the Add Mood button
         onView(withId(R.id.add_circle_button)).perform(click());
 
+        SystemClock.sleep(5000);
         // Step 3: Select a mood
         onView(withId(R.id.main_card)).perform(click());
+        SystemClock.sleep(5000);
         onView(withText("Happy")).perform(click());
+        SystemClock.sleep(5000);
 
         // Step 3: Add a description
         onView(withId(R.id.edit_description))
                 .perform(typeText("test mood event"), closeSoftKeyboard());
+        SystemClock.sleep(5000);
         onView(withId(R.id.next)).perform(click());
+        SystemClock.sleep(5000);
 
-        // Step 4: Fill out the second Add Mood screen
-        onView(withId(R.id.triggerInput))
-                .perform(typeText("test trigger"), closeSoftKeyboard());
         onView(withId(R.id.createmood)).perform(click());
+        SystemClock.sleep(5000);
 
         // Step 5: Confirm that the success dialog is displayed
         onView(withText("Your mood has been successfully uploaded."))
@@ -126,10 +158,16 @@ public class AddMoodInstrumentedTest {
      */
     @Test
     public void testInvalidDescriptionPreventsNext() {
+        // Wait for the login page to load
+        SystemClock.sleep(4000);
+
+        // 2) Enter username and password
+        onView(withId(R.id.usernameLogin)).perform(typeText("testuser"));
+        onView(withId(R.id.passwordLogin)).perform(typeText("password123"));
+
+        // 3) Click the login button
+        onView(withId(R.id.loginButton)).perform(click());
         // 1) From the first fragment, press "Get Started"
-        onView(withId(R.id.button)).perform(click());
-        // Wait a little to account for the navigation delay
-        SystemClock.sleep(3000);
 
         // 2) Now in SecondFragment, tap the FAB
         onView(withId(R.id.add_circle_button)).perform(click());
@@ -143,7 +181,7 @@ public class AddMoodInstrumentedTest {
 
         // 5) Verify that we did NOT navigate to the second page
         //    by checking that the second screen’s 'triggerInput' does not exist
-        onView(withId(R.id.triggerInput))
+        onView(withId(R.id.trigger_text_view))
                 .check(doesNotExist());
     }
 

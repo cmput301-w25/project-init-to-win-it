@@ -10,6 +10,15 @@ import com.example.moodsync.databinding.ActivityMainBinding;
 import android.view.Menu;
 import android.view.MenuItem;
 
+/**
+ * Main entry point for the application, handling navigation and basic UI setup.
+ *
+ * <p>This activity manages:
+ * - Navigation between fragments using Navigation Component
+ * - App bar configuration
+ * - Basic menu initialization
+ *\
+ */
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
@@ -21,9 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        // Remove this line that sets the toolbar
-        // setSupportActionBar(binding.toolbar);
+        
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();

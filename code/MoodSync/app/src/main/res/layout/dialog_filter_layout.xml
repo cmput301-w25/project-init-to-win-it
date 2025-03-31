@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="24dp"
+    android:orientation="vertical"
+    android:background="@drawable/dialog_background">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select an option:"
+        android:textSize="18sp"
+        android:textColor="#212121"
+        android:textStyle="bold"
+        android:letterSpacing="0.02"
+        android:layout_marginBottom="16dp" />
+
+    <Spinner
+        android:id="@+id/dialogFilterSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/spinner_background"
+        android:popupBackground="@drawable/spinner_background"
+        android:spinnerMode="dropdown"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp" />
+
+</LinearLayout>

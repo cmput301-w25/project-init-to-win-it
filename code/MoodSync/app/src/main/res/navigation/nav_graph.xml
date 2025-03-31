@@ -11,15 +11,51 @@
         android:label="@string/first_fragment_label"
         tools:layout="@layout/get_started_fragment">
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            android:id="@+id/action_FirstFragment_to_RegisterFragment"
+            app:destination="@id/RegisterFragment" />
+        <action
+            android:id="@+id/action_FirstFragment_to_LoginFragment"
+            app:destination="@id/LoginFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/RegisterFragment"
+        android:name="com.example.moodsync.RegisterFragment"
+        android:label="Register"
+        tools:layout="@layout/register">
+        <action
+            android:id="@+id/action_RegisterFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_RegisterFragment_to_LoginFragment"
+            app:destination="@id/LoginFragment" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/LoginFragment"
+        android:name="com.example.moodsync.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/login">
+        <action
+            android:id="@+id/action_LoginFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_LoginFragment_to_RegisterFragment"
+            app:destination="@id/RegisterFragment" />
+    </fragment>
+
 
     <fragment
         android:id="@+id/SecondFragment"
         android:name="com.example.moodsync.SecondFragment"
         android:label="@string/second_fragment_label"
         tools:layout="@layout/home_page_fragment">
+        <action
+            android:id="@+id/action_SecondFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment"
+            app:popUpTo="@id/SecondFragment"
+            app:popUpToInclusive="true"/>
         <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
@@ -32,6 +68,67 @@
         <action
             android:id="@+id/action_SecondFragment_to_editMoodActivityFragment"
             app:destination="@id/editMoodActivityFragment" />
+        <action
+            android:id="@+id/action_SecondFragment_to_userProfileFragment"
+            app:destination="@id/userProfileFragment" />
+        <action
+            android:id="@+id/action_SecondFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+        <action
+            android:id="@+id/action_SecondFragment_to_mapsActivity"
+            app:destination="@id/mapFragment" />
+        <action
+            android:id="@+id/action_SecondFragment_to_JournalFragment"
+            app:destination="@id/JournalFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/JournalFragment"
+        android:name="com.example.moodsync.JournalFragment"
+        android:label="Journal"
+        tools:layout="@layout/journal_fragment">
+        <action
+            android:id="@+id/action_JournalFragment_to_JournalFragment"
+            app:destination="@id/JournalFragment"
+            app:popUpTo="@id/JournalFragment"
+            app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/action_JournalFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_JournalFragment_to_mapsActivity"
+            app:destination="@id/mapFragment" />
+        <action
+            android:id="@+id/action_JournalFragment_to_addMoodActivityFragment"
+            app:destination="@id/addMoodActivityFragment" />
+        <action
+            android:id="@+id/action_JournalFragment_to_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.moodsync.MapFragment"
+        android:label="MapFragment"
+        tools:layout="@layout/fragment_map">
+        <action
+            android:id="@+id/action_mapFragment_to_editMoodFragment"
+            app:destination="@id/editMoodActivityFragment" />
+        <action
+            android:id="@+id/action_mapFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_mapFragment_to_mapsActivity"
+            app:destination="@id/mapFragment" />
+        <action
+            android:id="@+id/action_mapFragment_to_addMoodActivityFragment"
+            app:destination="@id/addMoodActivityFragment" />
+        <action
+            android:id="@+id/action_mapFragment_to_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
+        <action
+            android:id="@+id/action_mapFragment_to_JournalFragment"
+            app:destination="@id/JournalFragment" />
     </fragment>
 
     <fragment
@@ -57,20 +154,35 @@
             app:destination="@id/SecondFragment" />
     </fragment>
 
+
     <fragment
         android:id="@+id/moodHistoryFragment"
         android:name="com.example.moodsync.MoodHistoryFragment"
         android:label="Mood History"
         tools:layout="@layout/mood_history_fragment">
         <action
+            android:id="@+id/action_moodHistoryFragment_to_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment"
+            app:popUpTo="@id/moodHistoryFragment"
+            app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/action_moodHistoryFragment_to_editMoodFragment"
+            app:destination="@id/editMoodActivityFragment" />
+        <action
             android:id="@+id/action_moodHistoryFragment_to_SecondFragment"
             app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_moodHistoryFragment_to_mapsActivity"
+            app:destination="@id/mapFragment" />
         <action
             android:id="@+id/action_moodHistoryFragment_to_addMoodActivityFragment"
             app:destination="@id/addMoodActivityFragment" />
         <action
-            android:id="@+id/action_moodHistoryFragment_to_editMoodFragment"
-            app:destination="@id/editMoodActivityFragment" />
+            android:id="@+id/action_moodHistoryFragmentto_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
+        <action
+            android:id="@+id/action_moodHistoryFragment_to_JournalFragment"
+            app:destination="@id/JournalFragment" />
     </fragment>
 
     <fragment
@@ -94,6 +206,92 @@
         <action
             android:id="@+id/action_editMoodActivityFragment2_to_moodHistoryFragment"
             app:destination="@id/moodHistoryFragment" />
+        <action
+            android:id="@+id/action_editMoodActivityFragment2_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
     </fragment>
+
+
+    <fragment
+        android:id="@+id/userProfileFragment"
+        android:name="com.example.moodsync.UserProfileFragment"
+        android:label="User Profile"
+        tools:layout="@layout/user_profile_fragment">
+        <argument
+            android:name="selectedUserId"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_editMoodFragment"
+            app:destination="@id/editMoodActivityFragment" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_mapsActivity"
+            app:destination="@id/mapFragment" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_addMoodActivityFragment"
+            app:destination="@id/addMoodActivityFragment" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_JournalFragment"
+            app:destination="@id/JournalFragment" />
+        <action
+            android:id="@+id/action_userProfileFragment_to_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editProfileActivity"
+        android:name="com.example.moodsync.EditProfileActivity"
+        android:label="User Profile"
+        tools:layout="@layout/edit_profile_page">
+        <action
+            android:id="@+id/smn"
+            app:destination="@id/SecondFragment" />
+        <action android:id="@id/goToEditProfileFragment"
+            app:destination="@id/editProfileFragment"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.moodsync.EditProfileFragment"
+        android:label="Edit Profile"
+        tools:layout="@layout/edit_profile_fragment">
+        <action
+            android:id="@+id/action_editProfileFragment_to_SecondFragment"
+            app:destination="@id/SecondFragment" />
+        <action
+            android:id="@+id/action_editProfileFragment_self"
+            app:destination="@id/editProfileFragment" />
+        <action
+            android:id="@+id/action_editProfileFragment_self2"
+            app:destination="@id/editProfileFragment" />
+
+        <action
+            android:id="@+id/action_editProfileFragment_to_editMoodFragment"
+            app:destination="@id/editMoodActivityFragment" />
+        <action
+            android:id="@+id/action_editProfileFragment_to_mapsActivity"
+            app:destination="@id/mapFragment"/>
+        <action
+            android:id="@+id/action_editProfileFragment_to_addMoodActivityFragment"
+            app:destination="@id/addMoodActivityFragment" />
+        <action
+            android:id="@+id/action_editProfileFragment_to_JournalFragment"
+            app:destination="@id/JournalFragment" />
+        <action
+            android:id="@+id/action_editProfileFragment_to_moodHistoryFragment"
+            app:destination="@id/moodHistoryFragment" />
+        <action
+            android:id="@+id/action_editProfileFragment_to_loginfragment"
+            app:destination="@id/LoginFragment" />
+        <action
+            android:id="@+id/action_editProfileFragment_to_activity"
+            app:destination="@id/editProfileActivity" />
+    </fragment>
+
+
 
 </navigation>
