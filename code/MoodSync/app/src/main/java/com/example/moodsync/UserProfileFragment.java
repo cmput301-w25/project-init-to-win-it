@@ -70,7 +70,7 @@ public class UserProfileFragment extends Fragment {
     String selectedUserId;   //selected user from search
     private ImageView profileImageView;
     private View view;
-    private TextView locationTextView;
+
     private TextView bioTextView;
     private ImageView profileImageEdit;
     private ImageView backButton;
@@ -87,12 +87,37 @@ public class UserProfileFragment extends Fragment {
             navController.navigate(R.id.action_userProfileFragment_to_SecondFragment);
         });
 
+
+        view.findViewById(R.id.home_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_SecondFragment);
+        });
+
+        view.findViewById(R.id.map_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_mapsActivity);
+        });
+
+        view.findViewById(R.id.add_circle_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_addMoodActivityFragment);
+        });
+
+
+        view.findViewById(R.id.history_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_moodHistoryFragment);
+        });
+        view.findViewById(R.id.diary_button).setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(v);
+            navController.navigate(R.id.action_userProfileFragment_to_JournalFragment);
+        });
+
         db = FirebaseFirestore.getInstance();
 
         profileImageEdit = view.findViewById(R.id.profile_image_edit);
         nameTextView = view.findViewById(R.id.nameofuser);
         usernameTextView = view.findViewById(R.id.usernameofuser);
-        locationTextView = view.findViewById(R.id.locationofuser);
         bioTextView = view.findViewById(R.id.bioofuser);
         followersCountTextView = view.findViewById(R.id.followers_count);
         followingCountTextView = view.findViewById(R.id.following_count);
@@ -148,8 +173,6 @@ public class UserProfileFragment extends Fragment {
                             followersCountTextView.setText(String.valueOf(followerList != null ? followerList.size() : 0));
                             followingCountTextView.setText(String.valueOf(followingList != null ? followingList.size() : 0));
 
-                            locationTextView.setText(documentSnapshot.getString("location") != null ?
-                                    documentSnapshot.getString("location") : "Location not set");
 
                             bioTextView.setText(documentSnapshot.getString("bio") != null ?
                                     documentSnapshot.getString("bio") : "No bio available");
