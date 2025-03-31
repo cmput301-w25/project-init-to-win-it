@@ -3,10 +3,11 @@ package com.example.moodsync;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioAttributes;
 import android.media.Image;
+import android.media.MediaPlayer;
+import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.Gravity;
@@ -16,7 +17,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -24,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -35,10 +34,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.io.IOException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCardViewHolder> {
     private MediaPlayer mediaPlayer;
@@ -64,7 +62,8 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
     @NonNull
     @Override
     public MoodCardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.main_mood_card_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.main_mood_card_item, parent, false);
         return new MoodCardViewHolder(view);
     }
 
@@ -98,29 +97,25 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         holder.nameTextView.setText(username);
         holder.songTitle.setText(moodEvent.getSongTitle());
         setMoodEmoji(holder.moodEmoji, moodEvent.getMood());
-        User currentUser =globalStorage.getUserFromUName(username);
-        Log.d("ADAPTER", "name: " +username);
-        String fullName = currentUser.getName();
-        if (fullName != null && !fullName.isEmpty()) {
-            holder.nameTextView.setText(fullName);
-        }
-        // Load profile image if available
-        String profileImageUrl = currentUser.getPfpUrl();
-        Log.d("PROFILE IMAGE", "onBindViewHolder: "+profileImageUrl);
-        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-            Glide.with(holder.itemView.getContext())
-                    .load(profileImageUrl)
-                    .circleCrop()
-                    .placeholder(R.drawable.ic_person_black_24dp)
-                    .into(holder.profileImageView);
-        }
-        // Format and set timestamp
-        long timestamp = moodEvent.getDate();
-        holder.timeStampTextView.setText(formatTimestamp(timestamp));
 
-        // Load post image if available
+        User currentUser = globalStorage.getUserFromUName(username);
+        if (currentUser != null) {
+            String fullName = currentUser.getName();
+            if (fullName != null && !fullName.isEmpty()) {
+                holder.nameTextView.setText(fullName);
+            }
+            String profileImageUrl = currentUser.getPfpUrl();
+            if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
+                Glide.with(holder.itemView.getContext())
+                        .load(profileImageUrl)
+                        .circleCrop()
+                        .placeholder(R.drawable.ic_person_black_24dp)
+                        .into(holder.profileImageView);
+            }
+        }
+
+        holder.timeStampTextView.setText(formatTimestamp(moodEvent.getDate()));
         String imageUrl = moodEvent.getImageUrl();
-        Log.d("THING", "onBindViewHolder: "+ moodEvent.getImageUrl());
         if (imageUrl != null && !imageUrl.isEmpty()) {
             holder.postImageView.setVisibility(View.VISIBLE);
             Glide.with(holder.itemView.getContext())
@@ -131,24 +126,23 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
             holder.postImageView.setVisibility(View.GONE);
         }
 
-        // Set mood text and color
         holder.moodTextView.setText(moodEvent.getMood());
         int moodColor = getMoodColor(moodEvent.getMood());
         holder.moodBanner.setBackgroundColor(moodColor);
         holder.songTitle.setText(moodEvent.getSongTitle());
         // Set description
+        holder.moodBanner.setBackgroundColor(getMoodColor(moodEvent.getMood()));
         holder.statusTextView.setText(moodEvent.getDescription());
 
-        // Set trigger
-        String trigger = moodEvent.getTrigger();
-        if (trigger != null && !trigger.isEmpty()) {
-            holder.triggerTextView.setText(trigger);
+        if (moodEvent.getTrigger() != null && !moodEvent.getTrigger().isEmpty()) {
+            holder.triggerTextView.setText(moodEvent.getTrigger());
         } else {
             holder.triggerTextView.setText("None");
         }
 
-        // Handle "View Details" button click
-        holder.detailsButton.setOnClickListener(v -> showDetailsDialog(holder.itemView.getContext(), moodEvent));
+        holder.detailsButton.setOnClickListener(
+                v -> showDetailsDialog(holder.itemView.getContext(), moodEvent)
+        );
 
         // Set comment count
         String docId = moodEvent.getDocumentId();
@@ -167,18 +161,15 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
                                 }
                         // Set the count based on how many comments are in this doc
                         holder.commentCount.setText(String.valueOf(snap.size()));
-
                     })
                     .addOnFailureListener(e -> {
-                        // If something fails, just show 0 or do nothing
-                        holder.commentCount.setText(String.valueOf(globalStorage.getComments().size()));
+                        holder.commentCount.setText("0");
                     });
         }
 
-        // Handle "Comments" button click
-        holder.commentButton.setOnClickListener(v -> {
-            showCommentsDialog(holder.itemView.getContext(), moodEvent, holder.commentCount);
-        });
+        holder.commentButton.setOnClickListener(
+                v -> showCommentsDialog(holder.itemView.getContext(), moodEvent, holder.commentCount)
+        );
     }
 
     private void playSong(MoodEvent moodEvent, ImageButton playButton) {
@@ -288,12 +279,12 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         }
     }
 
+
     private void setMoodEmoji(ImageView imageView, String mood) {
         if (mood == null) {
             imageView.setImageResource(R.drawable.ic_mood_black_24dp);
             return;
         }
-
         switch (mood.toLowerCase()) {
             case "happy":
                 imageView.setImageResource(R.drawable.ic_mood_happy);
@@ -323,43 +314,37 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
                 imageView.setImageResource(R.drawable.ic_mood_default);
                 break;
         }
-
     }
     private int getMoodColor(String mood) {
-        if (mood == null) {
-            return 0xFFFFFFFF; // Default white if mood is null
-        }
-
+        if (mood == null) return 0xFFFFFFFF;
         switch (mood.toLowerCase()) {
             case "happy":
-                return 0xFFFFF8E1; // Soft Yellow
+                return 0xFFFFF8E1;
             case "sad":
-                return 0xFFE3F2FD; // Soft Blue
+                return 0xFFE3F2FD;
             case "angry":
-                return 0xFFFFEBEE; // Soft Red
+                return 0xFFFFEBEE;
             case "confused":
-                return 0xFFF3E5F5; // Soft Purple
+                return 0xFFF3E5F5;
             case "surprised":
-                return 0xFFE0F7FA; // Soft Cyan
+                return 0xFFE0F7FA;
             case "ashamed":
-                return 0xFFEFEBE9; // Soft Brown
+                return 0xFFEFEBE9;
             case "scared":
-                return 0xFFECEFF1; // Soft Blue Grey
+                return 0xFFECEFF1;
             case "disgusted":
-                return 0xFFE8F5E9; // Soft Green
+                return 0xFFE8F5E9;
             default:
-                return 0xFFFFFFFF; // Pure White
+                return 0xFFFFFFFF;
         }
     }
 
-    @Override
-    public int getItemCount() {
-        return moodEvents != null ? moodEvents.size() : 0;
-    }
-
-    public void updateMoodEvents(List<MoodEvent> newMoodEvents) {
+    public void updateMoodEvents(List<MoodEvent> newList) {
         this.moodEvents.clear();
         this.moodEvents.addAll(newMoodEvents);
+        for (int i=0;i< newMoodEvents.size();i++) {
+            globalStorage.getMoodList().add(newMoodEvents.get(i));
+        }
         notifyDataSetChanged();
     }
 
@@ -433,131 +418,156 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         dialog.show();
     }
 
-    private void showCommentsDialog(Context context, MoodEvent moodEvent, TextView commentCount) {
-        // Inflate the layout
+    /**
+     * Show the main comment dialog (top-level).
+     * Now uses subcollection for replies. We'll pass docId into the CommentAdapter constructor
+     * so it can fetch replies from mood_events/{docId}/comments/{commentId}/replies
+     */
+    private void showCommentsDialog(Context context, MoodEvent moodEvent, TextView commentCountView) {
         View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_comments, null);
 
         RecyclerView commentRecyclerView = dialogView.findViewById(R.id.comment_recycler_view);
-        TextInputEditText commentInputEditText = dialogView.findViewById(R.id.comment_input_edittext);
+        TextInputEditText commentInput = dialogView.findViewById(R.id.comment_input_edittext);
         Button sendButton = dialogView.findViewById(R.id.comment_send_button);
 
-        // Build the adapter
-        CommentAdapter commentAdapter = new CommentAdapter(null);
-        commentRecyclerView.setAdapter(commentAdapter);
-        commentRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-
-        // Build the dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.BottomSheetDialogTheme);
-        builder.setView(dialogView);
-        AlertDialog dialog = builder.create();
-
-        // Appear as a "bottom sheet" style
+        AlertDialog dialog = new AlertDialog.Builder(context, R.style.BottomSheetDialogTheme)
+                .setView(dialogView)
+                .create();
         if (dialog.getWindow() != null) {
             dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-            WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
-            layoutParams.gravity = Gravity.BOTTOM;
-            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-            dialog.getWindow().setAttributes(layoutParams);
+            WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
+            lp.gravity = Gravity.BOTTOM;
+            lp.width   = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height  = WindowManager.LayoutParams.WRAP_CONTENT;
+            dialog.getWindow().setAttributes(lp);
             dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
         }
 
-        // Load existing comments from Firestore
         String moodDocId = moodEvent.getDocumentId();
+        // Build top-level comment adapter, passing docId so it can load replies
+        CommentAdapter adapter = new CommentAdapter(null, context, moodDocId);
+        commentRecyclerView.setAdapter(adapter);
+        commentRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+
+        // 1) Load all top-level comments
         db.collection("mood_events")
                 .document(moodDocId)
                 .collection("comments")
                 .orderBy("timestamp", Query.Direction.ASCENDING)
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Comment> allComments = new ArrayList<>();
-                    for (DocumentSnapshot docSnap : queryDocumentSnapshots) {
-                        Comment c = docSnap.toObject(Comment.class);
+                .addOnSuccessListener(snap -> {
+                    List<Comment> topComments = new ArrayList<>();
+                    for (DocumentSnapshot doc : snap) {
+                        Comment c = doc.toObject(Comment.class);
                         if (c != null) {
-                            c.setCommentId(docSnap.getId());
-                            allComments.add(c);
+                            c.setCommentId(doc.getId());
+                            topComments.add(c);
                         }
                     }
-                    commentAdapter.setCommentList(allComments);
-
-                    // Scroll to the latest comment
-                    int lastPosition = commentAdapter.getItemCount() - 1;
-                    if (lastPosition >= 0) {
-                        commentRecyclerView.scrollToPosition(lastPosition);
-                    }
+                    adapter.setCommentList(topComments);
+                    commentCountView.setText(String.valueOf(topComments.size()));
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("MoodCardAdapter", "Failed to load comments", e);
+                    Log.e("MoodCardAdapter", "Failed to load top-level comments", e);
                 });
 
-        // Handle adding new comment
-        sendButton.setOnClickListener(view -> {
-            String newCommentText = "";
-            if (commentInputEditText.getText() != null) {
-                newCommentText = commentInputEditText.getText().toString().trim();
+        // 2) track if user is replying to a top-level comment or not
+        final Comment[] replyingTo = { null };
+
+        adapter.setOnReplyClickListener((topLevelComment, pos) -> {
+            replyingTo[0] = topLevelComment;
+            if (topLevelComment == null) {
+                commentInput.setHint("Write a comment...");
+            } else {
+                commentInput.setHint("Replying to " + topLevelComment.getUserId());
             }
-            if (newCommentText.isEmpty()) {
-                Toast.makeText(context, "Please enter a comment.", Toast.LENGTH_SHORT).show();
+        });
+
+        // 3) Send => new top-level or subcollection
+        sendButton.setOnClickListener(view -> {
+            String text = (commentInput.getText() != null)
+                    ? commentInput.getText().toString().trim()
+                    : "";
+            if (text.isEmpty()) {
+                Toast.makeText(context, "Please enter a comment", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Fetch current user
-            MyApplication myApp = (MyApplication) ((Activity)context).getApplication();
+            MyApplication myApp = (MyApplication)((Activity)context).getApplication();
             String currentUser = myApp.getLoggedInUsername();
 
-            // Build the comment object
-            long currentTime = System.currentTimeMillis();
-            Comment commentObj = new Comment(null, currentUser, newCommentText, currentTime);
+            Comment newC = new Comment();
+            newC.setUserId(currentUser);
+            newC.setText(text);
+            newC.setTimestamp(System.currentTimeMillis());
 
-            // Save it to Firestore in subcollection
-            db.collection("mood_events")
-                    .document(moodDocId)
-                    .collection("comments")
-                    .add(commentObj)
-                    .addOnSuccessListener(documentReference -> {
-                        // Clear input
-                        commentInputEditText.setText("");
-
-                        // Update the RecyclerView immediately by appending
-                        commentObj.setCommentId(documentReference.getId());
-
-                        List<Comment> currentList = new ArrayList<>(commentAdapter.getItemCount());
-                        for (int i = 0; i < commentAdapter.getItemCount(); i++) {
-                            RecyclerView.ViewHolder vh =
-                                    commentRecyclerView.findViewHolderForAdapterPosition(i);
-                            if (vh != null && vh instanceof CommentAdapter.CommentViewHolder) {
-                                CommentAdapter.CommentViewHolder holder = (CommentAdapter.CommentViewHolder) vh;
-                                currentList.add(holder.getBoundComment());
-                            }
-                        }
-                        currentList.add(commentObj);
-                        commentAdapter.setCommentList(currentList);
-
-                        // Scroll to the latest comment
-                        int lastPosition = commentAdapter.getItemCount() - 1;
-                        if (lastPosition >= 0) {
-                            commentRecyclerView.scrollToPosition(lastPosition);
-                        }
-
-                        // Re-fetch the total count and update the TextView
-                        db.collection("mood_events")
-                                .document(moodDocId)
-                                .collection("comments")
-                                .get()
-                                .addOnSuccessListener(snap -> {
-                                    int newCount = snap.size();
-                                    commentCount.setText(String.valueOf(newCount));
-                                });
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e("MoodCardAdapter", "Failed to post comment", e);
-                        Toast.makeText(context, "Failed to post comment.", Toast.LENGTH_SHORT).show();
-                    });
+            if (replyingTo[0] == null) {
+                // top-level
+                db.collection("mood_events")
+                        .document(moodDocId)
+                        .collection("comments")
+                        .add(newC)
+                        .addOnSuccessListener(ref -> {
+                            commentInput.setText("");
+                            commentInput.setHint("Write a comment...");
+                            reloadTopLevelComments(moodDocId, adapter, commentCountView);
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(context, "Failed to post comment", Toast.LENGTH_SHORT).show();
+                        });
+            } else {
+                // subcollection
+                String parentId = replyingTo[0].getCommentId();
+                db.collection("mood_events")
+                        .document(moodDocId)
+                        .collection("comments")
+                        .document(parentId)
+                        .collection("replies")
+                        .add(newC)
+                        .addOnSuccessListener(ref -> {
+                            replyingTo[0] = null;
+                            commentInput.setText("");
+                            commentInput.setHint("Write a comment...");
+                            reloadTopLevelComments(moodDocId, adapter, commentCountView);
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(context, "Failed to post reply", Toast.LENGTH_SHORT).show();
+                        });
+            }
         });
 
         dialog.show();
     }
 
+    private void reloadTopLevelComments(String docId,
+                                        CommentAdapter adapter,
+                                        TextView countView) {
+        db.collection("mood_events")
+                .document(docId)
+                .collection("comments")
+                .orderBy("timestamp")
+                .get()
+                .addOnSuccessListener(snap -> {
+                    List<Comment> updated = new ArrayList<>();
+                    for (DocumentSnapshot ds : snap) {
+                        Comment c = ds.toObject(Comment.class);
+                        if (c != null) {
+                            c.setCommentId(ds.getId());
+                            updated.add(c);
+                        }
+                    }
+                    adapter.setCommentList(updated);
+                    countView.setText(String.valueOf(updated.size()));
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("MoodCardAdapter", "Failed to reload top-level comments", e);
+                });
+    }
+
+    @Override
+    public int getItemCount() {
+        return moodEvents!=null ? moodEvents.size() : 0;
+    }
 
     static class MoodCardViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView;
@@ -577,18 +587,18 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
 
         public MoodCardViewHolder(@NonNull View itemView) {
             super(itemView);
-            nameTextView = itemView.findViewById(R.id.name);
-            timeStampTextView = itemView.findViewById(R.id.time_stamp);
-            moodTextView = itemView.findViewById(R.id.mood_text_view);
-            statusTextView = itemView.findViewById(R.id.status);
-            triggerTextView = itemView.findViewById(R.id.trigger_text_view);
-            profileImageView = itemView.findViewById(R.id.profile_image_edit);
-            postImageView = itemView.findViewById(R.id.post_image);
-            moodEmoji = itemView.findViewById(R.id.mood_emoji);
-            detailsButton = itemView.findViewById(R.id.details_button);
-            commentButton = itemView.findViewById(R.id.comment_button);
-            commentCount = itemView.findViewById(R.id.comment_count);
-            moodBanner = itemView.findViewById(R.id.mood_banner);
+            nameTextView       = itemView.findViewById(R.id.name);
+            timeStampTextView  = itemView.findViewById(R.id.time_stamp);
+            moodTextView       = itemView.findViewById(R.id.mood_text_view);
+            statusTextView     = itemView.findViewById(R.id.status);
+            triggerTextView    = itemView.findViewById(R.id.trigger_text_view);
+            profileImageView   = itemView.findViewById(R.id.profile_image_edit);
+            postImageView      = itemView.findViewById(R.id.post_image);
+            moodEmoji          = itemView.findViewById(R.id.mood_emoji);
+            detailsButton      = itemView.findViewById(R.id.details_button);
+            commentButton      = itemView.findViewById(R.id.comment_button);
+            commentCount       = itemView.findViewById(R.id.comment_count);
+            moodBanner         = itemView.findViewById(R.id.mood_banner);
             songTitle = itemView.findViewById(R.id.song_title);
             playButton = itemView.findViewById(R.id.playButton);
         }

@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +12,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -24,6 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -32,12 +32,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
-import com.google.firebase.firestore.CollectionReference;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -62,9 +61,8 @@ public class UserProfileFragment extends Fragment {
     private Button followButton;
     private GridView photos_listview;
     private TextView nameTextView, usernameTextView, followersCountTextView, followingCountTextView;
-    private String currentUserId;    //logged in user
-    private String selectedUserId;   //selected user from search
-    private ImageView profileImageView;
+    private String currentUserId;
+    private String selectedUserId;
     private View view;
     private TextView locationTextView;
     private TextView bioTextView;
@@ -75,9 +73,7 @@ public class UserProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.user_profile_fragment, container, false);
 
-        // Initialize back button
         backButton = view.findViewById(R.id.back_button);
-
         backButton.setOnClickListener(view1 -> {
             NavController navController = Navigation.findNavController(view1);
             navController.navigate(R.id.action_userProfileFragment_to_SecondFragment);
@@ -86,14 +82,14 @@ public class UserProfileFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         profileImageEdit = view.findViewById(R.id.profile_image_edit);
-        nameTextView = view.findViewById(R.id.nameofuser);
-        usernameTextView = view.findViewById(R.id.usernameofuser);
+        nameTextView          = view.findViewById(R.id.nameofuser);
+        usernameTextView      = view.findViewById(R.id.usernameofuser);
         locationTextView = view.findViewById(R.id.locationofuser);
         bioTextView = view.findViewById(R.id.bioofuser);
-        followersCountTextView = view.findViewById(R.id.followers_count);
-        followingCountTextView = view.findViewById(R.id.following_count);
-        followButton = view.findViewById(R.id.follow_user);
-        photos_listview = view.findViewById(R.id.photos_listview);
+        followersCountTextView= view.findViewById(R.id.followers_count);
+        followingCountTextView= view.findViewById(R.id.following_count);
+        followButton          = view.findViewById(R.id.follow_user);
+        photos_listview       = view.findViewById(R.id.photos_listview);
 
         MyApplication myApp = (MyApplication) requireActivity().getApplicationContext();
         currentUserId = myApp.getLoggedInUsername();
@@ -104,13 +100,7 @@ public class UserProfileFragment extends Fragment {
             loadUserProfile(selectedUserId);
         }
 
-        followButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                handleFollowRequest();
-            }
-        });
-
+        followButton.setOnClickListener(v -> handleFollowRequest());
         return view;
     }
 
@@ -129,13 +119,11 @@ public class UserProfileFragment extends Fragment {
      */
     private void loadUserProfile(String userId) {
         db.collection("users").document(userId).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            String fullName = documentSnapshot.getString("fullName");
-                            String userName = documentSnapshot.getString("userName");
-                            String profileImageUrl = documentSnapshot.getString("profileImageUrl");
+          .addOnSuccessListener(documentSnapshot -> {
+              if (documentSnapshot.exists()) {
+                  String fullName = documentSnapshot.getString("fullName");
+                  String userName = documentSnapshot.getString("userName");
+                  String profileImageUrl = documentSnapshot.getString("profileImageUrl");
                             List<String> followerList = (List<String>) documentSnapshot.get("followerList");
                             List<String> followingList = (List<String>) documentSnapshot.get("followingList");
 
@@ -159,21 +147,17 @@ public class UserProfileFragment extends Fragment {
                             }
                                 updateFollowButtonStateBasedOnFollowers();
 
-                            // Check if the current user follows the selected user
-                            if (followerList != null && followerList.contains(currentUserId)) {
-                                fetchMoodEvents(true); // Fetch public posts
-                            } else {
-                                showPrivateAccountMessage();
-                            }
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getActivity(), "Error loading user profile", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                  // If user is followed => show their public posts
+                  if (followerList != null && followerList.contains(currentUserId)) {
+                      fetchMoodEvents(true);
+                  } else {
+                      showPrivateAccountMessage();
+                  }
+              }
+          })
+          .addOnFailureListener(e -> {
+              Toast.makeText(getActivity(), "Error loading user profile", Toast.LENGTH_SHORT).show();
+          });
     }
 
     /**
@@ -189,26 +173,25 @@ public class UserProfileFragment extends Fragment {
      */
     private void fetchMoodEvents(boolean isPublic) {
         db.collection("mood_events")
-                .whereEqualTo("id", selectedUserId)
-                .whereEqualTo("public", isPublic)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        List<Map<String, Object>> moodList = new ArrayList<>();
+          .whereEqualTo("id", selectedUserId)
+          .whereEqualTo("public", isPublic)
+          .get()
+          .addOnCompleteListener(task -> {
+              if (task.isSuccessful() && task.getResult() != null) {
+                  List<Map<String, Object>> moodList = new ArrayList<>();
+                  for (DocumentSnapshot document : task.getResult()) {
+                      Map<String, Object> moodData = new HashMap<>();
+                      moodData.put("imageUrl", document.getString("imageUrl"));
+                      moodData.put("description", document.getString("description"));
+                      moodData.put("mood", document.getString("mood"));
+                      moodData.put("trigger", document.getString("trigger"));
+                      moodData.put("docId", document.getId());
+                      moodList.add(moodData);
+                  }
 
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Map<String, Object> moodData = new HashMap<>();
-                            moodData.put("imageUrl", document.getString("imageUrl"));
-                            moodData.put("description", document.getString("description"));
-                            moodData.put("mood", document.getString("mood"));
-                            moodData.put("trigger", document.getString("trigger"));
-
-                            moodList.add(moodData);
-                        }
-
-                        loadPhotosListView(moodList);
-                    }
-                });
+                  loadPhotosListView(moodList);
+              }
+          });
     }
 
     /**
@@ -224,7 +207,7 @@ public class UserProfileFragment extends Fragment {
 
         photos_listview.setOnItemClickListener((parent, view, position, id) -> {
             Map<String, Object> selectedMood = moodList.get(position);
-            showPostDetailDialog(selectedMood); // Pass the selected mood data to the dialog
+            showPostDetailDialog(selectedMood);
         });
     }
 
@@ -233,8 +216,8 @@ public class UserProfileFragment extends Fragment {
      * the GridView containing posts and shows an alternative message in its place.
      */
     private void showPrivateAccountMessage() {
-        photos_listview.setVisibility(View.GONE); // Hide the GridView
-        View privateAccountMessage = view.findViewById(R.id.private_account_message); // Add this to your XML layout
+        photos_listview.setVisibility(View.GONE);
+        View privateAccountMessage = view.findViewById(R.id.private_account_message);
         privateAccountMessage.setVisibility(View.VISIBLE);
     }
 
@@ -252,51 +235,190 @@ public class UserProfileFragment extends Fragment {
      *                 description, mood type).
      */
     private void showPostDetailDialog(Map<String, Object> moodData) {
-        // Create dialog
         Dialog dialog = new Dialog(requireContext());
-
-        // Request feature must be called before setting content view
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.post_detail_dialog);
 
-        // Set window attributes for bottom animation
         WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
         layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-        layoutParams.width = (int)(getResources().getDisplayMetrics().widthPixels * 1.0); // 95% of screen width
-        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        layoutParams.width   = WindowManager.LayoutParams.MATCH_PARENT;
+        layoutParams.height  = WindowManager.LayoutParams.WRAP_CONTENT;
         dialog.getWindow().setAttributes(layoutParams);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
 
-        // Initialize views from the dialog layout
         ShapeableImageView profileImage = dialog.findViewById(R.id.profile_image_edit);
-        TextView nameText = dialog.findViewById(R.id.name);
+        TextView nameText      = dialog.findViewById(R.id.name);
         TextView timeStampText = dialog.findViewById(R.id.time_stamp);
-        TextView moodTextView = dialog.findViewById(R.id.mood_text_view);
-        ImageView postImage = dialog.findViewById(R.id.post_image);
-        TextView statusText = dialog.findViewById(R.id.status);
+        TextView moodTextView  = dialog.findViewById(R.id.mood_text_view);
+        ImageView postImage    = dialog.findViewById(R.id.post_image);
+        TextView statusText    = dialog.findViewById(R.id.status);
         TextView triggerTextView = dialog.findViewById(R.id.trigger_text_view);
-        TextView commentCount = dialog.findViewById(R.id.comment_count);
+        TextView likeCount     = dialog.findViewById(R.id.like_count);
+        TextView commentCount  = dialog.findViewById(R.id.comment_count);
 
-
-        // Set data from moodData map
+        String docId = (String) moodData.get("docId");
         Glide.with(requireContext())
-                .load(moodData.get("imageUrl"))
-                .into(postImage);
+             .load(moodData.get("imageUrl"))
+             .into(postImage);
 
         nameText.setText(selectedUserId);
         statusText.setText((String) moodData.get("description"));
         moodTextView.setText((String) moodData.get("mood"));
         triggerTextView.setText((String) moodData.get("trigger"));
 
+        if (docId != null && !docId.isEmpty()) {
+            FirebaseFirestore.getInstance()
+                    .collection("mood_events")
+                    .document(docId)
+                    .collection("comments")
+                    .get()
+                    .addOnSuccessListener(snap -> {
+                        commentCount.setText(String.valueOf(snap.size()));
+                    })
+                    .addOnFailureListener(e -> {
+                        commentCount.setText("0");
+                    });
+        }
+
+        MaterialButton detailsButton = dialog.findViewById(R.id.details_button);
+        detailsButton.setOnClickListener(v ->
+                Toast.makeText(requireContext(), "Details clicked", Toast.LENGTH_SHORT).show());
+
+        ImageButton likeButton = dialog.findViewById(R.id.like_button);
+        likeButton.setOnClickListener(v -> {
+            int cLikes = Integer.parseInt(likeCount.getText().toString());
+            likeCount.setText(String.valueOf(cLikes + 1));
+            Toast.makeText(requireContext(), "Liked!", Toast.LENGTH_SHORT).show();
+        });
 
         ImageButton commentButton = dialog.findViewById(R.id.comment_button);
         commentButton.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Comment clicked", Toast.LENGTH_SHORT).show();
+            if (docId != null && !docId.isEmpty()) {
+                showCommentsDialog(docId, commentCount);
+            } else {
+                Toast.makeText(requireContext(), "Unable to open comments", Toast.LENGTH_SHORT).show();
+            }
         });
 
+        ImageButton shareButton = dialog.findViewById(R.id.share_button);
+        shareButton.setOnClickListener(v ->
+                Toast.makeText(requireContext(), "Share clicked", Toast.LENGTH_SHORT).show());
 
-        // Show dialog
+        ImageButton bookmarkButton = dialog.findViewById(R.id.bookmark_button);
+        bookmarkButton.setOnClickListener(v ->
+                Toast.makeText(requireContext(), "Bookmarked!", Toast.LENGTH_SHORT).show());
+
+        dialog.show();
+    }
+
+    private void showCommentsDialog(String docId, TextView commentCountTextView) {
+        Dialog dialog = new Dialog(requireContext(), R.style.BottomSheetDialogTheme);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_comments);
+
+        if (dialog.getWindow() != null) {
+            WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
+            lp.gravity = Gravity.BOTTOM;
+            lp.width   = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.height  = WindowManager.LayoutParams.WRAP_CONTENT;
+            dialog.getWindow().setAttributes(lp);
+            dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        }
+
+        RecyclerView commentRecyclerView  = dialog.findViewById(R.id.comment_recycler_view);
+        TextInputEditText commentInput    = dialog.findViewById(R.id.comment_input_edittext);
+        Button sendButton                 = dialog.findViewById(R.id.comment_send_button);
+
+        // build top-level adapter, pass docId
+        CommentAdapter adapter = new CommentAdapter(null, getContext(), docId);
+        commentRecyclerView.setAdapter(adapter);
+        commentRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        FirebaseFirestore.getInstance()
+                .collection("mood_events")
+                .document(docId)
+                .collection("comments")
+                .orderBy("timestamp")
+                .get()
+                .addOnSuccessListener(snap -> {
+                    List<Comment> topList = new ArrayList<>();
+                    for (DocumentSnapshot ds : snap) {
+                        Comment c = ds.toObject(Comment.class);
+                        if (c != null) {
+                            c.setCommentId(ds.getId());
+                            topList.add(c);
+                        }
+                    }
+                    adapter.setCommentList(topList);
+                    commentCountTextView.setText(String.valueOf(topList.size()));
+                });
+
+        final Comment[] replyingTo = {null};
+
+        adapter.setOnReplyClickListener((topLevelComment, position) -> {
+            replyingTo[0] = topLevelComment;
+            if (topLevelComment == null) {
+                commentInput.setHint("Write a comment...");
+            } else {
+                commentInput.setHint("Replying to " + topLevelComment.getUserId());
+            }
+        });
+
+        sendButton.setOnClickListener(v -> {
+            String text = (commentInput.getText() != null)
+                        ? commentInput.getText().toString().trim()
+                        : "";
+            if (text.isEmpty()) {
+                Toast.makeText(getContext(), "Please enter a comment", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            MyApplication myApp = (MyApplication) requireActivity().getApplication();
+            String currentUser   = myApp.getLoggedInUsername();
+
+            Comment newC = new Comment();
+            newC.setUserId(currentUser);
+            newC.setText(text);
+            newC.setTimestamp(System.currentTimeMillis());
+
+            if (replyingTo[0] == null) {
+                // top-level
+                FirebaseFirestore.getInstance()
+                        .collection("mood_events")
+                        .document(docId)
+                        .collection("comments")
+                        .add(newC)
+                        .addOnSuccessListener(ref -> {
+                            commentInput.setText("");
+                            commentInput.setHint("Write a comment...");
+                            reloadTopLevelComments(docId, adapter, commentCountTextView);
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(getContext(), "Failed to post comment", Toast.LENGTH_SHORT).show();
+                        });
+            } else {
+                // subcollection
+                String pid = replyingTo[0].getCommentId();
+                FirebaseFirestore.getInstance()
+                        .collection("mood_events")
+                        .document(docId)
+                        .collection("comments")
+                        .document(pid)
+                        .collection("replies")
+                        .add(newC)
+                        .addOnSuccessListener(ref -> {
+                            replyingTo[0] = null;
+                            commentInput.setText("");
+                            commentInput.setHint("Write a comment...");
+                            reloadTopLevelComments(docId, adapter, commentCountTextView);
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(getContext(), "Failed to post reply", Toast.LENGTH_SHORT).show();
+                        });
+            }
+        });
+
         dialog.show();
     }
 
@@ -308,6 +430,32 @@ public class UserProfileFragment extends Fragment {
      * Updates the UI to reflect whether a follow request has been sent or canceled successfully.
      * </p>
      */
+    private void reloadTopLevelComments(String docId,
+                                        CommentAdapter adapter,
+                                        TextView countTextView) {
+        FirebaseFirestore.getInstance()
+                .collection("mood_events")
+                .document(docId)
+                .collection("comments")
+                .orderBy("timestamp")
+                .get()
+                .addOnSuccessListener(snap -> {
+                    List<Comment> updated = new ArrayList<>();
+                    for (DocumentSnapshot ds : snap) {
+                        Comment c = ds.toObject(Comment.class);
+                        if (c != null) {
+                            c.setCommentId(ds.getId());
+                            updated.add(c);
+                        }
+                    }
+                    adapter.setCommentList(updated);
+                    countTextView.setText(String.valueOf(updated.size()));
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to reload comments", Toast.LENGTH_SHORT).show();
+                });
+    }
+
     private void handleFollowRequest() {
         db.collection("pendingFollowerRequests")
                 .whereEqualTo("follower", currentUserId)
