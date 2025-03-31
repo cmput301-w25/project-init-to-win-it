@@ -40,6 +40,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Adapter class for displaying mood cards in a RecyclerView.
+ * This class binds data from a list of MoodEvent objects to the corresponding views.
+ */
+
 public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCardViewHolder> {
     private MediaPlayer mediaPlayer;
     private Song currentSong;
@@ -49,12 +54,25 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
     private FirebaseFirestore db;
     public LocalStorage globalStorage = LocalStorage.getInstance();
 
+
+    /**
+     * Constructor for MoodCardAdapter.
+     *
+     * @param moodEvents List of mood events to be displayed.
+     */
     public MoodCardAdapter(List<MoodEvent> moodEvents) {
         this.moodEvents = moodEvents;
         this.db = FirebaseFirestore.getInstance();
         this.mediaPlayer = new MediaPlayer(); // Initialize MediaPlayer
     }
 
+
+    /**
+     * Constructor for MoodCardAdapter with a custom MediaPlayer.
+     *
+     * @param moodEvents  List of mood events to be displayed.
+     * @param mediaPlayer Custom MediaPlayer instance.
+     */
     public MoodCardAdapter(List<MoodEvent> moodEvents, MediaPlayer mediaPlayer) {
         this.moodEvents = moodEvents;
         this.db = FirebaseFirestore.getInstance();
@@ -220,6 +238,13 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         });
     }
 
+
+    /**
+     * Plays or pauses the song associated with a MoodEvent when the play button is clicked.
+     *
+     * @param moodEvent  The MoodEvent containing the song information.
+     * @param playButton The play button clicked by the user.
+     */
     private void playSong(MoodEvent moodEvent, ImageButton playButton) {
         Log.d("song", "Entering playSong method");
 
@@ -304,8 +329,12 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         }
     }
 
-
-
+    /**
+     * Formats a timestamp into a human-readable string indicating how long ago it occurred.
+     *
+     * @param timestamp The timestamp in milliseconds since epoch.
+     * @return A formatted string such as "X days ago", "X hours ago", or "Just now".
+     */
     private String formatTimestamp(long timestamp) {
         // Simple timestamp formatting - you can enhance this as needed
         long currentTime = System.currentTimeMillis();
@@ -326,7 +355,12 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
             return "Just now";
         }
     }
-
+    /**
+     * Sets the mood emoji in the provided ImageView based on the given mood.
+     *
+     * @param imageView The ImageView where the emoji will be displayed.
+     * @param mood      The mood string (e.g., "happy", "sad").
+     */
     private void setMoodEmoji(ImageView imageView, String mood) {
         if (mood == null) {
             imageView.setImageResource(R.drawable.ic_mood_black_24dp);
@@ -365,6 +399,12 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
 
     }
 
+    /**
+     * Returns a color associated with the given mood.
+     *
+     * @param mood The mood string (e.g., "happy", "sad").
+     * @return The color as an integer value.
+     */
     private int getMoodColor(String mood) {
         if (mood == null) {
             return 0xFFFFFFFF; // Default white if mood is null
@@ -397,6 +437,11 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         return moodEvents != null ? moodEvents.size() : 0;
     }
 
+    /**
+     * Updates the list of mood events displayed by the adapter and notifies changes.
+     *
+     * @param newMoodEvents The new list of MoodEvent objects to display.
+     */
     public void updateMoodEvents(List<MoodEvent> newMoodEvents) {
         // Clear existing items first
         moodEvents.clear();
@@ -406,6 +451,12 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         notifyDataSetChanged();
     }
 
+    /**
+     * Displays a dialog with detailed information about a specific MoodEvent.
+     *
+     * @param context   The context in which to show the dialog.
+     * @param moodEvent The MoodEvent whose details will be displayed.
+     */
     private void showDetailsDialog(Context context, MoodEvent moodEvent) {
         View dialogView = LayoutInflater.from(context).inflate(R.layout.popup_details2, null);
         TextView detailsMood = dialogView.findViewById(R.id.details_mood);
@@ -476,6 +527,13 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         dialog.show();
     }
 
+    /**
+     * Displays a dialog for viewing and adding comments on a specific MoodEvent.
+     *
+     * @param context         The context in which to show the dialog.
+     * @param moodEvent       The MoodEvent for which comments are displayed.
+     * @param commentCountView A TextView to update with the number of comments.
+     */
     private void showCommentsDialog(Context context, MoodEvent moodEvent, TextView commentCountView) {
         View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_comments, null);
 
@@ -591,6 +649,13 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
 
         dialog.show();
     }
+    /**
+     * Reloads and updates the top-level comments for a specific MoodEvent.
+     *
+     * @param docId      The document ID of the MoodEvent in Firestore.
+     * @param adapter    The CommentAdapter used to display comments.
+     * @param countView  A TextView to update with the number of comments.
+     */
     private void reloadTopLevelComments(String docId,
                                         CommentAdapter adapter,
                                         TextView countView) {
@@ -616,6 +681,9 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
                 });
     }
 
+    /**
+     * ViewHolder class for displaying individual items in the RecyclerView.
+     */
     static class MoodCardViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView;
         TextView timeStampTextView;
@@ -632,7 +700,12 @@ public class MoodCardAdapter extends RecyclerView.Adapter<MoodCardAdapter.MoodCa
         TextView songTitle;
         ImageButton playButton;
 
-        public MoodCardViewHolder(@NonNull View itemView) {
+        /**
+         * Constructor for initializing view components in a RecyclerView item layout.
+         *
+         * @param itemView The root view of the item layout.
+         */
+        public MoodCardViewHolder(@     NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.name);
             timeStampTextView = itemView.findViewById(R.id.time_stamp);

@@ -29,6 +29,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Handles user authentication and login functionality.
+ *
+ * <p>Key features:
+ * - Validates user credentials against Firestore database
+ * - Navigates to registration screen
+ * - Maintains user session via {@link LocalStorage}
+ * - Fetches and caches user data during initialization
+ *
+ */
 public class LoginFragment extends Fragment {
     private TextView goToRegister;
 
@@ -91,6 +101,20 @@ public class LoginFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Authenticates user credentials against Firestore database.
+     *
+     * <p>Workflow:
+     * 1. Validates input fields
+     * 2. Queries Firestore for matching credentials
+     * 3. Updates application state on success
+     * 4. Navigates to main app screen
+     *
+     * <p>Handles error cases:
+     * - Empty fields
+     * - Invalid credentials
+     * - Firestore connection errors
+     */
     void login() {
         String username = usernameInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();

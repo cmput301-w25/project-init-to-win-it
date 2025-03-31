@@ -31,7 +31,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Date;
-
+/**
+ * A fragment that displays the user's mood history and provides filtering capabilities.
+ * <p>
+ * This fragment shows a list of mood events in chronological order and allows users to:
+ * <ul>
+ *     <li>Filter by time period (most recent week)</li>
+ *     <li>Filter by emotional state (happy, sad, angry, etc.)</li>
+ *     <li>Filter by keyword search in descriptions</li>
+ *     <li>Navigate to edit specific mood events</li>
+ *     <li>Access other app features through bottom navigation</li>
+ * </ul>
+ * The fragment interacts with Firestore to fetch and display mood event data.
+ */
 public class MoodHistoryFragment extends Fragment {
 
     private MoodHistoryFragmentBinding binding;
@@ -328,11 +340,20 @@ public class MoodHistoryFragment extends Fragment {
         super.onResume();
         fetchMoodEvents();
     }
-
+    /**
+     * Saves a copy of the current mood history items to preserve the original list.
+     * This can be used for operations like filtering or restoring the original state later.
+     */
     private void saveOriginalMoodHistory() {
         originalMoodHistoryItems = new ArrayList<>(moodHistoryItems);
     }
 
+    /**
+     * Fetches a specific mood event from Firestore based on the description of the selected item
+     * and navigates to the Edit Mood Fragment with the retrieved mood event data.
+     *
+     * @param selectedItem The mood history item selected by the user.
+     */
     private void fetchMoodEventAndNavigate(MoodHistoryItem selectedItem) {
         MoodEvent matchingMoodEvent = null;
         ArrayList <MoodEvent> temp = new ArrayList<MoodEvent>();
@@ -358,7 +379,10 @@ public class MoodHistoryFragment extends Fragment {
             Log.d(TAG, "No matching MoodEvent found in local storage.");
         }
     }
-
+    /**
+     * Fetches all mood events for the current user from Firestore, processes them into
+     * {@link MoodHistoryItem} objects, sorts them by date, and updates the RecyclerView adapter.
+     */
     private void fetchMoodEvents() {
         db.collection("mood_events")
                 .whereEqualTo("id" , currentUserId)
@@ -406,6 +430,14 @@ public class MoodHistoryFragment extends Fragment {
                 });
     }
 
+
+    /**
+     * Returns an emoji representation for a given mood string. If no match is found,
+     * an empty string is returned.
+     *
+     * @param mood The mood string for which an emoji is needed.
+     * @return A string containing the emoji corresponding to the given mood.
+     */
     private String getEmojiForMood(String mood) {
         switch (mood.toLowerCase()) {
             case "happy":

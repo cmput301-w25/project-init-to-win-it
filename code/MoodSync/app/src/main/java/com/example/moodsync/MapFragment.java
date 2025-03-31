@@ -62,7 +62,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-
+/**
+ * Represents a fragment that displays a map and provides functionality for interacting with
+ * Google Maps, filtering map data, and managing user-specific mood events.
+ *
+ * <p>This class extends {@link Fragment} and implements {@link OnMapReadyCallback} to
+ * initialize and interact with a {@link GoogleMap} instance. It also includes UI components
+ * such as buttons and spinners for filtering map data.</p>
+ *
+ * <p>The fragment uses Firebase Firestore to fetch and manage mood-related data, including
+ * mood history and moods of followed users. It also tracks the user's current location
+ * and profile image URL.</p>
+ */
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private FragmentMapBinding binding;
@@ -554,6 +565,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Retrieves a {@link Bitmap} from a given image URL using the Glide library.
+     *
+     * <p>This method synchronously loads an image from the specified URL into a Bitmap object.
+     * It uses Glide's `.submit().get()` method, which blocks the calling thread until the image
+     * is loaded. This should be used cautiously as it may cause UI thread blocking.</p>
+     *
+     * @param context The context used to initialize Glide.
+     * @param imageUrl The URL of the image to be loaded.
+     * @return A {@link Bitmap} object representing the loaded image, or {@code null} if an error occurs.
+     */
     public static Bitmap getBitmapFromUrl(Context context, String imageUrl) {
         try {
             // Glide synchronously loads the image into the Bitmap
@@ -568,6 +590,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Loads a profile image into an {@link ImageView} using the Glide library.
+     *
+     * <p>This method fetches an image from a given URL and displays it in the specified ImageView.
+     * The image is cropped into a circular shape and a placeholder is displayed while the image is loading.</p>
+     *
+     * @param imageurl The URL of the profile image to be loaded.
+     * @param img The {@link ImageView} where the profile image will be displayed.
+     */
     public void loadProfileImage(String imageurl,ImageView img){
         Glide.with(this)
                 .load(imageurl)
@@ -575,6 +606,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 .placeholder(R.drawable.ic_add_black_24dp)
                 .into(img);
     }
+
+    /**
+     * Displays mood events as markers on a Google Map.
+     *
+     * <p>This method takes a list of {@link MoodEvent} objects and displays them on the map as custom markers.
+     * Each marker is customized with an emoji representing the mood and optionally includes a profile image.
+     * If no mood events are found, a toast message is shown to inform the user.</p>
+     *
+     * <p>Before adding markers, this method checks for location permissions and requests them if necessary.</p>
+     *
+     * @param chosenArray The list of {@link MoodEvent} objects to be displayed on the map.
+     * @param mode The mode of display (e.g., 1 for mood history, other values for general display).
+     */
     public void displayRequestedMoods(List<MoodEvent> chosenArray, int mode) {
         if (chosenArray.size() == 0){
             Toast.makeText(requireContext(), "No mood locations found 😞", Toast.LENGTH_SHORT).show();
@@ -629,9 +673,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Saves a copy of the current mood history list for later use.
+     *
+     * <p>This method creates a deep copy of the current list of mood history items and stores it in
+     * {@code originalMoodHistoryItems}. This allows filters or modifications to be reset back to
+     * their original state.</p>
+     */
     private void saveOriginalMoodHistory() {
         originalMoodHistoryItems = new ArrayList<>(moodHistoryItems);
     }
+
+    /**
+     * Saves a copy of the current list of moods from followed users for later use.
+     *
+     * <p>This method creates a deep copy of the current list of moods from followed users and stores it in
+     * {@code originalMoodFollowingList}. This allows filters or modifications to be reset back to
+     * their original state.</p>
+     */
     private void saveOriginalMoodFollowingList() {
         originalMoodFollowingList = new ArrayList<>(moodFollowingList);
     }
@@ -662,6 +721,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 });
     }
 
+    /**
+     * Centers the map on the user's current location and enables location tracking.
+     *
+     * <p>This method performs three key actions:
+     * 1. Checks for required location permissions and requests them if missing
+     * 2. Enables the "My Location" dot on the map
+     * 3. Retrieves the last known location and animates the camera to that position
+     *
+     * <p>Uses {@link FusedLocationProviderClient} to efficiently retrieve device location.
+     * The camera zooms to level 15 (street-level view) when moving to the location.</p>
+     */
     public void putCurrentSpot(){
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -686,6 +756,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         binding = null;
     }
 
+    /**
+     * Generates a custom map marker bitmap by combining multiple visual elements.
+     *
+     * <p>The marker composition includes:
+     * - A base image (typically user profile picture)
+     * - An emoji overlay representing the mood
+     * - User ID text displayed below the marker
+     *
+     * @param imageBitmap The base image to use for the marker (default: ic_crowd drawable)
+     * @param emoji       Unicode emoji character to display on the marker
+     * @param user_id     User identifier to show below the marker
+     * @return Bitmap containing the composed marker graphic
+     *
+     */
     private Bitmap editCustomMarker(Bitmap imageBitmap, String emoji, String user_id) {
         View markerView = LayoutInflater.from(requireContext()).inflate(R.layout.custom_marker, null);
 
@@ -707,6 +791,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         return bitmap;
     }
 
+    /**
+     * Fetches mood events for the current user and their followed users from Firestore.
+     *
+     * <p>This method retrieves:
+     * 1. The current user's mood events from the "mood_events" collection, storing them in {@code moodHistoryItems}.
+     * 2. Public mood events of followed users, storing them in {@code moodFollowingList}.
+     *
+     * <p>If the user has no followers, only their own public moods are fetched. Missing or invalid data (e.g., null location) is skipped.
+     * The results are processed asynchronously using Firestore's {@code OnCompleteListener}.
+     */
     private void fetchMoodEvents() {
         db.collection("mood_events")
                 .whereEqualTo("id" , currentUserId)
@@ -844,6 +938,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
+    /**
+     * Calculates approximate Manhattan distance between two geographic coordinates.
+     *
+     * <p>Uses spherical Earth projection to convert latitude/longitude differences
+     * into meters. Longitude distance is adjusted for latitude convergence.</p>
+     *
+     * @param currentLat Current location's latitude in degrees
+     * @param currentLng Current location's longitude in degrees
+     * @param eventLat   Target location's latitude in degrees
+     * @param eventLng   Target location's longitude in degrees
+     * @return Manhattan distance in meters (sum of N/S and E/W distances)
+     */
     private float calculateManhattanDistance(double currentLat, double currentLng, double eventLat, double eventLng) {
         final double EARTH_RADIUS = 6371000;
 
@@ -859,6 +965,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         return (float) (Math.abs(latDistance) + Math.abs(lngDistance));
     }
 
+    /**
+     * Maps mood strings to representative emoji characters.
+     *
+     * <p>Supported moods (case-insensitive):
+     * - Happy → 😊
+     * - Sad → 😢
+     * - Excited → 😃
+     * - Angry → 😠
+     * - Confused → 😕
+     * - Surprised → 😲
+     * - Ashamed → 😳
+     * - Scared → 😨
+     * - Disgusted → 🤢
+     *
+     * @param mood Text description of mood (e.g., "happy")
+     * @return Corresponding emoji character or empty string if unknown
+     */
     private String getEmojiForMood(String mood) {
         switch (mood.toLowerCase()) {
             case "happy":

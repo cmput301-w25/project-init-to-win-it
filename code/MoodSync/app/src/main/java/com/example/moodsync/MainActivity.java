@@ -10,6 +10,15 @@ import com.example.moodsync.databinding.ActivityMainBinding;
 import android.view.Menu;
 import android.view.MenuItem;
 
+/**
+ * Main entry point for the application, handling navigation and basic UI setup.
+ *
+ * <p>This activity manages:
+ * - Navigation between fragments using Navigation Component
+ * - App bar configuration
+ * - Basic menu initialization
+ *\
+ */
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;

@@ -21,6 +21,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * {@code MoodHistoryAdapter} is a RecyclerView adapter that displays a list of mood history items.
+ * It allows users to view their past mood entries, each represented as a card with details
+ * such as the mood, an associated emoji, a short description, and the time elapsed since
+ * the entry was created. Users can also delete mood entries through a confirmation dialog.
+ *
+ * <p>The adapter uses a custom ViewHolder to efficiently manage and update the views for
+ * each mood history item.</p>
+ */
 public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.MoodHistoryViewHolder> {
 
     private final List<MoodHistoryItem> moodHistoryItems;
@@ -33,12 +42,26 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         void onItemClick(MoodHistoryItem item);
     }
 
+    /**
+     * Constructs a new {@code MoodHistoryAdapter} with the provided list of mood history items and context.
+     * Initializes the Firebase Firestore instance for database operations.
+     *
+     * @param moodHistoryItems The list of {@link MoodHistoryItem} objects to display.
+     * @param context The context in which the adapter is being created, typically an Activity or Fragment.
+     */
     public MoodHistoryAdapter(List<MoodHistoryItem> moodHistoryItems, Context context) {
         this.moodHistoryItems = moodHistoryItems;
         this.context = context;
         this.db = FirebaseFirestore.getInstance();
     }
 
+
+    /**
+     * Sets the item click listener for the adapter. This listener will be notified when a user clicks
+     * on a mood history item in the RecyclerView.
+     *
+     * @param listener The {@link OnItemClickListener} to set. If null, no item click events will be handled.
+     */
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
     }
@@ -93,6 +116,13 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         });
     }
 
+    /**
+     * Returns the appropriate emoji based on the mood. If the mood is null or unrecognized,
+     * it returns a neutral face emoji.
+     *
+     * @param mood The mood string for which to retrieve the corresponding emoji.
+     * @return A string containing the emoji that represents the given mood.
+     */
     private String getEmojiForMood(String mood) {
         if (mood == null) {
             return "😐";
@@ -120,6 +150,13 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         }
     }
 
+    /**
+     * Adjusts the text colors of the mood and description TextViews in the ViewHolder based on the mood.
+     * This is done to ensure that the text is readable against different background colors.
+     *
+     * @param holder The {@link MoodHistoryViewHolder} containing the text views to adjust.
+     * @param mood The mood associated with the item, used to determine the appropriate text colors.
+     */
     private void adjustTextColors(MoodHistoryViewHolder holder, String mood) {
         // using consistent text colors that work well with all our pastel backgrounds
         holder.moodTextView.setTextColor(0xFF333333);
@@ -158,6 +195,14 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         return moodHistoryItems.size();
     }
 
+    /**
+     * Displays a confirmation dialog to the user before deleting a mood entry.
+     * The dialog informs the user about the action and its consequences, and allows them
+     * to either proceed with the deletion or cancel.
+     *
+     * @param item The {@link MoodHistoryItem} to be deleted, used to identify the mood entry in Firestore.
+     * @param position The position of the item in the list, used to update the RecyclerView after deletion.
+     */
     private void showDeleteConfirmationDialog(MoodHistoryItem item, int position) {
         // Create a custom dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.BottomSheetDialogTheme);
@@ -200,6 +245,15 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
         dialog.show();
     }
 
+
+    /**
+     * Deletes a mood entry from Firestore and updates the RecyclerView to reflect the deletion.
+     * This method first removes the item from Firestore, and upon successful deletion, it updates
+     * the local list of mood history items and notifies the RecyclerView adapter to refresh the view.
+     *
+     * @param item The {@link MoodHistoryItem} to delete from Firestore. The item's ID is used to locate the document in Firestore.
+     * @param position The position of the item in the RecyclerView, used to update the view after deletion.
+     */
     private void deleteMoodFromFirestore(MoodHistoryItem item, int position) {
         moodHistoryItems.remove(position);
         globalStorage.removeMood(item.getDate().getTime());
@@ -224,6 +278,11 @@ public class MoodHistoryAdapter extends RecyclerView.Adapter<MoodHistoryAdapter.
 
         RelativeLayout moodBackground;
 
+        /**
+         * {@code MoodHistoryViewHolder} is a RecyclerView.ViewHolder that provides references to the views for each
+         * mood history item. It is responsible for caching the views for each item to improve performance
+         * by avoiding unnecessary findViewById calls.
+         */
         public MoodHistoryViewHolder(@NonNull View itemView) {
             super(itemView);
 

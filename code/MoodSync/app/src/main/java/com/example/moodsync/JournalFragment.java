@@ -23,7 +23,11 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Fragment for displaying a journal view of private mood events.
+ * Includes a RecyclerView for mood events, handles navigation, and displays the user's profile picture.
+ * Interacts with LocalStorage for local data and Firebase Firestore for backend operations.
+ */
 public class JournalFragment extends Fragment {
 
     private JournalFragmentBinding binding;
@@ -79,7 +83,14 @@ public class JournalFragment extends Fragment {
         binding.diaryButton.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.green)));
         return view;
     }
-    // Add this helper method
+
+
+
+    /**
+     * Displays or hides the empty state view depending on whether the RecyclerView has data.
+     *
+     * @param show True to show the empty state view, false to hide it.
+     */
     private void showEmptyState(boolean show) {
         if (emptyStateView != null) {
             emptyStateView.setVisibility(show ? View.VISIBLE : View.GONE);
@@ -89,7 +100,9 @@ public class JournalFragment extends Fragment {
         }
     }
 
-
+    /**
+     * Fetches private moods for the current user from local storage and updates the RecyclerView.
+     */
     private void fetchPrivateMoods() {
         List<MoodEvent> privateMoods = globalStorage.getPrivList();
 
@@ -103,6 +116,11 @@ public class JournalFragment extends Fragment {
         }
     }
 
+    /**
+     * Updates the RecyclerView adapter with a new list of mood events.
+     *
+     * @param moodEvents The list of MoodEvent objects to display in the RecyclerView.
+     */
     private void updateMoodAdapter(List<MoodEvent> moodEvents) {
         if (moodEvents == null) {
             moodEvents = new ArrayList<>();
@@ -116,11 +134,20 @@ public class JournalFragment extends Fragment {
         }
     }
 
-
+    /**
+     * Fetches and loads the profile image URL for a given user ID.
+     *
+     * @param userId The ID of the user whose profile image URL needs to be fetched.
+     */
     private void fetchProfileImageUrl(String userId) {
         loadProfileImage(globalStorage.getUserFromUName(userId).getPfpUrl());
     }
 
+    /**
+     * Loads a profile image into an ImageView using Glide.
+     *
+     * @param imageUrl The URL of the profile image to load.
+     */
     private void loadProfileImage(String imageUrl) {
         if (pfp != null) {
             Glide.with(this)
@@ -133,6 +160,11 @@ public class JournalFragment extends Fragment {
         }
     }
 
+    /**
+     * Handles navigation button clicks and sets up navigation actions for various buttons in the layout.
+     *
+     * @param view The root view of the fragment where navigation buttons are located.
+     */
     private void handleNavigationButtonClicked(View view) {
         view.findViewById(R.id.home_button).setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(v);

@@ -20,9 +20,17 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.moodsync.databinding.GetStartedFragmentBinding;
-
 /**
- * FirstFragment serves as the starting screen with animated UI elements and a navigation button.
+ * FirstFragment serves as the introductory screen of the application.
+ * It features animated UI elements such as images and text, creating a welcoming experience for users.
+ * After completing the animations, it navigates to the LoginFragment.
+ *
+ * <p>Key Features:</p>
+ * <ul>
+ *     <li>Animated image and text elements.</li>
+ *     <li>Custom navigation with transition animations.</li>
+ *     <li>Safety checks to ensure proper fragment lifecycle handling.</li>
+ * </ul>
  */
 public class FirstFragment extends Fragment {
 
@@ -44,6 +52,9 @@ public class FirstFragment extends Fragment {
         startIntroAnimation();
     }
 
+    /**
+     * Sets up the initial state of UI elements by hiding them and preparing them for animations.
+     */
     private void setupInitialState() {
         if (!isSafe()) return;
 
@@ -53,6 +64,10 @@ public class FirstFragment extends Fragment {
         binding.shareYour.setAlpha(0f);
     }
 
+    /**
+     * Starts an introductory animation sequence for UI elements, including scaling, rotation, and fading effects.
+     * After completing animations, navigates to the LoginFragment with custom transitions.
+     */
     private void startIntroAnimation() {
         if (!isSafe()) return;
 
@@ -116,6 +131,9 @@ public class FirstFragment extends Fragment {
                 });
     }
 
+    /**
+     * Adds a subtle pulsing glow effect to the centered image using an ObjectAnimator.
+     */
     private void animateWelcomeGlow() {
         // Add subtle pulsing glow effect
         ObjectAnimator glowAnim = ObjectAnimator.ofFloat(binding.centeredImage,
@@ -127,6 +145,9 @@ public class FirstFragment extends Fragment {
         glowAnim.start();
     }
 
+    /**
+     * Animates welcome text elements with fade-in, scale-up, and translation effects for a dynamic entrance.
+     */
     private void animateWelcomeText() {
         // Fade in welcome text with staggered entrance
         binding.welcomeTo.setAlpha(0f);
@@ -162,9 +183,11 @@ public class FirstFragment extends Fragment {
     }
 
 
-
-
-    // Safety check for fragment state
+    /**
+     * Checks if the fragment is in a safe state (added to activity, context is non-null, and binding is initialized).
+     *
+     * @return True if the fragment is in a safe state; false otherwise.
+     */
     private boolean isSafe() {
         return isAdded() && getContext() != null && binding != null;
     }
