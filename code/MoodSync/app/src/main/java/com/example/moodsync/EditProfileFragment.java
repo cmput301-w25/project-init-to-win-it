@@ -168,6 +168,7 @@ public class EditProfileFragment extends Fragment {
                             moodData.put("trigger", document.getString("trigger"));
                             moodData.put("docId", document.getId());
                             moodData.put("songUrl", document.getString("songUrl"));
+                            moodData.put("date", document.getLong("date"));
                             moodList.add(moodData);
                         }
                         loadPhotosListView(moodList);
