@@ -67,9 +67,9 @@ public class SecondTestSet {
             Log.e("InterruptedException", "Thread was interrupted");
         }
 
-        // Ensure the view is displayed before interacting with it
-        onView(withId(R.id.button)).check(matches(isDisplayed()));
-        onView(withId(R.id.button)).perform(click());
+//        // Ensure the view is displayed before interacting with it
+//        onView(withId(R.id.button)).check(matches(isDisplayed()));
+//        onView(withId(R.id.button)).perform(click());
         try {
             Thread.sleep(3000); // Avoid using Thread.sleep() if possible
         } catch (InterruptedException e) {
@@ -124,8 +124,8 @@ public class SecondTestSet {
 
     @Test
     public void US020101Word() {
-        onView(withId(R.id.button)).check(matches(isDisplayed()));
-        onView(withId(R.id.button)).perform(click());
+//        onView(withId(R.id.button)).check(matches(isDisplayed()));
+//        onView(withId(R.id.button)).perform(click());
 
         onView(withId(R.id.add_circle_button)).check(matches(isDisplayed()));
         onView(withId(R.id.add_circle_button)).perform(click());

@@ -97,7 +97,6 @@ public class JournalInstrumentedTest {
         userData.put("followingList", new ArrayList<>());
         userData.put("commentList", new ArrayList<>());
         usersRef.add(userData);
-        Log.d("bitch", "seedDatabase: ");
     }
 
 

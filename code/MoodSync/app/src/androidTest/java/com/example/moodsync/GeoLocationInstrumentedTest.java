@@ -103,46 +103,62 @@ public class GeoLocationInstrumentedTest {
 
 
     /**
-     * Test that tapping "Details" on a mood card shows a bottom-sheet or dialog
-     * with the correct mood info.
+     * Test that checks if the map button navigates to the map and if the
+     * button displays the filter options.
      */
     @Test
-    public void testShowMaps() {
+    public void testShowMapsFilter() {
         SystemClock.sleep(4000);
-        // 1) Click on the login button from the first page
+
+        // 1) Login navigation
         onView(withId(R.id.loginButton)).perform(click());
-
-
-        // Wait for the login page to load
         SystemClock.sleep(4000);
 
-        // 2) Enter username and password
+        // 2) Enter credentials
         onView(withId(R.id.usernameLogin)).perform(typeText("testuser"));
         onView(withId(R.id.passwordLogin)).perform(typeText("password123"));
-
-        // 3) Click the login button
         onView(withId(R.id.loginButton)).perform(click());
-
-        // Wait for the login to complete and navigate to the next page
         SystemClock.sleep(5000);
 
-        // 4) Click on the map button
+        // 3) Navigate to map
         onView(withId(R.id.map_button)).perform(click());
-        SystemClock.sleep(15000);
+        SystemClock.sleep(7000);
 
-        // 5) Click on the map filter button
+        // 4) Open filter dialog
         onView(withId(R.id.mapFilterButton)).perform(click());
         SystemClock.sleep(4000);
 
-        // 6) Click on the "Most Recent Mood" option
-        onView(withText("Most Recent Mood")).perform(click());
+        // 5) Interact with filter spinner
+        onView(withId(R.id.filterSpinner)).perform(click()); // Open spinner dropdown
+        SystemClock.sleep(2000);
+
+        // Verify all filter options exist
+        String[] expectedOptions = {
+                "Choose Option",
+                "Filtered Following List",
+                "Filtered Mood History",
+                "Most Recent Mood"
+        };
+
+        // Check each option exists in the spinner
+        for (String option : expectedOptions) {
+            onData(allOf(is(instanceOf(String.class)), is(option)))
+                    .check(matches(isDisplayed()));
+        }
+
+        // 6) Select a filter option
+        onData(allOf(is(instanceOf(String.class)), is("Most Recent Mood")))
+                .perform(click());
         SystemClock.sleep(3000);
 
-        // 5) Click on the map filter clear button
+        // 7) Clear filters
         onView(withId(R.id.mapFilterClearButton)).perform(click());
         SystemClock.sleep(4000);
 
+        // 8) Verify spinner is no longer visible
+        onView(withId(R.id.filterSpinner)).check(doesNotExist());
     }
+
 
     /**
      * After each test, clear out the Firestore emulator’s data so that
