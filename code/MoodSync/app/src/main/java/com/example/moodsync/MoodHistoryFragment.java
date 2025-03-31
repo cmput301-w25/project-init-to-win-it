@@ -334,12 +334,11 @@ public class MoodHistoryFragment extends Fragment {
     }
 
     private void fetchMoodEventAndNavigate(MoodHistoryItem selectedItem) {
-
         MoodEvent matchingMoodEvent = null;
         ArrayList <MoodEvent> temp = new ArrayList<MoodEvent>();
         temp.addAll(globalStorage.getMoodList());
         temp.addAll(globalStorage.getPrivList());
-        Log.d("FORLOOP", "fetchMood "+selectedItem.getDate());
+        Log.d("FORLOOP", "fetchMood "+selectedItem.getDate().getTime());
         for (MoodEvent moodEvent : temp) {
             Log.d("FORLOOP", "fetchMoodEventAndNavigate: "+moodEvent.getDate());
             if (moodEvent.getDate() == (selectedItem.getDate().getTime())) {
@@ -395,7 +394,9 @@ public class MoodHistoryFragment extends Fragment {
                                 (moodHistoryItems.isEmpty() ? "N/A" : moodHistoryItems.get(0).getDate()));
                         globalStorage.getMHItem().clear();
                         for (int i=0; i<moodHistoryItems.size();i++){
-                            globalStorage.getMHItem().add(moodHistoryItems.get(i));
+                            if (!globalStorage.getMHItem().contains(moodHistoryItems.get(i))) {
+                                globalStorage.getMHItem().add(moodHistoryItems.get(i));
+                            }
                         }
                         Log.d(TAG, "Number of items fetched: " + moodHistoryItems.size());
                         moodHistoryAdapter.notifyDataSetChanged();

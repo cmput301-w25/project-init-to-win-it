@@ -162,6 +162,28 @@ public class LocalStorage {
         }
         return false;
     }
+    public void updatePrivMood(MoodEvent mood){
+        for (int i=0; i<PrivList.size();i++){
+            if (mood.getDate() == PrivList.get(i).getDate()){
+                PrivList.set(i,mood);
+                break;
+            }
+        }
+        PrivList.add(mood);
+    }
+    public void deletePrivDups() {
+        for (int i = 0; i < PrivList.size(); i++) {
+            for (int j = i + 1; j < PrivList.size(); ) {
+                if (PrivList.get(i).getDate() == (PrivList.get(j).getDate())) {
+                    PrivList.remove(j);
+                    // Don't increment j here because removal shifts elements
+                } else {
+                    j++;
+                }
+            }
+        }
+    }
+
 
     public User findUser(String uname){
         for (int i=0;i<UserList.size();i++){

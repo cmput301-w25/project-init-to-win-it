@@ -475,7 +475,6 @@ public class  SecondFragment extends Fragment {
                                     .addOnCompleteListener(task -> {
                                         if (task.isSuccessful()) {
                                             List<MoodEvent> moodEvents = new ArrayList<>();
-                                            globalStorage.getPrivList().clear();
                                             for (QueryDocumentSnapshot document : task.getResult()) {
                                                 MoodEvent moodEvent = document.toObject(MoodEvent.class);
                                                 moodEvent.setDocumentId(document.getId());
@@ -483,9 +482,10 @@ public class  SecondFragment extends Fragment {
                                                 if (moodEvent.isPublic()){
                                                     globalStorage.insertMood(moodEvent);
                                                 } else if (!moodEvent.isPublic() && moodEvent.getId().equals(myApp.getLoggedInUsername())){
-                                                    globalStorage.getPrivList().add(moodEvent);
+                                                    globalStorage.updatePrivMood(moodEvent);
                                                 }
                                             }
+                                            globalStorage.deletePrivDups();
                                             filterToRecentMoods(globalStorage.getMoodList());
                                         } else {
                                             Log.e("Firestore", "Error fetching mood events", task.getException());
@@ -499,12 +499,10 @@ public class  SecondFragment extends Fragment {
                         // Query mood_events where user is in the list of followed users
                         db.collection("mood_events")
                                 .whereIn("id", followingUsers)
-                                .whereEqualTo("public", true)
                                 .get()
                                 .addOnCompleteListener(task -> {
                                     if (task.isSuccessful()) {
 //                                        List<MoodEvent> moodEvents = new ArrayList<>();
-                                        globalStorage.getPrivList().clear();
                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
                                             moodEvent.setDocumentId(document.getId());
@@ -513,9 +511,11 @@ public class  SecondFragment extends Fragment {
                                             if (moodEvent.isPublic()){
                                                 globalStorage.insertMood(moodEvent);
                                             } else if (!moodEvent.isPublic() && moodEvent.getId().equals(myApp.getLoggedInUsername())){
-                                                globalStorage.getPrivList().add(moodEvent);
+                                                Log.d("ADDED", "Added priv mood "+moodEvent.getDescription() );
+                                                    globalStorage.updatePrivMood(moodEvent);
                                             }
                                         }
+                                        globalStorage.deletePrivDups();
                                         filterToRecentMoods(globalStorage.getMoodList());
                                         Log.d("sex8", "fetchMoodEvents: " + moodEvents);
                                         filterIcon.setOnClickListener(v -> showFilterPopup(moodEvents));

@@ -47,7 +47,6 @@ public class JournalFragment extends Fragment {
 
         // Create an empty state view programmatically since it's not in the XML
         emptyStateView = new TextView(getContext());
-        emptyStateView.setText("No private mood events found");
         emptyStateView.setTextSize(18);
         emptyStateView.setPadding(32, 32, 32, 32);
         emptyStateView.setGravity(android.view.Gravity.CENTER);
@@ -80,15 +79,43 @@ public class JournalFragment extends Fragment {
         binding.diaryButton.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.green)));
         return view;
     }
+    // Add this helper method
+    private void showEmptyState(boolean show) {
+        if (emptyStateView != null) {
+            emptyStateView.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+        if (journalRecyclerView != null) {
+            journalRecyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
+
 
     private void fetchPrivateMoods() {
-        updateMoodAdapter(globalStorage.getPrivList());
+        List<MoodEvent> privateMoods = globalStorage.getPrivList();
+
+        // Add null/empty checks
+        if (privateMoods == null || privateMoods.isEmpty()) {
+            showEmptyState(true);
+            updateMoodAdapter(new ArrayList<>()); // Pass empty list
+        } else {
+            showEmptyState(false);
+            updateMoodAdapter(privateMoods);
+        }
     }
 
     private void updateMoodAdapter(List<MoodEvent> moodEvents) {
-        moodCardAdapter = new MoodCardAdapter(moodEvents);
-        journalRecyclerView.setAdapter(moodCardAdapter);
+        if (moodEvents == null) {
+            moodEvents = new ArrayList<>();
+        }
+
+        if (moodCardAdapter == null) {
+            moodCardAdapter = new MoodCardAdapter(moodEvents);
+            journalRecyclerView.setAdapter(moodCardAdapter);
+        } else {
+            moodCardAdapter.updateMoodEvents(moodEvents); // Ensure your adapter has this method
+        }
     }
+
 
     private void fetchProfileImageUrl(String userId) {
         loadProfileImage(globalStorage.getUserFromUName(userId).getPfpUrl());
@@ -120,10 +147,6 @@ public class JournalFragment extends Fragment {
         view.findViewById(R.id.add_circle_button).setOnClickListener(v -> {
             NavController navController = Navigation.findNavController(v);
             navController.navigate(R.id.action_JournalFragment_to_addMoodActivityFragment);
-        });
-
-        view.findViewById(R.id.diary_button).setOnClickListener(v -> {
-            // Already on JournalFragment, do nothing
         });
 
         view.findViewById(R.id.history_button).setOnClickListener(v -> {
