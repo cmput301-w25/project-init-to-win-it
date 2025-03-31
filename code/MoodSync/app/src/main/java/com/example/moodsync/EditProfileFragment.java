@@ -92,7 +92,6 @@ public class EditProfileFragment extends Fragment {
         profileImageEdit = view.findViewById(R.id.profile_image_edit);
         nameTextView = view.findViewById(R.id.nameofuser);
         usernameTextView = view.findViewById(R.id.usernameofuser);
-        locationTextView = view.findViewById(R.id.locationofuser);
         bioTextView = view.findViewById(R.id.bioofuser);
         backButton = view.findViewById(R.id.back_button);
         editProfileButton = view.findViewById(R.id.edit_profile_button);

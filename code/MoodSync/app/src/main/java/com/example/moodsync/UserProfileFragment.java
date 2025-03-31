@@ -92,7 +92,6 @@ public class UserProfileFragment extends Fragment {
         profileImageEdit = view.findViewById(R.id.profile_image_edit);
         nameTextView = view.findViewById(R.id.nameofuser);
         usernameTextView = view.findViewById(R.id.usernameofuser);
-        locationTextView = view.findViewById(R.id.locationofuser);
         bioTextView = view.findViewById(R.id.bioofuser);
         followersCountTextView = view.findViewById(R.id.followers_count);
         followingCountTextView = view.findViewById(R.id.following_count);
