@@ -519,7 +519,7 @@ public class  SecondFragment extends Fragment {
                                         globalStorage.deletePrivDups();
                                         filterToRecentMoods(globalStorage.getMoodList());
                                         Log.d("sex8", "fetchMoodEvents: " + moodEvents);
-                                        filterToRecentMoods(moodEvents);
+//                                        filterToRecentMoods(moodEvents);
                                         filterIcon.setOnClickListener(v -> showFilterPopup(moodEvents));
                                     } else {
                                         Log.e("Firestore", "Error fetching mood events", task.getException());

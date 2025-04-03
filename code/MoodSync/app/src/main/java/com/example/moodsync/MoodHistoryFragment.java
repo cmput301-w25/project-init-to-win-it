@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Date;
+
 /**
  * A fragment that displays the user's mood history and provides filtering capabilities.
  * <p>
@@ -44,6 +45,8 @@ import java.util.Date;
  * </ul>
  * The fragment interacts with Firestore to fetch and display mood event data.
  */
+
+
 public class MoodHistoryFragment extends Fragment {
 
     private MoodHistoryFragmentBinding binding;
@@ -52,7 +55,6 @@ public class MoodHistoryFragment extends Fragment {
     private List<MoodHistoryItem> moodHistoryItems = new ArrayList<>();
     private List<MoodHistoryItem> originalMoodHistoryItems = new ArrayList<>();
     private FirebaseFirestore db;
-    public LocalStorage globalStorage = LocalStorage.getInstance();
     private static final String TAG = "MoodHistoryFragment";
 
     //Variables used for Filter
@@ -180,7 +182,7 @@ public class MoodHistoryFragment extends Fragment {
 
         // Set up RecyclerView
         binding.moodRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        moodHistoryAdapter = new MoodHistoryAdapter(globalStorage.getMHItem(), getContext());
+        moodHistoryAdapter = new MoodHistoryAdapter(moodHistoryItems, getContext());
         binding.moodRecyclerView.setAdapter(moodHistoryAdapter);
 
         db = FirebaseFirestore.getInstance();
@@ -282,7 +284,7 @@ public class MoodHistoryFragment extends Fragment {
                                 keywordEditTextData = keywordEditTextDialog.getText().toString();
                                 List<MoodHistoryItem> filteredMoodHistory = new ArrayList<>();
                                 for (MoodHistoryItem moodht: moodHistoryItems) {
-                                    if (moodht.getDescription().toLowerCase().contains(keywordEditTextData.toLowerCase())) {
+                                    if (moodht.getDescription().contains(keywordEditTextData)) {
                                         filteredMoodHistory.add(moodht);
                                     } else if (keywordEditTextData.equals("Choose Option")){
                                         filteredMoodHistory.add(moodht);
@@ -344,6 +346,7 @@ public class MoodHistoryFragment extends Fragment {
      * Saves a copy of the current mood history items to preserve the original list.
      * This can be used for operations like filtering or restoring the original state later.
      */
+
     private void saveOriginalMoodHistory() {
         originalMoodHistoryItems = new ArrayList<>(moodHistoryItems);
     }
@@ -355,34 +358,33 @@ public class MoodHistoryFragment extends Fragment {
      * @param selectedItem The mood history item selected by the user.
      */
     private void fetchMoodEventAndNavigate(MoodHistoryItem selectedItem) {
-        MoodEvent matchingMoodEvent = null;
-        ArrayList <MoodEvent> temp = new ArrayList<MoodEvent>();
-        temp.addAll(globalStorage.getMoodList());
-        temp.addAll(globalStorage.getPrivList());
-        Log.d("FORLOOP", "fetchMood "+selectedItem.getDate().getTime());
-        for (MoodEvent moodEvent : temp) {
-            Log.d("FORLOOP", "fetchMoodEventAndNavigate: "+moodEvent.getDate());
-            if (moodEvent.getDate() == (selectedItem.getDate().getTime())) {
-                matchingMoodEvent = moodEvent;
-                break; // Stop once we find a matching MoodEvent
-            }
-        }
-        if (matchingMoodEvent != null) {
-            // Create a Bundle and add the MoodEvent as a Parcelable
-            Bundle args = new Bundle();
-            args.putParcelable("moodEvent", (Parcelable) matchingMoodEvent);
+        db.collection("mood_events")
+                .whereEqualTo("description", selectedItem.getDescription())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                            moodEvent.setId(document.getId()); // Store the document ID in MoodEvent
 
-            // Navigate to the editMoodFragment with the selected MoodEvent
-            NavHostFragment.findNavController(MoodHistoryFragment.this)
-                    .navigate(R.id.action_moodHistoryFragment_to_editMoodFragment, args);
-        } else {
-            Log.d(TAG, "No matching MoodEvent found in local storage.");
-        }
+                            Bundle args = new Bundle();
+                            args.putParcelable("moodEvent", (Parcelable) moodEvent);
+
+                            NavHostFragment.findNavController(MoodHistoryFragment.this)
+                                    .navigate(R.id.action_moodHistoryFragment_to_editMoodFragment, args);
+                            break; // Assuming only one MoodEvent will match the description
+                        }
+                    } else {
+                        Log.d(TAG, "Error getting MoodEvent: ", task.getException());
+                    }
+                });
     }
+
     /**
      * Fetches all mood events for the current user from Firestore, processes them into
      * {@link MoodHistoryItem} objects, sorts them by date, and updates the RecyclerView adapter.
      */
+
     private void fetchMoodEvents() {
         db.collection("mood_events")
                 .whereEqualTo("id" , currentUserId)
@@ -416,12 +418,7 @@ public class MoodHistoryFragment extends Fragment {
                         Collections.sort(moodHistoryItems, (item1, item2) -> item2.getDate().compareTo(item1.getDate()));
                         Log.d(TAG, "Sorted items. First item date: " +
                                 (moodHistoryItems.isEmpty() ? "N/A" : moodHistoryItems.get(0).getDate()));
-                        globalStorage.getMHItem().clear();
-                        for (int i=0; i<moodHistoryItems.size();i++){
-                            if (!globalStorage.getMHItem().contains(moodHistoryItems.get(i))) {
-                                globalStorage.getMHItem().add(moodHistoryItems.get(i));
-                            }
-                        }
+
                         Log.d(TAG, "Number of items fetched: " + moodHistoryItems.size());
                         moodHistoryAdapter.notifyDataSetChanged();
                     } else {
@@ -430,14 +427,6 @@ public class MoodHistoryFragment extends Fragment {
                 });
     }
 
-
-    /**
-     * Returns an emoji representation for a given mood string. If no match is found,
-     * an empty string is returned.
-     *
-     * @param mood The mood string for which an emoji is needed.
-     * @return A string containing the emoji corresponding to the given mood.
-     */
     private String getEmojiForMood(String mood) {
         switch (mood.toLowerCase()) {
             case "happy":
