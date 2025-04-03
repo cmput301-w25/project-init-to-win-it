@@ -858,27 +858,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         if (followingUsers == null) {
                             followingUsers = new ArrayList<>();
                         }
-
-                        // Query mood_events where user is in the list of followed users
-                        db.collection("mood_events")
-                                .whereIn("id", followingUsers)
-                                .whereEqualTo("public", true)
-                                .get()
-                                .addOnCompleteListener(task -> {
-                                    if (task.isSuccessful()) {
-                                        for (QueryDocumentSnapshot document : task.getResult()) {
-                                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                                            moodEvent.setDocumentId(document.getId());
-                                            if (moodEvent.getLocation() != null){
-                                                mostRecentMoodsList.add(moodEvent);
-                                                Log.d(TAG, "Adding moodEvent of mostRecent");
+                        if (!followingUsers.isEmpty()) {
+                            // Query mood_events where user is in the list of followed users
+                            db.collection("mood_events")
+                                    .whereIn("id", followingUsers)
+                                    .whereEqualTo("public", true)
+                                    .get()
+                                    .addOnCompleteListener(task -> {
+                                        if (task.isSuccessful()) {
+                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                                                moodEvent.setDocumentId(document.getId());
+                                                if (moodEvent.getLocation() != null) {
+                                                    mostRecentMoodsList.add(moodEvent);
+                                                    Log.d(TAG, "Adding moodEvent of mostRecent");
+                                                }
                                             }
+                                        } else {
+                                            Log.e("Firestore", "Error fetching mood events", task.getException());
                                         }
-                                    } else {
-                                        Log.e("Firestore", "Error fetching mood events", task.getException());
-                                    }
-                                });
-
+                                    });
+                        }
                         //Add current user to see their own posts too
                         if (!followingUsers.contains(currentUserId)) {
                             followingUsers.add(currentUserId);
